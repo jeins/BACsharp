@@ -280,9 +280,9 @@ namespace BACnet
                         //{
                         //  if (WinSockRecvFrom(recvBytes, ref count, ref ipaddr) > 0)
                         // Process the response packets
-                        if (sock.Available > 0)
+                        if (SendUDP.Client.Available > 0)
                         {
-                            recvBytes = ReceiveUDP.Receive(ref RemoteIpEndPoint);
+                            recvBytes = SendUDP.Receive(ref RemoteIpEndPoint);
                             {
                                 // Parse and save the BACnet data
                                 int APDUOffset = NPDU.Parse(recvBytes, 4); // BVLL is always 4 bytes
