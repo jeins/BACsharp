@@ -12,7 +12,7 @@ namespace BACnet
 {
     //-----------------------------------------------------------------------------------------------
     // The Stack
-    public class BACnetStack
+    public class BACnetStack : IBACnetStack
     {
 
         //// Start up WSA, open a Socket, and Bind it
@@ -649,7 +649,7 @@ namespace BACnet
         }
 
         // Read Broadcast Distribution Table -------------------------------------------------------------------------
-        public bool /*BACnetStack*/ SendReadBDT( int deviceidx )
+        public bool /*BACnetStack*/ SendReadBdt( int deviceidx )
         //out string value)
         // Parameters:
         //   Device index (for network and MAC address),

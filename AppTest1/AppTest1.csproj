@@ -62,6 +62,7 @@
     </Compile>
     <Compile Include="BACnet\BACnetStack.cs" />
     <Compile Include="BACnet\BVLC.cs" />
+    <Compile Include="BACnet\IBACnetStack.cs" />
     <Compile Include="BACnet\NPDU.cs" />
     <Compile Include="BACnet\Property.cs" />
     <Compile Include="BACnet\APDU.cs" />
