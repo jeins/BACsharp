@@ -184,7 +184,8 @@ namespace BACnet
                             recvBytes = ReceiveUDP.Receive(ref RemoteIpEndPoint);
                             {
                                 // Parse the packet - is it IAm?
-                                int APDUOffset = NPDU.Parse(recvBytes, 4); // BVLL is always 4 bytes
+                                int NPDUOffset = BVLC.Parse(recvBytes, 0);
+                                int APDUOffset = NPDU.Parse(recvBytes, NPDUOffset);
                                 if (APDU.ParseIAm(recvBytes, APDUOffset) > 0)
                                 {
                                     if ((network == NPDU.SNET) && (objectid == APDU.ObjectID))
@@ -238,7 +239,7 @@ namespace BACnet
                 try
                 {
                     //PEP Use NPDU.Create and APDU.Create (when written)
-                    sendBytes[0] = BACnetEnums.BACNET_BVLC_TYPE_BIP;
+                    sendBytes[0] = BVLC.BACNET_BVLC_TYPE_BIP;
                     sendBytes[1] = BACnetEnums.BACNET_UNICAST_NPDU;
                     sendBytes[2] = 0;
                     sendBytes[3] = 12;
@@ -285,16 +286,17 @@ namespace BACnet
                             recvBytes = SendUDP.Receive(ref RemoteIpEndPoint);
                             {
                                 // Parse and save the BACnet data
-                                int APDUOffset = NPDU.Parse(recvBytes, 4); // BVLL is always 4 bytes
+                                int NPDUOffset = BVLC.Parse(recvBytes, 0); 
+                                int APDUOffset = NPDU.Parse(recvBytes, NPDUOffset);
                                 if (APDU.ParseIAm(recvBytes, APDUOffset) > 0)
                                 {
-                                    Device device = new Device();
-                                    device.Name = "Device";
+                                    Device device       = new Device();
+                                    device.Name         = "Device";
                                     device.SourceLength = NPDU.SLEN;
-                                    device.ServerEP = RemoteIpEndPoint;
-                                    device.Network = NPDU.SNET;
-                                    device.MACAddress = NPDU.SAddress;
-                                    device.Instance = APDU.ObjectID;
+                                    device.ServerEP     = RemoteIpEndPoint;
+                                    device.Network      = NPDU.SNET;
+                                    device.MACAddress   = NPDU.SAddress;
+                                    device.Instance     = APDU.ObjectID;
                                     if (!BACnetData.Devices.Contains(device))
                                     {
                                         BACnetData.Devices.Add(device);
@@ -353,7 +355,7 @@ namespace BACnet
             uint len;
 
             // BVLL
-            sendBytes[0] = BACnetEnums.BACNET_BVLC_TYPE_BIP;
+            sendBytes[0] = BVLC.BACNET_BVLC_TYPE_BIP;
             sendBytes[1] = BACnetEnums.BACNET_UNICAST_NPDU;
             sendBytes[2] = 0x00;
             sendBytes[3] = 0x00;  // BVLL Length, fix later (24?)
@@ -510,7 +512,7 @@ namespace BACnet
             //int count = 0;
 
             // BVLL
-            sendBytes[0] = BACnetEnums.BACNET_BVLC_TYPE_BIP;
+            sendBytes[0] = BVLC.BACNET_BVLC_TYPE_BIP;
             sendBytes[1] = BACnetEnums.BACNET_UNICAST_NPDU;
             sendBytes[2] = 0x00;
             sendBytes[3] = 0x00;  // BVLL Length = 24?
@@ -665,13 +667,13 @@ namespace BACnet
 
             Byte[] sendBytes = new Byte[50];
             Byte[] recvBytes = new Byte[512];
-            uint len = BACnetEnums.BACNET_BVLC_HEADER_LEN;
+            uint len = BVLC.BACNET_BVLC_HEADER_LEN;
 
             // BVLL
-            sendBytes[0] = BACnetEnums.BACNET_BVLC_TYPE_BIP;
-            sendBytes[1] = BACnetEnums.BACNET_BVLC_FUNC_READ_BDT;
+            sendBytes[0] = BVLC.BACNET_BVLC_TYPE_BIP;
+            sendBytes[1] = BVLC.BACNET_BVLC_FUNC_READ_BDT;
             sendBytes[2] = 0x00;
-            sendBytes[3] = BACnetEnums.BACNET_BVLC_HEADER_LEN;  // BVLL Length
+            sendBytes[3] = BVLC.BACNET_BVLC_HEADER_LEN;  // BVLL Length
 
 
             // Create the timer (we could use a blocking recvFrom instead ...)
