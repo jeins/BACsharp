@@ -5,10 +5,18 @@ namespace BACnet
     public interface IBACnetStack
     {
         /// <summary>
-        /// Do a Who-Is, and collect information about who answers
+        /// Who-Is, and collect information about who answers
         /// </summary>
         /// <param name="milliseconds"></param>
         void GetDevices(int milliseconds);
+
+        /// <summary>
+        /// I-Am.
+        /// </summary>
+        /// <param name="network">The network.</param>
+        /// <param name="objectid">The objectid.</param>
+        /// <returns></returns>
+        bool GetIAm(int network, UInt32 objectid);
 
         /// <summary>
         /// Read Property.
