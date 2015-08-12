@@ -61,6 +61,7 @@
       <Link>BACnet\BACnetEnums.cs</Link>
     </Compile>
     <Compile Include="BACnet\BACnetStack.cs" />
+    <Compile Include="BACnet\BACnetTypes.cs" />
     <Compile Include="BACnet\BVLC.cs" />
     <Compile Include="BACnet\IBACnetStack.cs" />
     <Compile Include="BACnet\NPDU.cs" />

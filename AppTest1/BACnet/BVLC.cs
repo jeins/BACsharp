@@ -28,7 +28,7 @@ namespace BACnet
         public static byte BLVC_Type;
         public static byte BLVC_Function;
         public static UInt16 BLVC_Length;
-        public static UInt16 BLVC_Function_ResultCode;
+        public static UInt16 BVLC_Function_ResultCode;
         public static BDTEntry[] BLVC_ListOfBdtEntries;
         
         public static void /*BVLC*/ Clear()
@@ -38,7 +38,7 @@ namespace BACnet
             BLVC_Function = 0;
             BLVC_Length   = 0;
 
-            BLVC_Function_ResultCode = 0;
+            BVLC_Function_ResultCode = 0;
             BLVC_ListOfBdtEntries = null;
         }
 
@@ -83,19 +83,22 @@ namespace BACnet
             temp = new byte[2];
             temp[1] = bytes[len++];
             temp[0] = bytes[len++];
-            BLVC_Function_ResultCode = (UInt16)BitConverter.ToUInt16(temp, 0);
+            BVLC_Function_ResultCode = (UInt16)BitConverter.ToUInt16(temp, 0);
             return len;
         }
 
         public static int /*BVLC*/ ParseListOfBdtEntries(byte[] bytes, int offset)
         {
-            int len = offset;
+            int bytesBDTEntries = BLVC_Length - offset;
+            int numberOfBDTEntries = bytesBDTEntries/10; // 10 Bytes per Entry
+            BLVC_ListOfBdtEntries = new BDTEntry[numberOfBDTEntries];
+            
             byte[] temp;
             temp = new byte[2];
             temp[1] = bytes[len++];
             temp[0] = bytes[len++];
-            BLVC_Function_ResultCode = (UInt16)BitConverter.ToUInt16(temp, 0);
-            return len;
+            BVLC_Function_ResultCode = (UInt16)BitConverter.ToUInt16(temp, 0);
+            return BLVC_Length;
         }
 
     }
