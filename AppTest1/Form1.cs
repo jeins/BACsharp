@@ -94,9 +94,11 @@ namespace BACnetTest
         foreach (Device dev in BACnetData.Devices)
         {
           DeviceList.Items.Add(
-            //dev.VendorID.ToString() + ", " + 
+            dev.VendorID.ToString() + ", " + 
             dev.Network.ToString() + ", " +
-            dev.Instance.ToString());
+            dev.Instance.ToString()+ ", " +
+            dev.ServerEP.Address.ToString() + ":" +
+            dev.ServerEP.Port.ToString() );
         }
       }
     }
