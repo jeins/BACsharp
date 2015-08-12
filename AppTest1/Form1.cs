@@ -63,7 +63,7 @@ namespace BACnetTest
 
     public static MainForm Self;
 
-    public BACnetStack BACStack = null;
+    public IBACnetStack BACStack = null;
     
     public MainForm()
     {
@@ -83,7 +83,7 @@ namespace BACnetTest
 
     public void CreateDeviceList()
     {
-      BACStack.GetDevices(1000);
+      BACStack.GetDevices(1);
       DeviceList.Items.Clear();
       if (BACnetData.Devices.Count == 0)
       {
@@ -131,7 +131,7 @@ namespace BACnetTest
 
     private void GetObjectsBtn_Click(object sender, EventArgs e)
     {
-      BACStack.SendReadBDT(BACnetData.DeviceIndex);
+      BACStack.SendReadBdt(BACnetData.DeviceIndex);
       // Read the Device Array
       ObjectListLabel.Text = "";
       Property property = new Property();
