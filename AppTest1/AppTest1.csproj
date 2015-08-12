@@ -55,16 +55,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\source\BACnet.cs">
-      <Link>BACnet.cs</Link>
+      <Link>BACnet\BACnet.cs</Link>
     </Compile>
     <Compile Include="..\source\BACnetEnums.cs">
-      <Link>BACnetEnums.cs</Link>
+      <Link>BACnet\BACnetEnums.cs</Link>
     </Compile>
-    <Compile Include="BACnetStack.cs" />
-    <Compile Include="NPDU.cs" />
-    <Compile Include="Property.cs" />
-    <Compile Include="APDU.cs" />
-    <Compile Include="Devices.cs" />
+    <Compile Include="BACnet\BACnetStack.cs" />
+    <Compile Include="BACnet\NPDU.cs" />
+    <Compile Include="BACnet\Property.cs" />
+    <Compile Include="BACnet\APDU.cs" />
+    <Compile Include="BACnet\Devices.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -97,6 +97,7 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

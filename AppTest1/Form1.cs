@@ -131,6 +131,7 @@ namespace BACnetTest
 
     private void GetObjectsBtn_Click(object sender, EventArgs e)
     {
+      BACStack.SendReadBDT(BACnetData.DeviceIndex);
       // Read the Device Array
       ObjectListLabel.Text = "";
       Property property = new Property();

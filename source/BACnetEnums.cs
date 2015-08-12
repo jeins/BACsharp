@@ -25,7 +25,14 @@ namespace BACnet
 
     public const int BACNET_PROTOCOL_VERSION = 0x01;
 
+    public const int BACNET_DISTRIBUTE_BROADCAST_TO_NETWORK_NPDU = 0x09;
     public const int BACNET_UNICAST_NPDU = 0x0A;
+	public const int BACNET_BROADCAST_NPDU = 0x0B;
+
+    public const int BACNET_BVLC_FUNC_RESULT = 0x00;
+    public const int BACNET_BVLC_FUNC_WRITE_BDT = 0x01;
+    public const int BACNET_BVLC_FUNC_READ_BDT = 0x02;
+    public const int BACNET_BVLC_FUNC_READ_BDT_ACK = 0x03;
 
     public const byte BACNET_BVLC_TYPE_BIP = 0x81;
 

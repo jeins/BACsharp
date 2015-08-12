@@ -647,12 +647,10 @@ namespace BACnet
         }
 
         // Read Broadcast Distribution Table -------------------------------------------------------------------------
-        public bool /*BACnetStack*/ SendReadBDT(int deviceidx, Property property)
+        public bool /*BACnetStack*/ SendReadBDT( int deviceidx )
         //out string value)
         // Parameters:
         //   Device index (for network and MAC address),
-        //   Object Type, 
-        //   Property ID,
         //   Value returned
         {
             // Create and send an Confirmed Request
@@ -663,61 +661,18 @@ namespace BACnet
             IPEndPoint remoteEP = BACnetData.Devices[deviceidx].ServerEP;
             if (remoteEP == null) return false;
 
-            if (property == null) return false;
-
             //uint instance = BACnetData.Devices[deviceidx].Instance;
 
             Byte[] sendBytes = new Byte[50];
             Byte[] recvBytes = new Byte[512];
-            uint len;
+            uint len = 4;
 
             // BVLL
             sendBytes[0] = BACnetEnums.BACNET_BVLC_TYPE_BIP;
-            sendBytes[1] = BACnetEnums.BACNET_UNICAST_NPDU;
+            sendBytes[1] = BACnetEnums.BACNET_BVLC_FUNC_READ_BDT;
             sendBytes[2] = 0x00;
-            sendBytes[3] = 0x00;  // BVLL Length, fix later (24?)
+            sendBytes[3] = 0x04;  // BVLL Length
 
-            // NPDU
-            sendBytes[4] = BACnetEnums.BACNET_PROTOCOL_VERSION;
-            if (BACnetData.Devices[deviceidx].SourceLength == 0)
-                sendBytes[5] = 0x04;  // Control flags, no destination address
-            else
-                sendBytes[5] = 0x24;  // Control flags, with broadcast or destination address
-
-            len = 6;
-            if (BACnetData.Devices[deviceidx].SourceLength > 0)
-            {
-                // Get the (MSTP) Network number (2001)
-                //sendBytes[6] = 0x07;  // Destination network address (2001)
-                //sendBytes[7] = 0xD1;
-                byte[] temp2 = new byte[2];
-                temp2 = BitConverter.GetBytes(BACnetData.Devices[deviceidx].Network);
-                sendBytes[len++] = temp2[1];
-                sendBytes[len++] = temp2[0];
-
-                // Get the MAC address (0x0D)
-                //sendBytes[8] = 0x01;  // MAC address length
-                //sendBytes[9] = 0x0D;  // Destination MAC layer address
-                byte[] temp4 = new byte[4];
-                temp4 = BitConverter.GetBytes(BACnetData.Devices[deviceidx].MACAddress);
-
-                sendBytes[len++] = 0x01;  // MAC address length - adjust for other lengths ...
-                sendBytes[len++] = temp4[0];
-                sendBytes[len++] = 0xFF;  // Hop count = 255
-            }
-
-            // APDU
-            sendBytes[len++] = 0x00;  // Control flags
-            sendBytes[len++] = 0x05;  // Max APDU length (1476)
-
-            // Create invoke counter
-            sendBytes[len++] = (byte)(InvokeCounter);
-            InvokeCounter = ((InvokeCounter + 1) & 0xFF);
-
-            sendBytes[len++] = 0x0C;  // Service Choice: Read Property request
-
-            // Fix the BVLL length
-            sendBytes[3] = (byte)0;
 
             // Create the timer (we could use a blocking recvFrom instead ...)
             Timer ReadPropTimer = new Timer();
@@ -746,33 +701,6 @@ namespace BACnet
                             {
                                 //recvBytes = SendUDP.Receive(ref RemoteEP);
                                 recvBytes = SendUDP.Receive(ref remoteEP);
-
-                                int APDUOffset = NPDU.Parse(recvBytes, 4); // BVLL is always 4 bytes
-
-                                // Check for APDU response 
-                                // 0x - Confirmed Request 
-                                // 1x - Un-Confirmed Request
-                                // 2x - Simple ACK
-                                // 3x - Complex ACK
-                                // 4x - Segment ACK
-                                // 5x - Error
-                                // 6x - Reject
-                                // 7x - Abort
-                                if (recvBytes[APDUOffset] == 0x30)
-                                {
-                                    // Verify the Invoke ID is the same
-                                    byte ic = (byte)(InvokeCounter == 0 ? 255 : InvokeCounter - 1);
-                                    if (ic == recvBytes[APDUOffset + 1])
-                                    {
-                                        APDU.ParseProperty(ref recvBytes, APDUOffset, property);
-                                        return true;  // This will still execute the finally
-                                    }
-                                    //else
-                                    //{
-                                    //  MessageBox.Show("Invoke Counter Error");
-                                    //  return false;
-                                    //}
-                                }
                             }
                         }
                         Count++;
