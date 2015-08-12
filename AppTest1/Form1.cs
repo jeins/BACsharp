@@ -87,7 +87,7 @@ namespace BACnetTest
       DeviceList.Items.Clear();
       if (BACnetData.Devices.Count == 0)
       {
-        MessageBox.Show("No Devices found");
+        MessageBox.Show("No Devices");
       }
       else
       {

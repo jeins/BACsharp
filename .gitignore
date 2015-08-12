@@ -202,3 +202,4 @@ deploy/*
 Packages.dgml
 *.css.map
 *.min.css
+/winsock32
