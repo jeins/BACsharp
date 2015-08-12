@@ -665,13 +665,13 @@ namespace BACnet
 
             Byte[] sendBytes = new Byte[50];
             Byte[] recvBytes = new Byte[512];
-            uint len = 4;
+            uint len = BACnetEnums.BACNET_BVLC_HEADER_LEN;
 
             // BVLL
             sendBytes[0] = BACnetEnums.BACNET_BVLC_TYPE_BIP;
             sendBytes[1] = BACnetEnums.BACNET_BVLC_FUNC_READ_BDT;
             sendBytes[2] = 0x00;
-            sendBytes[3] = 0x04;  // BVLL Length
+            sendBytes[3] = BACnetEnums.BACNET_BVLC_HEADER_LEN;  // BVLL Length
 
 
             // Create the timer (we could use a blocking recvFrom instead ...)
@@ -699,8 +699,13 @@ namespace BACnet
 
                             if (SendUDP.Client.Available > 0)
                             {
-                                //recvBytes = SendUDP.Receive(ref RemoteEP);
                                 recvBytes = SendUDP.Receive(ref remoteEP);
+                                Console.WriteLine("Received " + recvBytes.Length + " bytes as response.");
+                                for (int i = 0; i < recvBytes.Length; i++)
+                                {
+                                    Console.Write(recvBytes[i].ToString("x")+",");
+                                }
+                                Console.WriteLine();
                             }
                         }
                         Count++;

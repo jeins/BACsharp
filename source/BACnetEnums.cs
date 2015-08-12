@@ -29,6 +29,7 @@ namespace BACnet
     public const int BACNET_UNICAST_NPDU = 0x0A;
 	public const int BACNET_BROADCAST_NPDU = 0x0B;
 
+    public const int BACNET_BVLC_HEADER_LEN = 0x04;
     public const int BACNET_BVLC_FUNC_RESULT = 0x00;
     public const int BACNET_BVLC_FUNC_WRITE_BDT = 0x01;
     public const int BACNET_BVLC_FUNC_READ_BDT = 0x02;
