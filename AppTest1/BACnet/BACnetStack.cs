@@ -710,11 +710,22 @@ namespace BACnet
                                 Console.WriteLine();
 
                                 BVLC.Parse(recvBytes, 0);
-                                for (int i = 0; i < BVLC.BVLC_ListOfBdtEntries.Length; i++)
+                                if (BVLC.BACNET_BVLC_FUNC_READ_BDT_ACK == BVLC.BVLC_Function &&
+                                    null != BVLC.BVLC_ListOfBdtEntries)
                                 {
-                                    Console.WriteLine("BBMD: IP " + BVLC.BVLC_ListOfBdtEntries[i].MACAddress.Address.ToString() + ":" + 
-                                                                    BVLC.BVLC_ListOfBdtEntries[i].MACAddress.Port.ToString() + " Mask " + 
-                                                                    BVLC.BVLC_ListOfBdtEntries[i].Mask.ToString());
+                                    for (int i = 0; i < BVLC.BVLC_ListOfBdtEntries.Length; i++)
+                                    {
+                                        Console.WriteLine("BBMD: IP " +
+                                                          BVLC.BVLC_ListOfBdtEntries[i].MACAddress.Address.ToString() +
+                                                          ":" +
+                                                          BVLC.BVLC_ListOfBdtEntries[i].MACAddress.Port.ToString() +
+                                                          " Mask " +
+                                                          BVLC.BVLC_ListOfBdtEntries[i].Mask.ToString());
+                                    }
+                                }
+                                else
+                                {
+                                    Console.WriteLine("Received BVLC Paket Type " + BVLC.BVLC_Function.ToString() + " expected:  " + BVLC.BACNET_BVLC_FUNC_READ_BDT_ACK);
                                 }
 
 
@@ -733,7 +744,100 @@ namespace BACnet
             }
         }
 
+        // Read Foreign Device Table -------------------------------------------------------------------------
+        public bool /*BACnetStack*/ SendReadFdt(int deviceidx)
+        //out string value)
+        // Parameters:
+        //   Device index (for network and MAC address),
+        //   Value returned
+        {
+            // Create and send an Confirmed Request
+
+            //value = "(none)";
+            if ((deviceidx < 0) || (deviceidx >= BACnetData.Devices.Count)) return false;
+
+            IPEndPoint remoteEP = BACnetData.Devices[deviceidx].ServerEP;
+            if (remoteEP == null) return false;
+
+            //uint instance = BACnetData.Devices[deviceidx].Instance;
+
+            Byte[] sendBytes = new Byte[50];
+            Byte[] recvBytes = new Byte[512];
+            uint len = BVLC.BACNET_BVLC_HEADER_LEN;
+
+            // BVLL
+            sendBytes[0] = BVLC.BACNET_BVLC_TYPE_BIP;
+            sendBytes[1] = BVLC.BACNET_BVLC_FUNC_READ_FDT;
+            sendBytes[2] = 0x00;
+            sendBytes[3] = BVLC.BACNET_BVLC_HEADER_LEN;  // BVLL Length
+
+
+            // Create the timer (we could use a blocking recvFrom instead ...)
+            Timer ReadPropTimer = new Timer();
+            try
+            {
+                int Count = 0;
+                using (ReadPropTimer)
+                {
+                    ReadPropTimer.Tick += new EventHandler(Timer_Tick);
+
+                    while (Count < 3)
+                    {
+                        SendUDP.EnableBroadcast = false;
+                        SendUDP.Send(sendBytes, (int)len, remoteEP);
+
+                        // Start the timer
+                        TimerDone = false;
+                        ReadPropTimer.Interval = 400;  // 100 ms
+                        ReadPropTimer.Start();
+                        while (!TimerDone)
+                        {
+                            // Wait for Confirmed Response
+                            Application.DoEvents();
+
+                            if (SendUDP.Client.Available > 0)
+                            {
+                                recvBytes = SendUDP.Receive(ref remoteEP);
+                                Console.WriteLine("Received " + recvBytes.Length + " bytes as response.");
+                                for (int i = 0; i < recvBytes.Length; i++)
+                                {
+                                    Console.Write(recvBytes[i].ToString("x") + ",");
+                                }
+                                Console.WriteLine();
+
+                                BVLC.Parse(recvBytes, 0);
+                                if (BVLC.BACNET_BVLC_FUNC_READ_FDT_ACK == BVLC.BVLC_Function &&
+                                    null != BVLC.BVLC_ListOfFdtEntries)
+                                {
+                                    for (int i = 0; i < BVLC.BVLC_ListOfFdtEntries.Length; i++)
+                                    {
+                                        Console.WriteLine("BBMD: IP " + BVLC.BVLC_ListOfFdtEntries[i].MACAddress.Address.ToString() + ":" +
+                                                                        BVLC.BVLC_ListOfFdtEntries[i].MACAddress.Port.ToString() + " TimeToLive " +
+                                                                        BVLC.BVLC_ListOfFdtEntries[i].TimeToLive.ToString() + " TimeRemaining " +
+                                                                        BVLC.BVLC_ListOfFdtEntries[i].TimeRemaining.ToString() );
+                                    }
+                                }
+                                else
+                                {
+                                    Console.WriteLine("Received BVLC Paket Type " + BVLC.BVLC_Function.ToString() + " expected:  " + BVLC.BACNET_BVLC_FUNC_READ_FDT_ACK);
+                                }
+
+                            }
+                        }
+                        Count++;
+                        BACnetData.PacketRetryCount++;
+                        ReadPropTimer.Stop(); // We'll start it over at the top of the loop
+                    }
+                    return false;  // This will still execute the finally
+                }
+            }
+            finally
+            {
+                ReadPropTimer.Stop();
+            }
+        }
     }
+
 
 
 }

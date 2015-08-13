@@ -62,5 +62,12 @@ namespace BACnet
         /// <param name="deviceidx">The deviceidx.</param>
         /// <returns></returns>
         bool SendReadBdt(int deviceidx);
+
+        /// <summary>
+        /// Sends the read FDT.
+        /// </summary>
+        /// <param name="deviceidx">The deviceidx.</param>
+        /// <returns></returns>
+        bool SendReadFdt(int deviceidx);
     }
 }

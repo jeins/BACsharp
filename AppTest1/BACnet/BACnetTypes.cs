@@ -25,14 +25,14 @@ namespace BACnet
     {
         public IPEndPoint MACAddress { get; set; }
         public UInt16 TimeToLive { get; set; }
-        public UInt16 RemainingTime { get; set; }
+        public UInt16 TimeRemaining { get; set; }
 
         public FDTEntry()
         {
             IPAddress temp = new IPAddress(0);
             MACAddress = new IPEndPoint(temp, 0);
             TimeToLive = 0;
-            RemainingTime = 0;
+            TimeRemaining = 0;
         }
     }
 }

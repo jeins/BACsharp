@@ -200,7 +200,7 @@ namespace BACnet
             int len = offset;
             int bytesFDTEntries = BVLC_Length - offset;
             int numberOfFDTEntries = bytesFDTEntries / 10; // 10 Bytes per Entry
-            BVLC_ListOfBdtEntries = new BDTEntry[numberOfFDTEntries];
+            BVLC_ListOfFdtEntries = new FDTEntry[numberOfFDTEntries];
 
             for (int i = 0; i < numberOfFDTEntries; i++)
             {
@@ -233,7 +233,7 @@ namespace BACnet
 
                 fdtEntry.MACAddress     = point;
                 fdtEntry.TimeToLive     = (UInt16) (timeToLive[1] * 256 + timeToLive[0]);
-                fdtEntry.RemainingTime  = (UInt16) (timeRemaining[1] * 256 + timeRemaining[0]);
+                fdtEntry.TimeRemaining  = (UInt16) (timeRemaining[1] * 256 + timeRemaining[0]);
 
                 BVLC_ListOfFdtEntries[i] = fdtEntry;
             }
