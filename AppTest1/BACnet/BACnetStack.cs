@@ -15,6 +15,10 @@ namespace BACnet
     public class BACnetStack : IBACnetStack
     {
 
+        public const int BACNET_UNICAST_REQUEST_REPEAT_COUNT = 5; // repeat request x times
+        public const int BACNET_UNICAST_REQUEST_REPEAT_TIME = 400; // time between two repeatitions
+        public const int BACNET_BROADCAST_REQUEST_REPEAT_COUNT = 3; // repeat request x times
+
         //// Start up WSA, open a Socket, and Bind it
         //[DllImport("WinSockWrap.dll")]
         //static extern int WinSockStartUp();
@@ -590,14 +594,14 @@ namespace BACnet
                     int Count = 0;
                     ReadPropTimer.Tick += new EventHandler(Timer_Tick);
 
-                    while (Count < 3)
+                    while (Count < BACNET_UNICAST_REQUEST_REPEAT_COUNT)
                     {
                         SendUDP.EnableBroadcast = false;
                         SendUDP.Send(sendBytes, (int)len, remoteEP);
 
                         // Start the timer
                         TimerDone = false;
-                        ReadPropTimer.Interval = 400; // 300;  // 100 ms
+                        ReadPropTimer.Interval = BACNET_UNICAST_REQUEST_REPEAT_TIME; // 300;  // 100 ms
                         ReadPropTimer.Start();
                         while (!TimerDone)
                         {
@@ -685,14 +689,14 @@ namespace BACnet
                 {
                     BVLCFuncTimer.Tick += new EventHandler(Timer_Tick);
 
-                    while (Count < 3)
+                    while (Count < BACNET_UNICAST_REQUEST_REPEAT_COUNT)
                     {
                         SendUDP.EnableBroadcast = false;
                         SendUDP.Send(sendBytes, (int)len, remoteEP);
 
                         // Start the timer
                         TimerDone = false;
-                        BVLCFuncTimer.Interval = 400;  // 100 ms
+                        BVLCFuncTimer.Interval = BACNET_UNICAST_REQUEST_REPEAT_TIME;  // 400 ms
                         BVLCFuncTimer.Start();
                         while (!TimerDone)
                         {
@@ -782,14 +786,14 @@ namespace BACnet
                 {
                     BVLCFuncTimer.Tick += new EventHandler(Timer_Tick);
 
-                    while (Count < 3)
+                    while (Count < BACNET_UNICAST_REQUEST_REPEAT_COUNT)
                     {
                         SendUDP.EnableBroadcast = false;
                         SendUDP.Send(sendBytes, (int)len, remoteEP);
 
                         // Start the timer
                         TimerDone = false;
-                        BVLCFuncTimer.Interval = 400;  // 100 ms
+                        BVLCFuncTimer.Interval = BACNET_UNICAST_REQUEST_REPEAT_TIME;  // 400 ms
                         BVLCFuncTimer.Start();
                         while (!TimerDone)
                         {
