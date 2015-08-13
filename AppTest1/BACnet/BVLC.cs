@@ -43,7 +43,7 @@ namespace BACnet
         public static UInt16 BVLC_TimeToLive;
         public static BDTEntry[] BVLC_ListOfBdtEntries;
         public static FDTEntry[] BVLC_ListOfFdtEntries;
-        public static IPEndPoint BVLC_ForwardAddress;
+        public static IPEndPoint BVLC_BacnetIpAddress;
         
         public static void /*BVLC*/ Clear()
         {
@@ -54,7 +54,7 @@ namespace BACnet
 
             BVLC_Function_ResultCode = 0;
             BVLC_ListOfBdtEntries = null;
-            BVLC_ForwardAddress = null;
+            BVLC_BacnetIpAddress = null;
         }
 
         public static int /*BVLC*/ Parse(byte[] bytes, int offset)
@@ -86,12 +86,13 @@ namespace BACnet
                 case BACNET_BVLC_FUNC_READ_BDT_ACK:
                     return ParseListOfBdtEntries(bytes, len);
                 case BACNET_BVLC_FUNC_FORW_NPDU:
-                    return ParseForwardAddress(bytes, len);
+                    return ParseBacnetIpAddress(bytes, len);
                 case BACNET_BVLC_FUNC_REGISTER_FD:
                     return ParseTimeToLive(bytes, len);
                 case BACNET_BVLC_FUNC_READ_FDT_ACK:
-                case BACNET_BVLC_FUNC_DELETE_FD:
                     return ParseListOfFdtEntries(bytes, len);
+                case BACNET_BVLC_FUNC_DELETE_FD:
+                    return ParseBacnetIpAddress(bytes, len);
                 case BACNET_BVLC_FUNC_UNICAST_NPDU:                  
                 case BACNET_BVLC_FUNC_BROADCAST_NPDU:
                 case BACNET_BVLC_FUNC_DISTRIBUTE_BROADCAST_TO_NETWORK:
@@ -119,7 +120,7 @@ namespace BACnet
             return len;
         }
 
-        public static int /*BVLC*/ ParseForwardAddress(byte[] bytes, int offset)
+        public static int /*BVLC*/ ParseBacnetIpAddress(byte[] bytes, int offset)
         {
             int len = offset;
 
@@ -137,7 +138,7 @@ namespace BACnet
             udpPort[1] = bytes[len++];
             udpPort[0] = bytes[len++];
 
-            BVLC_ForwardAddress = new IPEndPoint(ip, udpPort[1] * 256 + udpPort[0]);
+            BVLC_BacnetIpAddress = new IPEndPoint(ip, udpPort[1] * 256 + udpPort[0]);
 
             return len;
         }

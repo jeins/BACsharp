@@ -441,7 +441,7 @@ namespace BACnet
                                 //recvBytes = SendUDP.Receive(ref RemoteEP);
                                 recvBytes = SendUDP.Receive(ref remoteEP);
 
-                                int APDUOffset = NPDU.Parse(recvBytes, 4); // BVLL is always 4 bytes
+                                int APDUOffset = NPDU.Parse(recvBytes, BVLC.BACNET_BVLC_HEADER_LEN); // BVLL is always 4 bytes
 
                                 // Check for APDU response 
                                 // 0x - Confirmed Request 
@@ -677,13 +677,13 @@ namespace BACnet
 
 
             // Create the timer (we could use a blocking recvFrom instead ...)
-            Timer ReadPropTimer = new Timer();
+            Timer BVLCFuncTimer = new Timer();
             try
             {
                 int Count = 0;
-                using (ReadPropTimer)
+                using (BVLCFuncTimer)
                 {
-                    ReadPropTimer.Tick += new EventHandler(Timer_Tick);
+                    BVLCFuncTimer.Tick += new EventHandler(Timer_Tick);
 
                     while (Count < 3)
                     {
@@ -692,8 +692,8 @@ namespace BACnet
 
                         // Start the timer
                         TimerDone = false;
-                        ReadPropTimer.Interval = 400;  // 100 ms
-                        ReadPropTimer.Start();
+                        BVLCFuncTimer.Interval = 400;  // 100 ms
+                        BVLCFuncTimer.Start();
                         while (!TimerDone)
                         {
                             // Wait for Confirmed Response
@@ -722,6 +722,7 @@ namespace BACnet
                                                           " Mask " +
                                                           BVLC.BVLC_ListOfBdtEntries[i].Mask.ToString());
                                     }
+                                    BVLCFuncTimer.Stop(); // We'll start it over at the top of the loop
                                 }
                                 else
                                 {
@@ -733,14 +734,14 @@ namespace BACnet
                         }
                         Count++;
                         BACnetData.PacketRetryCount++;
-                        ReadPropTimer.Stop(); // We'll start it over at the top of the loop
+                        BVLCFuncTimer.Stop(); // We'll start it over at the top of the loop
                     }
                     return false;  // This will still execute the finally
                 }
             }
             finally
             {
-                ReadPropTimer.Stop();
+                BVLCFuncTimer.Stop();
             }
         }
 
@@ -773,13 +774,13 @@ namespace BACnet
 
 
             // Create the timer (we could use a blocking recvFrom instead ...)
-            Timer ReadPropTimer = new Timer();
+            Timer BVLCFuncTimer = new Timer();
             try
             {
                 int Count = 0;
-                using (ReadPropTimer)
+                using (BVLCFuncTimer)
                 {
-                    ReadPropTimer.Tick += new EventHandler(Timer_Tick);
+                    BVLCFuncTimer.Tick += new EventHandler(Timer_Tick);
 
                     while (Count < 3)
                     {
@@ -788,8 +789,8 @@ namespace BACnet
 
                         // Start the timer
                         TimerDone = false;
-                        ReadPropTimer.Interval = 400;  // 100 ms
-                        ReadPropTimer.Start();
+                        BVLCFuncTimer.Interval = 400;  // 100 ms
+                        BVLCFuncTimer.Start();
                         while (!TimerDone)
                         {
                             // Wait for Confirmed Response
@@ -811,11 +812,12 @@ namespace BACnet
                                 {
                                     for (int i = 0; i < BVLC.BVLC_ListOfFdtEntries.Length; i++)
                                     {
-                                        Console.WriteLine("BBMD: IP " + BVLC.BVLC_ListOfFdtEntries[i].MACAddress.Address.ToString() + ":" +
+                                        Console.WriteLine("FD: IP " +   BVLC.BVLC_ListOfFdtEntries[i].MACAddress.Address.ToString() + ":" +
                                                                         BVLC.BVLC_ListOfFdtEntries[i].MACAddress.Port.ToString() + " TimeToLive " +
                                                                         BVLC.BVLC_ListOfFdtEntries[i].TimeToLive.ToString() + " TimeRemaining " +
                                                                         BVLC.BVLC_ListOfFdtEntries[i].TimeRemaining.ToString() );
                                     }
+                                    BVLCFuncTimer.Stop(); // We'll start it over at the top of the loop
                                 }
                                 else
                                 {
@@ -826,14 +828,14 @@ namespace BACnet
                         }
                         Count++;
                         BACnetData.PacketRetryCount++;
-                        ReadPropTimer.Stop(); // We'll start it over at the top of the loop
+                        BVLCFuncTimer.Stop(); // We'll start it over at the top of the loop
                     }
                     return false;  // This will still execute the finally
                 }
             }
             finally
             {
-                ReadPropTimer.Stop();
+                BVLCFuncTimer.Stop();
             }
         }
     }
