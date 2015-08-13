@@ -57,14 +57,14 @@ namespace BACnet
             BVLC_BacnetIpAddress = null;
         }
 
-        public static uint /*BVLC*/ Assemble(ref byte[] bytes, int BVLCFunctionType, uint offset)
+        public static uint /*BVLC*/ Fill(ref byte[] bytes, int BVLCFunctionType, uint offset)
         {
             bytes[offset + 0] = BVLC.BACNET_BVLC_TYPE_BIP;
-            bytes[offset + 1] = (byte)BVLCFunctionType;
+            bytes[offset + 1] = (Byte)BVLCFunctionType;
             bytes[offset + 2] = 0x00;
             bytes[offset + 3] = BVLC.BACNET_BVLC_HEADER_LEN;  // BVLL Length
 
-            return offset+4;
+            return offset + BVLC.BACNET_BVLC_HEADER_LEN;
         }
 
         public static int /*BVLC*/ Parse(byte[] bytes, int offset)

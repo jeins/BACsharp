@@ -15,7 +15,7 @@ namespace BACnet
     public class BACnetStack : IBACnetStack
     {
 
-        public const int BACNET_UNICAST_REQUEST_REPEAT_COUNT = 5; // repeat request x times
+        public const int BACNET_UNICAST_REQUEST_REPEAT_COUNT = 3; // repeat request x times
         public const int BACNET_UNICAST_REQUEST_REPEAT_TIME = 400; // time between two repeatitions
         public const int BACNET_BROADCAST_REQUEST_REPEAT_COUNT = 3; // repeat request x times
 
@@ -671,14 +671,9 @@ namespace BACnet
 
             Byte[] sendBytes = new Byte[50];
             Byte[] recvBytes = new Byte[512];
-            uint len = BVLC.BACNET_BVLC_HEADER_LEN;
-
+            
             // BVLL
-            sendBytes[0] = BVLC.BACNET_BVLC_TYPE_BIP;
-            sendBytes[1] = BVLC.BACNET_BVLC_FUNC_READ_BDT;
-            sendBytes[2] = 0x00;
-            sendBytes[3] = BVLC.BACNET_BVLC_HEADER_LEN;  // BVLL Length
-
+            uint len = BVLC.Fill(ref sendBytes, BVLC.BACNET_BVLC_FUNC_READ_BDT, 0);
 
             // Create the timer (we could use a blocking recvFrom instead ...)
             Timer BVLCFuncTimer = new Timer();
@@ -764,13 +759,12 @@ namespace BACnet
             IPEndPoint remoteEP = BACnetData.Devices[deviceidx].ServerEP;
             if (remoteEP == null) return false;
 
-            //uint instance = BACnetData.Devices[deviceidx].Instance;
 
             Byte[] sendBytes = new Byte[50];
             Byte[] recvBytes = new Byte[512];
 
             // BVLL
-            uint len = BVLC.Assemble(ref sendBytes, BVLC.BACNET_BVLC_FUNC_READ_FDT, 0);
+            uint len = BVLC.Fill(ref sendBytes, BVLC.BACNET_BVLC_FUNC_READ_FDT, 0);
 
             // Create the timer (we could use a blocking recvFrom instead ...)
             Timer BVLCFuncTimer = new Timer();
