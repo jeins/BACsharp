@@ -8,10 +8,31 @@ using BACnet;
 namespace BACnet
 {
 
-    // APDU Routines
     public class BDTEntry
     {
         public IPEndPoint MACAddress { get; set; }
         public IPAddress Mask { get; set; }
+
+        public BDTEntry()
+        {
+            IPAddress temp = new IPAddress(0);
+            MACAddress = new IPEndPoint(temp, 0);
+            Mask = new IPAddress(0);
+        }
+    }
+
+    public class FDTEntry
+    {
+        public IPEndPoint MACAddress { get; set; }
+        public UInt16 TimeToLive { get; set; }
+        public UInt16 RemainingTime { get; set; }
+
+        public FDTEntry()
+        {
+            IPAddress temp = new IPAddress(0);
+            MACAddress = new IPEndPoint(temp, 0);
+            TimeToLive = 0;
+            RemainingTime = 0;
+        }
     }
 }

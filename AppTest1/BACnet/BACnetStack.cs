@@ -240,7 +240,7 @@ namespace BACnet
                 {
                     //PEP Use NPDU.Create and APDU.Create (when written)
                     sendBytes[0] = BVLC.BACNET_BVLC_TYPE_BIP;
-                    sendBytes[1] = BACnetEnums.BACNET_UNICAST_NPDU;
+                    sendBytes[1] = BVLC.BACNET_BVLC_FUNC_UNICAST_NPDU;
                     sendBytes[2] = 0;
                     sendBytes[3] = 12;
                     sendBytes[4] = BACnetEnums.BACNET_PROTOCOL_VERSION;
@@ -356,7 +356,7 @@ namespace BACnet
 
             // BVLL
             sendBytes[0] = BVLC.BACNET_BVLC_TYPE_BIP;
-            sendBytes[1] = BACnetEnums.BACNET_UNICAST_NPDU;
+            sendBytes[1] = BVLC.BACNET_BVLC_FUNC_UNICAST_NPDU;
             sendBytes[2] = 0x00;
             sendBytes[3] = 0x00;  // BVLL Length, fix later (24?)
 
@@ -513,7 +513,7 @@ namespace BACnet
 
             // BVLL
             sendBytes[0] = BVLC.BACNET_BVLC_TYPE_BIP;
-            sendBytes[1] = BACnetEnums.BACNET_UNICAST_NPDU;
+            sendBytes[1] = BVLC.BACNET_BVLC_FUNC_UNICAST_NPDU;
             sendBytes[2] = 0x00;
             sendBytes[3] = 0x00;  // BVLL Length = 24?
 
@@ -708,6 +708,16 @@ namespace BACnet
                                     Console.Write(recvBytes[i].ToString("x")+",");
                                 }
                                 Console.WriteLine();
+
+                                BVLC.Parse(recvBytes, 0);
+                                for (int i = 0; i < BVLC.BVLC_ListOfBdtEntries.Length; i++)
+                                {
+                                    Console.WriteLine("BBMD: IP " + BVLC.BVLC_ListOfBdtEntries[i].MACAddress.Address.ToString() + ":" + 
+                                                                    BVLC.BVLC_ListOfBdtEntries[i].MACAddress.Port.ToString() + " Mask " + 
+                                                                    BVLC.BVLC_ListOfBdtEntries[i].Mask.ToString());
+                                }
+
+
                             }
                         }
                         Count++;

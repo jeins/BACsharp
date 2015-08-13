@@ -25,11 +25,6 @@ namespace BACnet
 
     public const int BACNET_PROTOCOL_VERSION = 0x01;
 
-    public const int BACNET_DISTRIBUTE_BROADCAST_TO_NETWORK_NPDU = 0x09;
-    public const int BACNET_UNICAST_NPDU = 0x0A;
-	public const int BACNET_BROADCAST_NPDU = 0x0B;
-
-
     public enum BACNET_PROPERTY_ID
     {
       PROP_ACKED_TRANSITIONS = 0,
