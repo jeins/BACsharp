@@ -601,7 +601,7 @@ namespace BACnet
 
                         // Start the timer
                         TimerDone = false;
-                        ReadPropTimer.Interval = BACNET_UNICAST_REQUEST_REPEAT_TIME; // 300;  // 100 ms
+                        ReadPropTimer.Interval = BACNET_UNICAST_REQUEST_REPEAT_TIME;
                         ReadPropTimer.Start();
                         while (!TimerDone)
                         {
@@ -768,14 +768,9 @@ namespace BACnet
 
             Byte[] sendBytes = new Byte[50];
             Byte[] recvBytes = new Byte[512];
-            uint len = BVLC.BACNET_BVLC_HEADER_LEN;
 
             // BVLL
-            sendBytes[0] = BVLC.BACNET_BVLC_TYPE_BIP;
-            sendBytes[1] = BVLC.BACNET_BVLC_FUNC_READ_FDT;
-            sendBytes[2] = 0x00;
-            sendBytes[3] = BVLC.BACNET_BVLC_HEADER_LEN;  // BVLL Length
-
+            uint len = BVLC.Assemble(ref sendBytes, BVLC.BACNET_BVLC_FUNC_READ_FDT, 0);
 
             // Create the timer (we could use a blocking recvFrom instead ...)
             Timer BVLCFuncTimer = new Timer();
