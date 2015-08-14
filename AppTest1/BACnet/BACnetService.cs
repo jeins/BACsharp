@@ -33,13 +33,21 @@ namespace BACnet
 
         public bool FindDeviceProperties(ref BACnetIpDevice device)
         {
-            if (!(GetObjectName (ref device))) {return false;}
-            if (!(GetVendorName (ref device))) { /*not required*/ }
-            if (!(GetApplicationSoftwareVersion(ref device))) { /*not required*/ }
-            if (!(GetModelName(ref device))) { return false; }
-            if (!(GetFirmwareRevision(ref device))) { return false; }
+            bool successful = true;
 
-            return false;
+            if (!(GetObjectName (ref device))) { successful = false;}
+            if (!(GetVendorName(ref device))) { successful = false; }
+            if (!(GetApplicationSoftwareVersion(ref device))) { successful = false; }
+            if (!(GetModelName(ref device))) { successful = false; }
+            if (!(GetFirmwareRevision(ref device))) { successful = false; }
+
+            if (!(GetVendorIdentifier(ref device))) { successful = false; }
+            if (!(GetProtocolRevision(ref device))) { successful = false; }
+            if (!(GetProtocolVersion(ref device))) { successful = false; }
+
+            if (!(GetSystemStatus(ref device))) { successful = false; }
+
+            return successful;
         }
 
         public List<BACnetDeviceWithBBMD> FindBACnetBBMDs(IPAddress ip)
@@ -98,6 +106,82 @@ namespace BACnet
                 ref device.FirmwareRevision);
         }
 
+        private bool GetVendorIdentifier(ref BACnetIpDevice device)
+        {
+            uint value = 0; 
+            if ( GetUnsignedPropertyValue(ref device, BACnetEnums.BACNET_PROPERTY_ID.PROP_VENDOR_IDENTIFIER,
+                ref value) )
+            {
+                device.VendorIdentifier = (int)value;
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+            
+        }
+
+        private bool GetProtocolVersion(ref BACnetIpDevice device)
+        {
+            uint value = 0;
+            if (GetUnsignedPropertyValue(ref device, BACnetEnums.BACNET_PROPERTY_ID.PROP_PROTOCOL_VERSION,
+                ref value))
+            {
+                device.ProtocolVersion = (int)value;
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+
+        }
+
+        private bool GetProtocolRevision(ref BACnetIpDevice device)
+        {
+            uint value = 0;
+            if (GetUnsignedPropertyValue(ref device, BACnetEnums.BACNET_PROPERTY_ID.PROP_PROTOCOL_REVISION,
+                ref value))
+            {
+                device.ProtocolRevision = (int)value;
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+
+        }
+
+        public enum BacnetDeviceSytemStatusString
+        {
+
+        }
+
+        private bool GetSystemStatus(ref BACnetIpDevice device)
+        {
+            string[] BacnetDeviceSytemStatusString =
+            {
+                "operational", "operational-read-only", "download-required",
+                "download-in-progress", "non-operational", "backup-in-progress"
+            };
+            uint value = 0;
+            if (GetEnumeratedPropertyValue(ref device, BACnetEnums.BACNET_PROPERTY_ID.PROP_PROTOCOL_REVISION,
+                ref value))
+            {
+                if ( value < BacnetDeviceSytemStatusString.Length )
+                    device.SystemStatus = BacnetDeviceSytemStatusString[value];
+                else
+                    device.SystemStatus = "SystemStatus " + value.ToString();
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+
+        }
 
         private bool GetStringPropertyValue(ref BACnetIpDevice device, BACnetEnums.BACNET_PROPERTY_ID propId, ref string value)
         {
@@ -125,6 +209,64 @@ namespace BACnet
                 return false;
             }
             value = property.ValueString;
+            return true;
+        }
+
+        private bool GetUnsignedPropertyValue(ref BACnetIpDevice device, BACnetEnums.BACNET_PROPERTY_ID propId, ref uint value)
+        {
+            Property property = new Property();
+            property.Tag = BACnetEnums.BACNET_APPLICATION_TAG.BACNET_APPLICATION_TAG_ENUMERATED;
+
+            Device recipient = new Device();
+            recipient.ServerEP = device.IpAddress;
+            recipient.Instance = device.InstanceNumber;
+            recipient.Network = device.Network;
+            recipient.SourceLength = device.SourceLength;
+
+            if (!BACStack.SendReadProperty(
+                recipient,
+                -1, // Array[0] is Object Count
+                BACnetEnums.BACNET_OBJECT_TYPE.OBJECT_DEVICE,
+                propId,
+                property))
+            {
+                return false;
+            }
+
+            if (property.Tag != BACnetEnums.BACNET_APPLICATION_TAG.BACNET_APPLICATION_TAG_UNSIGNED_INT)
+            {
+                return false;
+            }
+            value = property.ValueUInt;
+            return true;
+        }
+        
+        private bool GetEnumeratedPropertyValue(ref BACnetIpDevice device, BACnetEnums.BACNET_PROPERTY_ID propId, ref uint value)
+        {
+            Property property = new Property();
+            property.Tag = BACnetEnums.BACNET_APPLICATION_TAG.BACNET_APPLICATION_TAG_NULL;
+
+            Device recipient = new Device();
+            recipient.ServerEP = device.IpAddress;
+            recipient.Instance = device.InstanceNumber;
+            recipient.Network = device.Network;
+            recipient.SourceLength = device.SourceLength;
+
+            if (!BACStack.SendReadProperty(
+                recipient,
+                -1, // Array[0] is Object Count
+                BACnetEnums.BACNET_OBJECT_TYPE.OBJECT_DEVICE,
+                propId,
+                property))
+            {
+                return false;
+            }
+
+            if (property.Tag != BACnetEnums.BACNET_APPLICATION_TAG.BACNET_APPLICATION_TAG_ENUMERATED)
+            {
+                return false;
+            }
+            value = property.ValueEnum;
             return true;
         }
     
