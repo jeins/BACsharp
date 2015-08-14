@@ -92,6 +92,13 @@ namespace AppTest1.BACnet
         /// <returns></returns>
         bool FindDeviceProperties(ref BACnetIpDevice device);
 
+        /// <summary>
+        /// Finds the device objects.
+        /// </summary>
+        /// <param name="device">The device.</param>
+        /// <returns></returns>
+        bool FindDeviceObjects(ref BACnetIpDevice device);
+
             /// <summary>
         /// Find all BACnet devices with enabled BBMD functionality.
         /// </summary>
