@@ -15,7 +15,7 @@ namespace AppTest1.BACnet
     {
         public uint InstanceNumber;
         public string ObjectName;
-        public int SystemStatus;
+        public string SystemStatus;
         public string VendorName;
         public int VendorIdentifier;
         public string ModelName;
@@ -30,7 +30,7 @@ namespace AppTest1.BACnet
         {
             InstanceNumber = 0;
             ObjectName = "unknown";
-            SystemStatus = -1;
+            SystemStatus = "unknown";
             VendorName = "unknown";
             VendorIdentifier = 0;
             ModelName = "unknown";
