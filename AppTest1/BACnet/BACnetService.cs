@@ -239,7 +239,7 @@ namespace BACnet
                 "download-in-progress", "non-operational", "backup-in-progress"
             };
             uint value = 0;
-            if (GetEnumeratedPropertyValue(ref device, BACnetEnums.BACNET_PROPERTY_ID.PROP_PROTOCOL_REVISION,
+            if (GetEnumeratedPropertyValue(ref device, BACnetEnums.BACNET_PROPERTY_ID.PROP_SYSTEM_STATUS,
                 ref value))
             {
                 if ( value < BacnetDeviceSytemStatusString.Length )
