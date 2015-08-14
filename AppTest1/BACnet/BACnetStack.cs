@@ -512,23 +512,17 @@ namespace BACnet
 
             Byte[] sendBytes = new Byte[50];
             Byte[] recvBytes = new Byte[512];
-            uint len;
-            //int count = 0;
-
+            
             // BVLL
-            sendBytes[0] = BVLC.BACNET_BVLC_TYPE_BIP;
-            sendBytes[1] = BVLC.BACNET_BVLC_FUNC_UNICAST_NPDU;
-            sendBytes[2] = 0x00;
-            sendBytes[3] = 0x00;  // BVLL Length = 24?
+            uint len = BVLC.Fill(ref sendBytes, BVLC.BACNET_BVLC_FUNC_UNICAST_NPDU, 0);
 
             // NPDU
-            sendBytes[4] = BACnetEnums.BACNET_PROTOCOL_VERSION;
+            sendBytes[len++] = BACnetEnums.BACNET_PROTOCOL_VERSION;
             if (BACnetData.Devices[deviceidx].SourceLength == 0)
-                sendBytes[5] = 0x04;  // Control flags, no destination address
+                sendBytes[len++] = 0x04;  // Control flags, no destination address
             else
-                sendBytes[5] = 0x24;  // Control flags, with broadcast or destination
+                sendBytes[len++] = 0x24;  // Control flags, with broadcast or destination
 
-            len = 6;
             if (BACnetData.Devices[deviceidx].SourceLength > 0)
             {
                 // Get the (MSTP) Network number (2001)
@@ -684,7 +678,9 @@ namespace BACnet
                 {
                     BVLCFuncTimer.Tick += new EventHandler(Timer_Tick);
 
-                    while (Count < BACNET_UNICAST_REQUEST_REPEAT_COUNT)
+                    bool gotResponse = false;
+
+                    while (Count < BACNET_UNICAST_REQUEST_REPEAT_COUNT && !gotResponse)
                     {
                         SendUDP.EnableBroadcast = false;
                         SendUDP.Send(sendBytes, (int)len, remoteEP);
@@ -693,7 +689,7 @@ namespace BACnet
                         TimerDone = false;
                         BVLCFuncTimer.Interval = BACNET_UNICAST_REQUEST_REPEAT_TIME;  // 400 ms
                         BVLCFuncTimer.Start();
-                        while (!TimerDone)
+                        while (!TimerDone && !gotResponse)
                         {
                             // Wait for Confirmed Response
                             Application.DoEvents();
@@ -721,7 +717,7 @@ namespace BACnet
                                                           " Mask " +
                                                           BVLC.BVLC_ListOfBdtEntries[i].Mask.ToString());
                                     }
-                                    BVLCFuncTimer.Stop(); // We'll start it over at the top of the loop
+                                    gotResponse = true; ;
                                 }
                                 else
                                 {
@@ -774,8 +770,10 @@ namespace BACnet
                 using (BVLCFuncTimer)
                 {
                     BVLCFuncTimer.Tick += new EventHandler(Timer_Tick);
+                    
+                    bool gotResponse = false;
 
-                    while (Count < BACNET_UNICAST_REQUEST_REPEAT_COUNT)
+                    while (Count < BACNET_UNICAST_REQUEST_REPEAT_COUNT && !gotResponse)
                     {
                         SendUDP.EnableBroadcast = false;
                         SendUDP.Send(sendBytes, (int)len, remoteEP);
@@ -784,7 +782,7 @@ namespace BACnet
                         TimerDone = false;
                         BVLCFuncTimer.Interval = BACNET_UNICAST_REQUEST_REPEAT_TIME;  // 400 ms
                         BVLCFuncTimer.Start();
-                        while (!TimerDone)
+                        while (!TimerDone && !gotResponse)
                         {
                             // Wait for Confirmed Response
                             Application.DoEvents();
@@ -810,7 +808,7 @@ namespace BACnet
                                                                         BVLC.BVLC_ListOfFdtEntries[i].TimeToLive.ToString() + " TimeRemaining " +
                                                                         BVLC.BVLC_ListOfFdtEntries[i].TimeRemaining.ToString() );
                                     }
-                                    BVLCFuncTimer.Stop(); // We'll start it over at the top of the loop
+                                    gotResponse = true;
                                 }
                                 else
                                 {
