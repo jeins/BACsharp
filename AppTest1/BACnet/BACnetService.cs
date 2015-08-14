@@ -66,9 +66,14 @@ namespace BACnet
 
         public bool IsBbmdEnabled(IPEndPoint IpAddress)
         {
-            //TODO: implement
+            if (BACStack.SendReadBdt(IpAddress))
+            {
+                if (BVLC.BVLC_Function_ResultCode == 0)
+                    return true;
+                else
+                    return false;
+            }
             return false;
-
         }
 
         public bool IsFdRegistrationSupported(IPEndPoint IpAddress)
@@ -179,6 +184,7 @@ namespace BACnet
             }
             else
             {
+                device.SystemStatus = "Failed to get System Status " + value.ToString();
                 return false;
             }
 
