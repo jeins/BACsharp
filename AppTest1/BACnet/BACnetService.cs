@@ -19,7 +19,7 @@ namespace BACnet
             BACStack = new BACnetStack();
         }
 
-        public List<BACnetIpDevice> FindBACnetDevices(IPEndPoint IpAddress)
+        public List<BACnetIpDevice> FindBACnetDevices()
         {
             List<Device> FoundDevices = BACStack.GetDevices(2000);
             List<BACnetIpDevice> FoundIpBacnetDevices = new List<BACnetIpDevice>();
