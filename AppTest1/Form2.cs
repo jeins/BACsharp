@@ -27,6 +27,8 @@ namespace AppTest1
 
             btnGetProp.Enabled = false;
             btnGetDeviceObj.Enabled = false;
+            lblBBMDStatus.BackColor = Color.Red;
+            lblFDRegister.BackColor = Color.Red;
         }
 
         private void btnGetDevice_Click(object sender, EventArgs e)
@@ -76,11 +78,24 @@ namespace AppTest1
             int idx = listDevices.SelectedIndex;
             bacnetDevice = bacnetDevices[idx];
             lblDeviceIP.Text = bacnetDevice.IpAddress.ToString();
+
+            if (BACService.IsBbmdEnabled(bacnetDevice.IpAddress))
+            {
+                lblBBMDStatus.Text = "True";
+                lblBBMDStatus.BackColor = Color.Green;
+            }
+
+            if (BACService.IsFdRegistrationSupported(bacnetDevice.IpAddress))
+            {
+                lblFDRegister.Text = "True";
+                lblFDRegister.BackColor = Color.Green;
+            }
         }
 
         private void btnGetDeviceObj_Click(object sender, EventArgs e)
         {
             BACService.FindDeviceObjects(ref bacnetDevice);
+            lblTotalProp.Text = bacnetDevice.DeviceObjects.Count.ToString();
             foreach (string values in bacnetDevice.DeviceObjects)
             {
                 listDeviceObj.Items.Add(values);
