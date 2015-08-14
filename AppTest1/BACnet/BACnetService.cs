@@ -33,8 +33,12 @@ namespace BACnet
 
         public bool FindDeviceProperties(ref BACnetIpDevice device)
         {
-            if (!(GetObjectName(ref device))) return false;
-            if (!(GetObjectName(ref device))) return false;
+            if (!(GetObjectName (ref device))) {return false;}
+            if (!(GetVendorName (ref device))) { /*not required*/ }
+            if (!(GetApplicationSoftwareVersion(ref device))) { /*not required*/ }
+            if (!(GetModelName(ref device))) { return false; }
+            if (!(GetFirmwareRevision(ref device))) { return false; }
+
             return false;
         }
 
@@ -71,6 +75,29 @@ namespace BACnet
             return GetStringPropertyValue(ref device, BACnetEnums.BACNET_PROPERTY_ID.PROP_OBJECT_NAME,
                 ref device.ObjectName);
         }
+        private bool GetVendorName(ref BACnetIpDevice device)
+        {
+            return GetStringPropertyValue(ref device, BACnetEnums.BACNET_PROPERTY_ID.PROP_VENDOR_NAME,
+                ref device.VendorName);
+        }
+        private bool GetModelName(ref BACnetIpDevice device)
+        {
+            return GetStringPropertyValue(ref device, BACnetEnums.BACNET_PROPERTY_ID.PROP_MODEL_NAME,
+                ref device.ModelName);
+        }
+
+        private bool GetApplicationSoftwareVersion(ref BACnetIpDevice device)
+        {
+            return GetStringPropertyValue(ref device, BACnetEnums.BACNET_PROPERTY_ID.PROP_APPLICATION_SOFTWARE_VERSION,
+                ref device.ApplicationSoftwareVersion);
+        }
+
+        private bool GetFirmwareRevision(ref BACnetIpDevice device)
+        {
+            return GetStringPropertyValue(ref device, BACnetEnums.BACNET_PROPERTY_ID.PROP_FIRMWARE_REVISION,
+                ref device.FirmwareRevision);
+        }
+
 
         private bool GetStringPropertyValue(ref BACnetIpDevice device, BACnetEnums.BACNET_PROPERTY_ID propId, ref string value)
         {
