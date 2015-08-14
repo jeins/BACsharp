@@ -84,11 +84,21 @@ namespace AppTest1
                 lblBBMDStatus.Text = "True";
                 lblBBMDStatus.BackColor = Color.Green;
             }
+            else
+            {
+                lblBBMDStatus.Text = "False";
+                lblBBMDStatus.BackColor = Color.Red;
+            }
 
             if (BACService.IsFdRegistrationSupported(bacnetDevice.IpAddress))
             {
                 lblFDRegister.Text = "True";
                 lblFDRegister.BackColor = Color.Green;
+            }
+            else
+            {
+                lblBBMDStatus.Text = "False";
+                lblBBMDStatus.BackColor = Color.Red;
             }
         }
 
