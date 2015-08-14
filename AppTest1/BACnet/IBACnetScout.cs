@@ -13,7 +13,7 @@ namespace AppTest1.BACnet
     /// <remarks>See <a href="http://www.bacnet.org/Bibliography/ES-7-96/ES-7-96.htm" /></remarks>
     public class BACnetDevice
     {
-        public int InstanceNumber;
+        public uint InstanceNumber;
         public string ObjectName;
         public string SystemStatus;
         public string VendorName;
@@ -26,13 +26,32 @@ namespace AppTest1.BACnet
         public byte SourceLength;
         public int Network;
 
+        public BACnetDevice()
+        {
+            InstanceNumber = 0;
+            ObjectName = "unknown";
+            SystemStatus = "unknown";
+            VendorName = "unknown";
+            VendorIdentifier = 0;
+            ModelName = "unknown";
+            FirmwareRevision = "unknown";
+            ApplicationSoftwareVersion = "unknown";
+            ProtocolVersion = 0;
+            ProtocolRevision = 0;
+            SourceLength = 0;
+            Network = 65535;
+        }
     }
 
     public class BACnetIpDevice : BACnetDevice
     {
         public IPEndPoint IpAddress;
 
-        public BACnetIpDevice(IPEndPoint IpAddress, int Network, int InstanceNumber, int VendorIdentifier, byte SourceLength )
+        public BACnetIpDevice()
+        {
+        }
+
+        public BACnetIpDevice(IPEndPoint IpAddress, int Network, uint InstanceNumber, int VendorIdentifier, byte SourceLength )
         {
             this.IpAddress = IpAddress;
             this.Network = Network;
@@ -71,7 +90,7 @@ namespace AppTest1.BACnet
         /// Finds the device properties.
         /// </summary>
         /// <returns></returns>
-        bool FindDeviceProperties( ref BACnetDevice device );
+        bool FindDeviceProperties(ref BACnetIpDevice device);
 
             /// <summary>
         /// Find all BACnet devices with enabled BBMD functionality.

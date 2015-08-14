@@ -325,6 +325,7 @@ namespace BACnet
                     IAmTimer.Stop();
                 }
             }
+            return BACnetData.Devices;
         }
 
         // Read Property -------------------------------------------------------------------------
