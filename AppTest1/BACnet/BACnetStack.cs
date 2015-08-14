@@ -215,7 +215,7 @@ namespace BACnet
         }
 
         // Do a Who-Is, and collect information about who answers -------------------------------------
-        public void  /*BACnetStack*/ GetDevices(int milliseconds)
+        public List<Device>  /*BACnetStack*/ GetDevices(int milliseconds)
         {
             // Get the host data, send a Who-Is, accept responses and save in the DeviceList
             //ulong ipaddr = 0;
@@ -314,6 +314,7 @@ namespace BACnet
                             IAmTimer.Start();
                         }
                     }
+                    return BACnetData.Devices;
                 }
                 catch (Exception e)
                 {

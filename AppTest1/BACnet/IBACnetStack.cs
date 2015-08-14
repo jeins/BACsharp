@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net;
 
 namespace BACnet
@@ -9,7 +10,7 @@ namespace BACnet
         /// Who-Is, and collect information about who answers
         /// </summary>
         /// <param name="milliseconds"></param>
-        void GetDevices(int milliseconds);
+        List<Device> GetDevices(int milliseconds);
 
         /// <summary>
         /// I-Am.

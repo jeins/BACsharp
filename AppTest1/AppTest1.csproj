@@ -60,6 +60,7 @@
     <Compile Include="..\source\BACnetEnums.cs">
       <Link>BACnet\BACnetEnums.cs</Link>
     </Compile>
+    <Compile Include="BACnet\BACnetService.cs" />
     <Compile Include="BACnet\BACnetStack.cs" />
     <Compile Include="BACnet\BACnetTypes.cs" />
     <Compile Include="BACnet\BVLC.cs" />

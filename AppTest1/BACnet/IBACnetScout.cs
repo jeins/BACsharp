@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 
 namespace AppTest1.BACnet
@@ -12,39 +13,33 @@ namespace AppTest1.BACnet
     /// <remarks>See <a href="http://www.bacnet.org/Bibliography/ES-7-96/ES-7-96.htm" /></remarks>
     public class BACnetDevice
     {
-        public struct ObjectIdentifier
-        {
-            public string ObjectType;
-
-            public int InstanceNumber;
-        }
-
+        public int InstanceNumber;
         public string ObjectName;
-
         public string SystemStatus;
-
         public string VendorName;
-
         public int VendorIdentifier;
-
         public string ModelName;
-
         public string FirmwareRevision;
-
         public string ApplicationSoftwareVersion;
-
         public int ProtocolVersion;
-
         public int ProtocolRevision;
-
         public byte SourceLength;
-
         public int Network;
+
     }
 
     public class BACnetIpDevice : BACnetDevice
     {
         public IPEndPoint IpAddress;
+
+        public BACnetIpDevice(IPEndPoint IpAddress, int Network, int InstanceNumber, int VendorIdentifier, byte SourceLength )
+        {
+            this.IpAddress = IpAddress;
+            this.Network = Network;
+            this.InstanceNumber = InstanceNumber;
+            this.VendorIdentifier = VendorIdentifier;
+            this.SourceLength = SourceLength;
+        }
 
     }
 
@@ -87,7 +82,7 @@ namespace AppTest1.BACnet
         /// BBMDs with enabled FD registration should ACK ReadForeignDeviceTable requests.
         /// </remarks>
         /// <returns></returns>
-        List<BACnetDeviceWithBBMD> FindBACnetBBMDs(IPEndPoint IpAddress);
+        List<BACnetDeviceWithBBMD> FindBACnetBBMDs(IPAddress ip);
 
         /// <summary>
         /// Determines whether there is a BACnet device at the specified IP address and port.
