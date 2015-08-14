@@ -131,14 +131,14 @@ namespace BACnetTest
 
     private void GetObjectsBtn_Click1(object sender, EventArgs e)
     {
-      BACStack.SendReadBdt(BACnetData.DeviceIndex);
-      BACStack.SendReadFdt(BACnetData.DeviceIndex);
+        BACStack.SendReadBdt(BACnetData.Devices[BACnetData.DeviceIndex].ServerEP);
+        BACStack.SendReadFdt(BACnetData.Devices[BACnetData.DeviceIndex].ServerEP);
       // Read the Device Array
       ObjectListLabel.Text = "";
       Property property = new Property();
       property.Tag = BACnetEnums.BACNET_APPLICATION_TAG.BACNET_APPLICATION_TAG_ENUMERATED;
       if (!BACStack.SendReadProperty(
-        BACnetData.DeviceIndex,
+        BACnetData.Devices[BACnetData.DeviceIndex],
         BACnetData.Devices[BACnetData.DeviceIndex].Instance,
         -1, // Array[0] is Object Count
         BACnetEnums.BACNET_OBJECT_TYPE.OBJECT_DEVICE,
@@ -163,14 +163,14 @@ namespace BACnetTest
 
     private void GetObjectsBtn_Click(object sender, EventArgs e)
     {
-        BACStack.SendReadBdt(BACnetData.DeviceIndex);
-        BACStack.SendReadFdt(BACnetData.DeviceIndex);
+        BACStack.SendReadBdt(BACnetData.Devices[BACnetData.DeviceIndex].ServerEP);
+        BACStack.SendReadFdt(BACnetData.Devices[BACnetData.DeviceIndex].ServerEP);
         // Read the Device Array
         ObjectListLabel.Text = "";
         Property property = new Property();
         property.Tag = BACnetEnums.BACNET_APPLICATION_TAG.BACNET_APPLICATION_TAG_ENUMERATED;
         if (!BACStack.SendReadProperty(
-          BACnetData.DeviceIndex,
+          BACnetData.Devices[BACnetData.DeviceIndex],
           BACnetData.Devices[BACnetData.DeviceIndex].Instance,
           0, // Array[0] is Object Count
           BACnetEnums.BACNET_OBJECT_TYPE.OBJECT_DEVICE,
@@ -201,7 +201,7 @@ namespace BACnetTest
                 {
                     tries++;
                     if (BACStack.SendReadProperty(
-                      BACnetData.DeviceIndex,
+                      BACnetData.Devices[BACnetData.DeviceIndex],
                       BACnetData.Devices[BACnetData.DeviceIndex].Instance,
                       i, // each array index
                       BACnetEnums.BACNET_OBJECT_TYPE.OBJECT_DEVICE,
@@ -267,8 +267,8 @@ namespace BACnetTest
         {
           uint objinst = Convert.ToUInt32(s1);
           Property property = new Property();
-         
-          if (!BACStack.SendReadProperty(BACnetData.DeviceIndex, 
+
+          if (!BACStack.SendReadProperty(BACnetData.Devices[BACnetData.DeviceIndex], 
             (uint)objinst, 
             -1, 
             objtype, 
@@ -313,7 +313,7 @@ namespace BACnetTest
           else
             property.ValueEnum = 0; // Turn it off
           if (BACStack.SendWriteProperty(
-            BACnetData.DeviceIndex,
+            BACnetData.Devices[BACnetData.DeviceIndex],
             (uint)objinst,
             -1,
             objtype,

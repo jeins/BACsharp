@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net;
+using System.Runtime.Remoting.Messaging;
 
 namespace BACnet
 {
@@ -60,7 +61,14 @@ namespace BACnet
 
         public static bool operator ==(Device obj1, Device obj2)
         {
-            return (obj1.Instance == obj2.Instance) && (obj1.Network == obj2.Network);
+            if ((null == (Object)obj1) || (null == (Object)obj2))
+            {
+                return false;
+            }
+            else
+            {
+                return (obj1.Instance == obj2.Instance) && (obj1.Network == obj2.Network);    
+            }
         }
 
         public static bool operator !=(Device obj1, Device obj2)
