@@ -36,11 +36,13 @@
             this.lblDeviceProp = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.lblDeviceIP = new System.Windows.Forms.Label();
+            this.listDeviceObj = new System.Windows.Forms.ListBox();
+            this.btnGetDeviceObj = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // btnGetDevice
             // 
-            this.btnGetDevice.Location = new System.Drawing.Point(13, 24);
+            this.btnGetDevice.Location = new System.Drawing.Point(13, 71);
             this.btnGetDevice.Name = "btnGetDevice";
             this.btnGetDevice.Size = new System.Drawing.Size(207, 23);
             this.btnGetDevice.TabIndex = 0;
@@ -51,7 +53,7 @@
             // listDevices
             // 
             this.listDevices.FormattingEnabled = true;
-            this.listDevices.Location = new System.Drawing.Point(12, 90);
+            this.listDevices.Location = new System.Drawing.Point(12, 137);
             this.listDevices.Name = "listDevices";
             this.listDevices.Size = new System.Drawing.Size(208, 355);
             this.listDevices.TabIndex = 1;
@@ -59,7 +61,7 @@
             // 
             // btnGetProp
             // 
-            this.btnGetProp.Location = new System.Drawing.Point(424, 24);
+            this.btnGetProp.Location = new System.Drawing.Point(515, 71);
             this.btnGetProp.Name = "btnGetProp";
             this.btnGetProp.Size = new System.Drawing.Size(339, 23);
             this.btnGetProp.TabIndex = 2;
@@ -70,7 +72,7 @@
             // listDeviceProp
             // 
             this.listDeviceProp.FormattingEnabled = true;
-            this.listDeviceProp.Location = new System.Drawing.Point(424, 90);
+            this.listDeviceProp.Location = new System.Drawing.Point(515, 137);
             this.listDeviceProp.Name = "listDeviceProp";
             this.listDeviceProp.Size = new System.Drawing.Size(339, 355);
             this.listDeviceProp.TabIndex = 3;
@@ -78,7 +80,7 @@
             // lblDevices
             // 
             this.lblDevices.AutoSize = true;
-            this.lblDevices.Location = new System.Drawing.Point(13, 71);
+            this.lblDevices.Location = new System.Drawing.Point(13, 118);
             this.lblDevices.Name = "lblDevices";
             this.lblDevices.Size = new System.Drawing.Size(46, 13);
             this.lblDevices.TabIndex = 4;
@@ -87,7 +89,7 @@
             // lblDeviceProp
             // 
             this.lblDeviceProp.AutoSize = true;
-            this.lblDeviceProp.Location = new System.Drawing.Point(424, 70);
+            this.lblDeviceProp.Location = new System.Drawing.Point(515, 117);
             this.lblDeviceProp.Name = "lblDeviceProp";
             this.lblDeviceProp.Size = new System.Drawing.Size(91, 13);
             this.lblDeviceProp.TabIndex = 5;
@@ -96,7 +98,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(244, 109);
+            this.label1.Location = new System.Drawing.Point(350, 28);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(81, 13);
             this.label1.TabIndex = 6;
@@ -105,16 +107,36 @@
             // lblDeviceIP
             // 
             this.lblDeviceIP.AutoSize = true;
-            this.lblDeviceIP.Location = new System.Drawing.Point(247, 142);
+            this.lblDeviceIP.Location = new System.Drawing.Point(437, 28);
             this.lblDeviceIP.Name = "lblDeviceIP";
             this.lblDeviceIP.Size = new System.Drawing.Size(0, 13);
             this.lblDeviceIP.TabIndex = 7;
+            // 
+            // listDeviceObj
+            // 
+            this.listDeviceObj.FormattingEnabled = true;
+            this.listDeviceObj.Location = new System.Drawing.Point(266, 137);
+            this.listDeviceObj.Name = "listDeviceObj";
+            this.listDeviceObj.Size = new System.Drawing.Size(208, 355);
+            this.listDeviceObj.TabIndex = 8;
+            // 
+            // btnGetDeviceObj
+            // 
+            this.btnGetDeviceObj.Location = new System.Drawing.Point(266, 71);
+            this.btnGetDeviceObj.Name = "btnGetDeviceObj";
+            this.btnGetDeviceObj.Size = new System.Drawing.Size(208, 23);
+            this.btnGetDeviceObj.TabIndex = 9;
+            this.btnGetDeviceObj.Text = "Get Device Objects";
+            this.btnGetDeviceObj.UseVisualStyleBackColor = true;
+            this.btnGetDeviceObj.Click += new System.EventHandler(this.btnGetDeviceObj_Click);
             // 
             // Form2
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(775, 459);
+            this.ClientSize = new System.Drawing.Size(872, 508);
+            this.Controls.Add(this.btnGetDeviceObj);
+            this.Controls.Add(this.listDeviceObj);
             this.Controls.Add(this.lblDeviceIP);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.lblDeviceProp);
@@ -140,5 +162,7 @@
         private System.Windows.Forms.Label lblDeviceProp;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label lblDeviceIP;
+        private System.Windows.Forms.ListBox listDeviceObj;
+        private System.Windows.Forms.Button btnGetDeviceObj;
     }
 }
