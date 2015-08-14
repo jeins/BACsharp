@@ -13,7 +13,6 @@ namespace AppTest1
 {
     public partial class Form2 : Form
     {
-        public IBACnetStack BACStack;
         public IBACnetScout BACService;
 
         public Form2()
@@ -21,7 +20,6 @@ namespace AppTest1
             InitializeComponent();
 
             // Create the BACNet stack
-            BACStack = new BACnetStack();
             BACService = new Service(47808);
         }
 
