@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 
 namespace BACnet
 {
@@ -21,7 +22,7 @@ namespace BACnet
         /// <summary>
         /// Read Property.
         /// </summary>
-        /// <param name="deviceidx">The deviceidx.</param>
+        /// <param name="recipient">The recipient.</param>
         /// <param name="instance">The instance.</param>
         /// <param name="arrayidx">The arrayidx.</param>
         /// <param name="objtype">The objtype.</param>
@@ -29,7 +30,7 @@ namespace BACnet
         /// <param name="property">The property.</param>
         /// <returns></returns>
         bool SendReadProperty(
-            int deviceidx, 
+            Device recipient,
             uint instance,
             int arrayidx,
             BACnetEnums.BACNET_OBJECT_TYPE objtype,
@@ -39,7 +40,7 @@ namespace BACnet
         /// <summary>
         /// Write Property.
         /// </summary>
-        /// <param name="deviceidx">The deviceidx.</param>
+        /// <param name="recipient">The receipient.</param>
         /// <param name="instance">The instance.</param>
         /// <param name="arrayidx">The arrayidx.</param>
         /// <param name="objtype">The objtype.</param>
@@ -48,7 +49,7 @@ namespace BACnet
         /// <param name="priority">The priority.</param>
         /// <returns></returns>
         bool SendWriteProperty(
-            int deviceidx,
+            Device recipient,
             uint instance,
             int arrayidx,
             BACnetEnums.BACNET_OBJECT_TYPE objtype,
@@ -61,13 +62,13 @@ namespace BACnet
         /// </summary>
         /// <param name="deviceidx">The deviceidx.</param>
         /// <returns></returns>
-        bool SendReadBdt(int deviceidx);
+        bool SendReadBdt(IPEndPoint bIpAddress);
 
         /// <summary>
         /// Sends the read FDT.
         /// </summary>
         /// <param name="deviceidx">The deviceidx.</param>
         /// <returns></returns>
-        bool SendReadFdt(int deviceidx);
+        bool SendReadFdt(IPEndPoint bIpAddress);
     }
 }

@@ -328,7 +328,7 @@ namespace BACnet
 
         // Read Property -------------------------------------------------------------------------
         public bool /*BACnetStack*/ SendReadProperty(
-          int deviceidx,
+          Device device,
           uint instance,
           int arrayidx,
           BACnetEnums.BACNET_OBJECT_TYPE objtype,
@@ -345,10 +345,7 @@ namespace BACnet
             // Create and send an Confirmed Request
 
             //value = "(none)";
-            if ((deviceidx < 0) || (deviceidx >= BACnetData.Devices.Count)) return false;
-
-            IPEndPoint remoteEP = BACnetData.Devices[deviceidx].ServerEP;
-            if (remoteEP == null) return false;
+            if (device == null) return false;
 
             if (property == null) return false;
 
@@ -366,19 +363,19 @@ namespace BACnet
 
             // NPDU
             sendBytes[4] = BACnetEnums.BACNET_PROTOCOL_VERSION;
-            if (BACnetData.Devices[deviceidx].SourceLength == 0)
+            if (device.SourceLength == 0)
                 sendBytes[5] = 0x04;  // Control flags, no destination address
             else
                 sendBytes[5] = 0x24;  // Control flags, with broadcast or destination address
 
             len = 6;
-            if (BACnetData.Devices[deviceidx].SourceLength > 0)
+            if (device.SourceLength > 0)
             {
                 // Get the (MSTP) Network number (2001)
                 //sendBytes[6] = 0x07;  // Destination network address (2001)
                 //sendBytes[7] = 0xD1;
                 byte[] temp2 = new byte[2];
-                temp2 = BitConverter.GetBytes(BACnetData.Devices[deviceidx].Network);
+                temp2 = BitConverter.GetBytes(device.Network);
                 sendBytes[len++] = temp2[1];
                 sendBytes[len++] = temp2[0];
 
@@ -386,7 +383,7 @@ namespace BACnet
                 //sendBytes[8] = 0x01;  // MAC address length
                 //sendBytes[9] = 0x0D;  // Destination MAC layer address
                 byte[] temp4 = new byte[4];
-                temp4 = BitConverter.GetBytes(BACnetData.Devices[deviceidx].MACAddress);
+                temp4 = BitConverter.GetBytes(device.MACAddress);
 
                 sendBytes[len++] = 0x01;  // MAC address length - adjust for other lengths ...
                 sendBytes[len++] = temp4[0];
@@ -429,7 +426,7 @@ namespace BACnet
                     while (Count < 3)
                     {
                         SendUDP.EnableBroadcast = false;
-                        SendUDP.Send(sendBytes, (int)len, remoteEP);
+                        SendUDP.Send(sendBytes, (int)len, device.ServerEP);
 
                         // Start the timer
                         TimerDone = false;
@@ -443,7 +440,8 @@ namespace BACnet
                             if (SendUDP.Client.Available > 0)
                             {
                                 //recvBytes = SendUDP.Receive(ref RemoteEP);
-                                recvBytes = SendUDP.Receive(ref remoteEP);
+                                IPEndPoint sendTo = device.ServerEP;
+                                recvBytes = SendUDP.Receive(ref sendTo);
 
                                 int APDUOffset = NPDU.Parse(recvBytes, BVLC.BACNET_BVLC_HEADER_LEN); // BVLL is always 4 bytes
 
@@ -488,7 +486,7 @@ namespace BACnet
 
         // Write Property -------------------------------------------------------------------------
         public bool /*BACnetStack*/ SendWriteProperty(
-          int deviceidx,
+          Device device,
           uint instance,
           int arrayidx,
           BACnetEnums.BACNET_OBJECT_TYPE objtype,
@@ -503,10 +501,7 @@ namespace BACnet
         //   Priority
         {
             // Create and send an Confirmed Request
-            if ((deviceidx < 0) || (deviceidx >= BACnetData.Devices.Count)) return false;
-
-            IPEndPoint remoteEP = BACnetData.Devices[deviceidx].ServerEP;
-            if (remoteEP == null) return false;
+            if (device == null) return false;
 
             if (property == null) return false;
 
@@ -518,18 +513,18 @@ namespace BACnet
 
             // NPDU
             sendBytes[len++] = BACnetEnums.BACNET_PROTOCOL_VERSION;
-            if (BACnetData.Devices[deviceidx].SourceLength == 0)
+            if (device.SourceLength == 0)
                 sendBytes[len++] = 0x04;  // Control flags, no destination address
             else
                 sendBytes[len++] = 0x24;  // Control flags, with broadcast or destination
 
-            if (BACnetData.Devices[deviceidx].SourceLength > 0)
+            if (device.SourceLength > 0)
             {
                 // Get the (MSTP) Network number (2001)
                 //sendBytes[6] = 0x07;  // Destination network address (2001)
                 //sendBytes[7] = 0xD1;
                 byte[] temp2 = new byte[2];
-                temp2 = BitConverter.GetBytes(BACnetData.Devices[deviceidx].Network);
+                temp2 = BitConverter.GetBytes(device.Network);
                 sendBytes[len++] = temp2[1];
                 sendBytes[len++] = temp2[0];
 
@@ -537,7 +532,7 @@ namespace BACnet
                 //sendBytes[8] = 0x01;  // MAC address length
                 //sendBytes[9] = 0x0D;  // Destination MAC layer address
                 byte[] temp4 = new byte[4];
-                temp4 = BitConverter.GetBytes(BACnetData.Devices[deviceidx].MACAddress);
+                temp4 = BitConverter.GetBytes(device.MACAddress);
                 sendBytes[len++] = 0x01;  // MAC address length - adjust for other lengths ...
                 sendBytes[len++] = temp4[0];
 
@@ -591,7 +586,7 @@ namespace BACnet
                     while (Count < BACNET_UNICAST_REQUEST_REPEAT_COUNT)
                     {
                         SendUDP.EnableBroadcast = false;
-                        SendUDP.Send(sendBytes, (int)len, remoteEP);
+                        SendUDP.Send(sendBytes, (int)len, device.ServerEP);
 
                         // Start the timer
                         TimerDone = false;
@@ -605,7 +600,8 @@ namespace BACnet
                             if (SendUDP.Client.Available > 0)
                             {
                                 //recvBytes = SendUDP.Receive(ref RemoteEP);
-                                recvBytes = SendUDP.Receive(ref remoteEP);
+                                IPEndPoint sendTo = device.ServerEP;
+                                recvBytes = SendUDP.Receive(ref sendTo);
 
                                 int APDUOffset = NPDU.Parse(recvBytes, 4); // BVLL is always 4 bytes
                                 // Check for APDU response, and decide what to do
@@ -647,18 +643,13 @@ namespace BACnet
         }
 
         // Read Broadcast Distribution Table -------------------------------------------------------------------------
-        public bool /*BACnetStack*/ SendReadBdt( int deviceidx )
+        public bool /*BACnetStack*/ SendReadBdt(IPEndPoint remoteEP)
         //out string value)
         // Parameters:
         //   Device index (for network and MAC address),
         //   Value returned
         {
             // Create and send an Confirmed Request
-
-            //value = "(none)";
-            if ((deviceidx < 0) || (deviceidx >= BACnetData.Devices.Count)) return false;
-
-            IPEndPoint remoteEP = BACnetData.Devices[deviceidx].ServerEP;
             if (remoteEP == null) return false;
 
             //uint instance = BACnetData.Devices[deviceidx].Instance;
@@ -741,18 +732,13 @@ namespace BACnet
         }
 
         // Read Foreign Device Table -------------------------------------------------------------------------
-        public bool /*BACnetStack*/ SendReadFdt(int deviceidx)
+        public bool /*BACnetStack*/ SendReadFdt(IPEndPoint remoteEP)
         //out string value)
         // Parameters:
         //   Device index (for network and MAC address),
         //   Value returned
         {
             // Create and send an Confirmed Request
-
-            //value = "(none)";
-            if ((deviceidx < 0) || (deviceidx >= BACnetData.Devices.Count)) return false;
-
-            IPEndPoint remoteEP = BACnetData.Devices[deviceidx].ServerEP;
             if (remoteEP == null) return false;
 
 

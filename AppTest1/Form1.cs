@@ -129,7 +129,7 @@ namespace BACnetTest
         GetObjectsBtn.Enabled = false;
     }
 
-    private void GetObjectsBtn_Click(object sender, EventArgs e)
+    private void GetObjectsBtn_Click1(object sender, EventArgs e)
     {
       BACStack.SendReadBdt(BACnetData.DeviceIndex);
       BACStack.SendReadFdt(BACnetData.DeviceIndex);
@@ -140,63 +140,97 @@ namespace BACnetTest
       if (!BACStack.SendReadProperty(
         BACnetData.DeviceIndex,
         BACnetData.Devices[BACnetData.DeviceIndex].Instance,
-        0, // Array[0] is Object Count
+        -1, // Array[0] is Object Count
         BACnetEnums.BACNET_OBJECT_TYPE.OBJECT_DEVICE,
-        BACnetEnums.BACNET_PROPERTY_ID.PROP_OBJECT_LIST,
+        BACnetEnums.BACNET_PROPERTY_ID.PROP_OBJECT_NAME,
         property))
       {
         ObjectListLabel.Text = "Read Property Object List Error (1)";
         return;
       }
 
-      if (property.Tag != BACnetEnums.BACNET_APPLICATION_TAG.BACNET_APPLICATION_TAG_UNSIGNED_INT)
+      if (property.Tag != BACnetEnums.BACNET_APPLICATION_TAG.BACNET_APPLICATION_TAG_CHARACTER_STRING)
       {
-        ObjectListLabel.Text = "Read Property Object List Error (2)";
+        ObjectListLabel.Text = "Read Property Not-A-String-Error (2)";
         return;
       }
 
       ObjectListLabel.Text = property.ValueUInt.ToString() + " objects found";
 
       int i, tries;
-      uint total = property.ValueUInt;
-      ObjectList.Items.Clear();
-      if (total > 0) for (i = 1; i <= total; i++)
-      {
-        // Read through Array[x] up to Object Count
-        // Need to try the read again if it times out
-        tries = 0;
-        while (tries < 5)
-        {
-          tries++;
-          if (BACStack.SendReadProperty(
-            BACnetData.DeviceIndex,
-            BACnetData.Devices[BACnetData.DeviceIndex].Instance,
-            i, // each array index
-            BACnetEnums.BACNET_OBJECT_TYPE.OBJECT_DEVICE,
-            BACnetEnums.BACNET_PROPERTY_ID.PROP_OBJECT_LIST,
-            property))
-          {
-            tries = 5; // Next object
-            string s;
-            if (property.Tag != BACnetEnums.BACNET_APPLICATION_TAG.BACNET_APPLICATION_TAG_OBJECT_ID)
-              tries = 5; // continue;
-            switch (property.ValueObjectType)
-            {
-              case BACnetEnums.BACNET_OBJECT_TYPE.OBJECT_DEVICE: s = "Device"; break;
-              case BACnetEnums.BACNET_OBJECT_TYPE.OBJECT_ANALOG_INPUT: s = "Analog Input"; break;
-              case BACnetEnums.BACNET_OBJECT_TYPE.OBJECT_ANALOG_OUTPUT: s = "Analog Output"; break;
-              case BACnetEnums.BACNET_OBJECT_TYPE.OBJECT_ANALOG_VALUE: s = "Analog value"; break;
-              case BACnetEnums.BACNET_OBJECT_TYPE.OBJECT_BINARY_INPUT: s = "Binary Input"; break;
-              case BACnetEnums.BACNET_OBJECT_TYPE.OBJECT_BINARY_OUTPUT: s = "Binary Output"; break;
-              case BACnetEnums.BACNET_OBJECT_TYPE.OBJECT_BINARY_VALUE: s = "Binary value"; break;
-              default: s = "Other"; break;
-            }
-            s = s + "  " + property.ValueObjectInstance.ToString();
-            ObjectList.Items.Add(s);
-          }
-        }
-      }
+      Console.WriteLine("Device with Object Name: " + property.ValueString );
     }
+
+    private void GetObjectsBtn_Click(object sender, EventArgs e)
+    {
+        BACStack.SendReadBdt(BACnetData.DeviceIndex);
+        BACStack.SendReadFdt(BACnetData.DeviceIndex);
+        // Read the Device Array
+        ObjectListLabel.Text = "";
+        Property property = new Property();
+        property.Tag = BACnetEnums.BACNET_APPLICATION_TAG.BACNET_APPLICATION_TAG_ENUMERATED;
+        if (!BACStack.SendReadProperty(
+          BACnetData.DeviceIndex,
+          BACnetData.Devices[BACnetData.DeviceIndex].Instance,
+          0, // Array[0] is Object Count
+          BACnetEnums.BACNET_OBJECT_TYPE.OBJECT_DEVICE,
+          BACnetEnums.BACNET_PROPERTY_ID.PROP_OBJECT_LIST,
+          property))
+        {
+            ObjectListLabel.Text = "Read Property Object List Error (1)";
+            return;
+        }
+
+        if (property.Tag != BACnetEnums.BACNET_APPLICATION_TAG.BACNET_APPLICATION_TAG_UNSIGNED_INT)
+        {
+            ObjectListLabel.Text = "Read Property Object List Error (2)";
+            return;
+        }
+
+        ObjectListLabel.Text = property.ValueUInt.ToString() + " objects found";
+
+        int i, tries;
+        uint total = property.ValueUInt;
+        ObjectList.Items.Clear();
+        if (total > 0) for (i = 1; i <= total; i++)
+            {
+                // Read through Array[x] up to Object Count
+                // Need to try the read again if it times out
+                tries = 0;
+                while (tries < 5)
+                {
+                    tries++;
+                    if (BACStack.SendReadProperty(
+                      BACnetData.DeviceIndex,
+                      BACnetData.Devices[BACnetData.DeviceIndex].Instance,
+                      i, // each array index
+                      BACnetEnums.BACNET_OBJECT_TYPE.OBJECT_DEVICE,
+                      BACnetEnums.BACNET_PROPERTY_ID.PROP_OBJECT_LIST,
+                      property))
+                    {
+                        tries = 5; // Next object
+                        string s;
+                        if (property.Tag != BACnetEnums.BACNET_APPLICATION_TAG.BACNET_APPLICATION_TAG_OBJECT_ID)
+                            tries = 5; // continue;
+                        switch (property.ValueObjectType)
+                        {
+                            case BACnetEnums.BACNET_OBJECT_TYPE.OBJECT_DEVICE: s = "Device"; break;
+                            case BACnetEnums.BACNET_OBJECT_TYPE.OBJECT_ANALOG_INPUT: s = "Analog Input"; break;
+                            case BACnetEnums.BACNET_OBJECT_TYPE.OBJECT_ANALOG_OUTPUT: s = "Analog Output"; break;
+                            case BACnetEnums.BACNET_OBJECT_TYPE.OBJECT_ANALOG_VALUE: s = "Analog value"; break;
+                            case BACnetEnums.BACNET_OBJECT_TYPE.OBJECT_BINARY_INPUT: s = "Binary Input"; break;
+                            case BACnetEnums.BACNET_OBJECT_TYPE.OBJECT_BINARY_OUTPUT: s = "Binary Output"; break;
+                            case BACnetEnums.BACNET_OBJECT_TYPE.OBJECT_BINARY_VALUE: s = "Binary value"; break;
+                            case BACnetEnums.BACNET_OBJECT_TYPE.OBJECT_FILE: s = "File"; break;
+                            default: s = "Other"; break;
+                        }
+                        s = s + "  " + property.ValueObjectInstance.ToString();
+                        ObjectList.Items.Add(s);
+                    }
+                }
+            }
+    }
+
 
     private void ObjectList_SelectedIndexChanged(object sender, EventArgs e)
     {
