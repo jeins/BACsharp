@@ -84,7 +84,7 @@ namespace AppTest1.BACnet
         /// Reading the required Device properties can be accomplished with a single ReadPropertyMultiple request.
         /// </remarks>
         /// <returns>A list of all found BACnet IP devices.</returns>
-        List<BACnetIpDevice> FindBACnetDevices(IPEndPoint IpAddress);
+        List<BACnetIpDevice> FindBACnetDevices();
 
         /// <summary>
         /// Finds the device properties.

@@ -14,32 +14,35 @@ namespace AppTest1
     public partial class Form2 : Form
     {
         public IBACnetStack BACStack;
+        public IBACnetScout BACService;
+
         public Form2()
         {
             InitializeComponent();
 
             // Create the BACNet stack
             BACStack = new BACnetStack();
+            BACService = new Service(47808);
         }
 
         private void btnGetDevice_Click(object sender, EventArgs e)
         {
-            BACStack.GetDevices(1);
+            List<BACnetIpDevice> bacnetDevices = BACService.FindBACnetDevices();
             listDevices.Items.Clear();
-            if (BACnetData.Devices.Count == 0)
+            if (bacnetDevices.Count == 0)
             {
                 MessageBox.Show("No Devices");
             }
             else
             {
-                foreach (Device dev in BACnetData.Devices)
+                foreach (BACnetIpDevice dev in bacnetDevices)
                 {
                     listDevices.Items.Add(
-                      dev.VendorID.ToString() + ", " +
+                      dev.VendorIdentifier.ToString() + ", " +
                       dev.Network.ToString() + ", " +
-                      dev.Instance.ToString() + ", " +
-                      dev.ServerEP.Address.ToString() + ":" +
-                      dev.ServerEP.Port.ToString());
+                      dev.InstanceNumber.ToString() + ", " +
+                      dev.IpAddress.ToString() + ":" +
+                      dev.IpAddress.Port.ToString());
                 }
             }
         }
