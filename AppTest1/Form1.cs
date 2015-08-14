@@ -139,7 +139,6 @@ namespace BACnetTest
       property.Tag = BACnetEnums.BACNET_APPLICATION_TAG.BACNET_APPLICATION_TAG_ENUMERATED;
       if (!BACStack.SendReadProperty(
         BACnetData.Devices[BACnetData.DeviceIndex],
-        BACnetData.Devices[BACnetData.DeviceIndex].Instance,
         -1, // Array[0] is Object Count
         BACnetEnums.BACNET_OBJECT_TYPE.OBJECT_DEVICE,
         BACnetEnums.BACNET_PROPERTY_ID.PROP_OBJECT_NAME,
@@ -171,7 +170,6 @@ namespace BACnetTest
         property.Tag = BACnetEnums.BACNET_APPLICATION_TAG.BACNET_APPLICATION_TAG_ENUMERATED;
         if (!BACStack.SendReadProperty(
           BACnetData.Devices[BACnetData.DeviceIndex],
-          BACnetData.Devices[BACnetData.DeviceIndex].Instance,
           0, // Array[0] is Object Count
           BACnetEnums.BACNET_OBJECT_TYPE.OBJECT_DEVICE,
           BACnetEnums.BACNET_PROPERTY_ID.PROP_OBJECT_LIST,
@@ -202,7 +200,6 @@ namespace BACnetTest
                     tries++;
                     if (BACStack.SendReadProperty(
                       BACnetData.Devices[BACnetData.DeviceIndex],
-                      BACnetData.Devices[BACnetData.DeviceIndex].Instance,
                       i, // each array index
                       BACnetEnums.BACNET_OBJECT_TYPE.OBJECT_DEVICE,
                       BACnetEnums.BACNET_PROPERTY_ID.PROP_OBJECT_LIST,
@@ -269,7 +266,6 @@ namespace BACnetTest
           Property property = new Property();
 
           if (!BACStack.SendReadProperty(BACnetData.Devices[BACnetData.DeviceIndex], 
-            (uint)objinst, 
             -1, 
             objtype, 
             propid, 
@@ -314,7 +310,6 @@ namespace BACnetTest
             property.ValueEnum = 0; // Turn it off
           if (BACStack.SendWriteProperty(
             BACnetData.Devices[BACnetData.DeviceIndex],
-            (uint)objinst,
             -1,
             objtype,
             propid,

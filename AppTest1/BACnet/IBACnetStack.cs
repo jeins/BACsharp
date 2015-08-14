@@ -31,7 +31,6 @@ namespace BACnet
         /// <returns></returns>
         bool SendReadProperty(
             Device recipient,
-            uint instance,
             int arrayidx,
             BACnetEnums.BACNET_OBJECT_TYPE objtype,
             BACnetEnums.BACNET_PROPERTY_ID objprop,
@@ -50,7 +49,6 @@ namespace BACnet
         /// <returns></returns>
         bool SendWriteProperty(
             Device recipient,
-            uint instance,
             int arrayidx,
             BACnetEnums.BACNET_OBJECT_TYPE objtype,
             BACnetEnums.BACNET_PROPERTY_ID objprop,
