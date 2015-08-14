@@ -76,7 +76,7 @@ namespace AppTest1.BACnet
         /// Finds the device properties.
         /// </summary>
         /// <returns></returns>
-        List<BACnetDevice> FindDeviceProperties();
+        bool FindDeviceProperties( ref BACnetDevice device );
 
             /// <summary>
         /// Find all BACnet devices with enabled BBMD functionality.
