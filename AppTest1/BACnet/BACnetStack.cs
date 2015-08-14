@@ -710,6 +710,13 @@ namespace BACnet
                                     }
                                     gotResponse = true; ;
                                 }
+                                else if (BVLC.BACNET_BVLC_FUNC_RESULT == BVLC.BVLC_Function)
+                                {
+                                    if (0x0020 == BVLC.BVLC_Function_ResultCode)
+                                    {
+                                        gotResponse = true;
+                                    }
+                                }
                                 else
                                 {
                                     Console.WriteLine("Received BVLC Paket Type " + BVLC.BVLC_Function.ToString() + " expected:  " + BVLC.BACNET_BVLC_FUNC_READ_BDT_ACK);
@@ -722,7 +729,7 @@ namespace BACnet
                         BACnetData.PacketRetryCount++;
                         BVLCFuncTimer.Stop(); // We'll start it over at the top of the loop
                     }
-                    return false;  // This will still execute the finally
+                    return gotResponse;  // This will still execute the finally
                 }
             }
             finally
@@ -796,9 +803,17 @@ namespace BACnet
                                     }
                                     gotResponse = true;
                                 }
+                                else if (BVLC.BACNET_BVLC_FUNC_RESULT == BVLC.BVLC_Function)
+                                {
+                                    if (0x0040 == BVLC.BVLC_Function_ResultCode)
+                                    {
+                                        gotResponse = true;
+                                    }
+                                }
                                 else
                                 {
-                                    Console.WriteLine("Received BVLC Paket Type " + BVLC.BVLC_Function.ToString() + " expected:  " + BVLC.BACNET_BVLC_FUNC_READ_FDT_ACK);
+                                    Console.WriteLine("Received BVLC Paket Type " + BVLC.BVLC_Function.ToString() +
+                                                      " expected:  " + BVLC.BACNET_BVLC_FUNC_READ_FDT_ACK);
                                 }
 
                             }
@@ -807,7 +822,7 @@ namespace BACnet
                         BACnetData.PacketRetryCount++;
                         BVLCFuncTimer.Stop(); // We'll start it over at the top of the loop
                     }
-                    return false;  // This will still execute the finally
+                    return gotResponse;  // This will still execute the finally
                 }
             }
             finally

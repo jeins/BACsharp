@@ -54,6 +54,7 @@ namespace BACnet
 
             BVLC_Function_ResultCode = 0;
             BVLC_ListOfBdtEntries = null;
+            BVLC_ListOfFdtEntries = null;
             BVLC_BacnetIpAddress = null;
         }
 
@@ -160,7 +161,7 @@ namespace BACnet
             temp = new byte[2];
             temp[1] = bytes[len++];
             temp[0] = bytes[len++];
-            BVLC_Function_ResultCode = (UInt16)BitConverter.ToUInt16(temp, 0);
+            BVLC_Function_ResultCode = (UInt16) (temp[1]*256+temp[0]);
             return len;
         }
 

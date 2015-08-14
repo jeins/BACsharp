@@ -73,7 +73,13 @@ namespace BACnet
 
         public bool IsFdRegistrationSupported(IPEndPoint IpAddress)
         {
-            //TODO: implement
+            if (BACStack.SendReadFdt(IpAddress))
+            {
+                if (BVLC.BVLC_Function_ResultCode == 0)
+                    return true;
+                else
+                    return false;
+            }            
             return false;
 
         }
@@ -151,11 +157,6 @@ namespace BACnet
             {
                 return false;
             }
-
-        }
-
-        public enum BacnetDeviceSytemStatusString
-        {
 
         }
 
