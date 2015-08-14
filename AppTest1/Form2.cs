@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Net.Configuration;
 using System.Text;
 using System.Windows.Forms;
 using AppTest1.BACnet;
@@ -21,10 +22,11 @@ namespace AppTest1
         {
             InitializeComponent();
 
-            // Create the BACNet stack
             BACService = new Service(47808);
-            btnGetProp.Enabled = false;
             bacnetDevice = null;
+
+            btnGetProp.Enabled = false;
+            btnGetDeviceObj.Enabled = false;
         }
 
         private void btnGetDevice_Click(object sender, EventArgs e)
@@ -47,6 +49,7 @@ namespace AppTest1
                       dev.IpAddress.Port.ToString());
                 }
                 btnGetProp.Enabled = true;
+                btnGetDeviceObj.Enabled = true;
             }
         }
 
@@ -67,6 +70,15 @@ namespace AppTest1
             int idx = listDevices.SelectedIndex;
             bacnetDevice = bacnetDevices[idx];
             lblDeviceIP.Text = bacnetDevice.IpAddress.ToString();
+        }
+
+        private void btnGetDeviceObj_Click(object sender, EventArgs e)
+        {
+            BACService.FindDeviceObjects(ref bacnetDevice);
+            foreach (string values in bacnetDevice.DeviceObjects)
+            {
+                listDeviceObj.Items.Add(values);
+            }
         }
     }
 }

@@ -25,6 +25,7 @@ namespace AppTest1.BACnet
         public int ProtocolRevision;
         public byte SourceLength;
         public int Network;
+        public List<string> DeviceObjects;  
 
         public BACnetDevice()
         {
@@ -40,6 +41,7 @@ namespace AppTest1.BACnet
             ProtocolRevision = 0;
             SourceLength = 0;
             Network = 65535;
+            DeviceObjects = null;
         }
     }
 
