@@ -57,18 +57,18 @@ namespace AppTest1
         {
             BACService.FindDeviceProperties(ref bacnetDevice);
             listDeviceProp.Items.Clear();
-            listDeviceProp.Items.Add(bacnetDevice.IpAddress.ToString());
-            listDeviceProp.Items.Add(bacnetDevice.ModelName.ToString());
-            listDeviceProp.Items.Add(bacnetDevice.VendorName.ToString());
-            listDeviceProp.Items.Add(bacnetDevice.ApplicationSoftwareVersion.ToString());
-            listDeviceProp.Items.Add(bacnetDevice.FirmwareRevision.ToString());
-            listDeviceProp.Items.Add(bacnetDevice.ProtocolRevision.ToString());
-            listDeviceProp.Items.Add(bacnetDevice.SystemStatus.ToString());
-            listDeviceProp.Items.Add(bacnetDevice.InstanceNumber.ToString());
-            listDeviceProp.Items.Add(bacnetDevice.Network.ToString());
-            listDeviceProp.Items.Add(bacnetDevice.ObjectName.ToString());
-            listDeviceProp.Items.Add(bacnetDevice.SourceLength.ToString());
-            listDeviceProp.Items.Add(bacnetDevice.VendorIdentifier.ToString());
+            listDeviceProp.Items.Add("IP Address: " + bacnetDevice.IpAddress.ToString());
+            listDeviceProp.Items.Add("Model Name: " + bacnetDevice.ModelName.ToString());
+            listDeviceProp.Items.Add("Vendor Name: " + bacnetDevice.VendorName.ToString());
+            listDeviceProp.Items.Add("Software Version: " + bacnetDevice.ApplicationSoftwareVersion.ToString());
+            listDeviceProp.Items.Add("Firmware Revision: " + bacnetDevice.FirmwareRevision.ToString());
+            listDeviceProp.Items.Add("Protocol Revision: " + bacnetDevice.ProtocolRevision.ToString());
+            listDeviceProp.Items.Add("System Status: " + bacnetDevice.SystemStatus.ToString());
+            listDeviceProp.Items.Add("Instance Number: " + bacnetDevice.InstanceNumber.ToString());
+            listDeviceProp.Items.Add("Netwrok: " + bacnetDevice.Network.ToString());
+            listDeviceProp.Items.Add("Object Name: " + bacnetDevice.ObjectName.ToString());
+            listDeviceProp.Items.Add("Source Length: " + bacnetDevice.SourceLength.ToString());
+            listDeviceProp.Items.Add("Vendor Identifier: " + bacnetDevice.VendorIdentifier.ToString());
         }
 
         private void listDevices_SelectedIndexChanged(object sender, EventArgs e)
