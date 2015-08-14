@@ -8,7 +8,7 @@ namespace BACnet
 {
     //-----------------------------------------------------------------------------------------------
     // The Stack
-    public class Service : IBACnetScout
+    public class Service : IBACnetService
     {
         public UInt16 UdpPort { get; set; }
         private IBACnetStack BACStack = null;

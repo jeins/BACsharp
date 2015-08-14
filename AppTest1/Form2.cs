@@ -14,7 +14,7 @@ namespace AppTest1
 {
     public partial class Form2 : Form
     {
-        public IBACnetScout BACService;
+        public IBACnetService BACService;
         public List<BACnetIpDevice> bacnetDevices;
         private BACnetIpDevice bacnetDevice;
 
@@ -57,12 +57,18 @@ namespace AppTest1
         {
             BACService.FindDeviceProperties(ref bacnetDevice);
             listDeviceProp.Items.Clear();
+            listDeviceProp.Items.Add(bacnetDevice.IpAddress.ToString());
             listDeviceProp.Items.Add(bacnetDevice.ModelName.ToString());
             listDeviceProp.Items.Add(bacnetDevice.VendorName.ToString());
             listDeviceProp.Items.Add(bacnetDevice.ApplicationSoftwareVersion.ToString());
             listDeviceProp.Items.Add(bacnetDevice.FirmwareRevision.ToString());
             listDeviceProp.Items.Add(bacnetDevice.ProtocolRevision.ToString());
             listDeviceProp.Items.Add(bacnetDevice.SystemStatus.ToString());
+            listDeviceProp.Items.Add(bacnetDevice.InstanceNumber.ToString());
+            listDeviceProp.Items.Add(bacnetDevice.Network.ToString());
+            listDeviceProp.Items.Add(bacnetDevice.ObjectName.ToString());
+            listDeviceProp.Items.Add(bacnetDevice.SourceLength.ToString());
+            listDeviceProp.Items.Add(bacnetDevice.VendorIdentifier.ToString());
         }
 
         private void listDevices_SelectedIndexChanged(object sender, EventArgs e)
