@@ -148,6 +148,21 @@ namespace BACnet
                 return "???";
         }
 
+        public static string /*APDU*/ AppSpecialString(byte[] bytes, int offset)
+        {
+            // AppTag = 0x74
+            if (offset < 0) return "Error!";
+            int length = 0;
+            for (int i = offset + 1; i < offset + 255; i++)
+            {
+                if (bytes[i] == 0x3f) break;
+                else ++length;
+            }
+            if ((offset > 0) && (length > 0))
+                return Encoding.UTF8.GetString(bytes, offset + 1, length);
+            else
+                return "???";
+        }
         public static uint /*APDU*/ SetObjectID(ref byte[] bytes, uint pos,
           BACnetEnums.BACNET_OBJECT_TYPE type, uint instance)
         {
@@ -341,31 +356,31 @@ namespace BACnet
                 property.ValueUInt = APDU.AppUInt(bytes, offset);
                 property.ToStringValue = property.ValueUInt.ToString();
             }
-            if (tag == 0x22)
+            else if (tag == 0x22)
             {
                 property.Tag = BACnetEnums.BACNET_APPLICATION_TAG.BACNET_APPLICATION_TAG_UNSIGNED_INT;
                 property.ValueUInt = APDU.AppUInt16(bytes, offset);
                 property.ToStringValue = property.ValueUInt.ToString();
             }
-            if (tag == 0x23)
+            else if (tag == 0x23)
             {
                 property.Tag = BACnetEnums.BACNET_APPLICATION_TAG.BACNET_APPLICATION_TAG_UNSIGNED_INT;
                 property.ValueUInt = APDU.AppUInt24(bytes, offset);
                 property.ToStringValue = property.ValueUInt.ToString();
             }
-            if (tag == 0x24)
+            else if (tag == 0x24)
             {
                 property.Tag = BACnetEnums.BACNET_APPLICATION_TAG.BACNET_APPLICATION_TAG_UNSIGNED_INT;
                 property.ValueUInt = APDU.AppUInt32(bytes, offset);
                 property.ToStringValue = property.ValueUInt.ToString();
             }
-            if (tag == 0x44)
+            else if (tag == 0x44)
             {
                 property.Tag = BACnetEnums.BACNET_APPLICATION_TAG.BACNET_APPLICATION_TAG_REAL;
                 property.ValueSingle = APDU.AppSingle(bytes, offset);
                 property.ToStringValue = property.ValueSingle.ToString();
             }
-            if (tag == 0x65)
+            else if (tag == 0x65)
             {
                 property.Tag = BACnetEnums.BACNET_APPLICATION_TAG.BACNET_APPLICATION_TAG_OCTET_STRING;
                 property.ValueOctet = APDU.AppOctet(bytes, offset);
@@ -375,26 +390,36 @@ namespace BACnet
                     s = s + property.ValueOctet[i].ToString("X2");
                 property.ToStringValue = s;
             }
-            if (tag == 0x75)
+            else if (tag == 0x74)
+            {
+                property.Tag = BACnetEnums.BACNET_APPLICATION_TAG.BACNET_APPLICATION_TAG_CHARACTER_STRING;
+                property.ValueString = APDU.AppSpecialString(bytes, offset);
+                property.ToStringValue = property.ValueString;
+            }
+            else if (tag == 0x75)
             {
                 property.Tag = BACnetEnums.BACNET_APPLICATION_TAG.BACNET_APPLICATION_TAG_CHARACTER_STRING;
                 property.ValueString = APDU.AppString(bytes, offset);
                 property.ToStringValue = property.ValueString;
             }
-            if (tag == 0x91)
+            else if (tag == 0x91)
             {
                 property.Tag = BACnetEnums.BACNET_APPLICATION_TAG.BACNET_APPLICATION_TAG_ENUMERATED;
                 property.ValueEnum = bytes[offset];
                 property.ToStringValue = property.ValueEnum.ToString();
 
             }
-            if (tag == 0xC4)
+            else if (tag == 0xC4)
             {
                 property.Tag = BACnetEnums.BACNET_APPLICATION_TAG.BACNET_APPLICATION_TAG_OBJECT_ID;
                 uint value = APDU.AppUInt32(bytes, offset);
                 property.ValueObjectType = (BACnetEnums.BACNET_OBJECT_TYPE)(value >> 22);
                 property.ValueObjectInstance = value & 0x3FFFFF;
                 property.ToStringValue = property.ValueObjectInstance.ToString();
+            }
+            else
+            {
+                Console.WriteLine("WARNING: Unsupported property tag " + tag.ToString("X"));
             }
             return false;
         }
