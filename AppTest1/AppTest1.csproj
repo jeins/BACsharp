@@ -62,7 +62,6 @@
     </Compile>
     <Compile Include="BACnet\BACnetService.cs" />
     <Compile Include="BACnet\BACnetStack.cs" />
-    <Compile Include="BACnet\BACnetTag.cs" />
     <Compile Include="BACnet\BACnetTypes.cs" />
     <Compile Include="BACnet\BVLC.cs" />
     <Compile Include="BACnet\IBACnetService.cs" />
@@ -71,7 +70,6 @@
     <Compile Include="BACnet\Property.cs" />
     <Compile Include="BACnet\APDU.cs" />
     <Compile Include="BACnet\Devices.cs" />
-    <Compile Include="BACnet\TransactionStateMachine.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>
