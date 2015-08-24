@@ -11,7 +11,7 @@ namespace BACnet
     public class Service : IBACnetService
     {
         public UInt16 UdpPort { get; set; }
-        private IBACnetStack BACStack = null;
+        private IBACnetStack BACStack;
 
         public Service(UInt16 Port)
         {
@@ -269,8 +269,6 @@ namespace BACnet
             Device recipient = new Device();
             recipient.ServerEP = device.IpAddress;
             recipient.Instance = device.InstanceNumber;
-            recipient.Network = device.Network;
-            recipient.SourceLength = device.SourceLength;
 
             if (!BACStack.SendReadProperty(
                 recipient,
@@ -298,8 +296,6 @@ namespace BACnet
             Device recipient = new Device();
             recipient.ServerEP = device.IpAddress;
             recipient.Instance = device.InstanceNumber;
-            recipient.Network = device.Network;
-            recipient.SourceLength = device.SourceLength;
 
             if (!BACStack.SendReadProperty(
                 recipient,
