@@ -13,6 +13,14 @@ namespace BACnet
         List<Device> GetDevices(int milliseconds);
 
         /// <summary>
+        /// Checks the single device.
+        /// </summary>
+        /// <param name="bIpAddress">The bacnet ip address.</param>
+        /// <param name="milliseconds">The milliseconds.</param>
+        /// <returns></returns>
+        Device CheckSingleDevice(IPEndPoint bIpAddress, int milliseconds);
+
+        /// <summary>
         /// I-Am.
         /// </summary>
         /// <param name="network">The network.</param>
@@ -24,7 +32,6 @@ namespace BACnet
         /// Read Property.
         /// </summary>
         /// <param name="recipient">The recipient.</param>
-        /// <param name="instance">The instance.</param>
         /// <param name="arrayidx">The arrayidx.</param>
         /// <param name="objtype">The objtype.</param>
         /// <param name="objprop">The objprop.</param>
@@ -38,10 +45,9 @@ namespace BACnet
             Property property);
 
         /// <summary>
-        /// Write Property.
+        /// Sends the write property.
         /// </summary>
-        /// <param name="recipient">The receipient.</param>
-        /// <param name="instance">The instance.</param>
+        /// <param name="recipient">The recipient.</param>
         /// <param name="arrayidx">The arrayidx.</param>
         /// <param name="objtype">The objtype.</param>
         /// <param name="objprop">The objprop.</param>
@@ -59,14 +65,14 @@ namespace BACnet
         /// <summary>
         /// Sends the read BDT.
         /// </summary>
-        /// <param name="deviceidx">The deviceidx.</param>
+        /// <param name="bIpAddress">The bacnet ip address.</param>
         /// <returns></returns>
         bool SendReadBdt(IPEndPoint bIpAddress);
 
         /// <summary>
         /// Sends the read FDT.
         /// </summary>
-        /// <param name="deviceidx">The deviceidx.</param>
+        /// <param name="bIpAddress">The bacnet ip address.</param>
         /// <returns></returns>
         bool SendReadFdt(IPEndPoint bIpAddress);
     }

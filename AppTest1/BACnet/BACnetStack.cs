@@ -192,13 +192,12 @@ namespace BACnet
             return found;
         }
         // Do a Who-Is, and collect information about who answers -------------------------------------
-        
-        public List<Device>  /*BACnetStack*/ CheckSingleDevice(IPEndPoint remoteEP, int milliseconds)
+
+        public Device CheckSingleDevice(IPEndPoint remoteEP, int milliseconds)
         {
             Byte[] sendBytes = new Byte[12];
             Byte[] recvBytes = new Byte[512];
-
-            BACnetData.Devices.Clear();
+            Device device = new Device();
 
             try
             {
@@ -219,8 +218,6 @@ namespace BACnet
 
                 SendUDP.EnableBroadcast = false;
                 SendUDP.Send(sendBytes, 12, remoteEP);
-
-                Socket sock = ReceiveUDP.Client;
 
                 Stopwatch watch = new Stopwatch();
                 watch.Start();
@@ -243,17 +240,12 @@ namespace BACnet
                             int APDUOffset = NPDU.Parse(recvBytes, NPDUOffset);
                             if (APDU.ParseIAm(recvBytes, APDUOffset) > 0)
                             {
-                                Device device = new Device();
                                 device.Name = "Device";
                                 device.SourceLength = NPDU.SLEN;
                                 device.ServerEP = remoteEP;
                                 device.Network = NPDU.SNET;
                                 device.MACAddress = NPDU.SAddress;
                                 device.Instance = APDU.ObjectID;
-                                if (!BACnetData.Devices.Contains(device))
-                                {
-                                    BACnetData.Devices.Add(device);
-                                }
 
                                 // We should now have enough info to read/write properties for this device
                             }
@@ -269,7 +261,7 @@ namespace BACnet
                 Console.WriteLine(e.StackTrace);
             }
 
-            return BACnetData.Devices;
+            return device;
         }
 
         public bool SendReadProperty(
