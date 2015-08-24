@@ -200,87 +200,75 @@ namespace BACnet
 
             BACnetData.Devices.Clear();
 
-            // Create the timer
-            Timer IAmTimer = new Timer();
-            using (IAmTimer)
+            try
             {
-                IAmTimer.Tick += new EventHandler(Timer_Tick);
+                //PEP Use NPDU.Create and APDU.Create (when written)
+                sendBytes[0] = BVLC.BACNET_BVLC_TYPE_BIP;
+                sendBytes[1] = BVLC.BACNET_BVLC_FUNC_UNICAST_NPDU;
+                sendBytes[2] = 0;
+                sendBytes[3] = 12;
+                sendBytes[4] = BACnetEnums.BACNET_PROTOCOL_VERSION;
+                sendBytes[5] = 0x20;  // Control flags
+                sendBytes[6] = 0xFF;  // Destination network address (65535)
+                sendBytes[7] = 0xFF;
+                sendBytes[8] = 0;     // Destination MAC layer address length, 0 = Broadcast
+                sendBytes[9] = 0xFF;  // Hop count = 255
 
-                try
+                sendBytes[10] = (Byte)BACnetEnums.BACNET_PDU_TYPE.PDU_TYPE_UNCONFIRMED_SERVICE_REQUEST;
+                sendBytes[11] = (Byte)BACnetEnums.BACNET_UNCONFIRMED_SERVICE.SERVICE_UNCONFIRMED_WHO_IS;
+
+                SendUDP.EnableBroadcast = false;
+                SendUDP.Send(sendBytes, 12, remoteEP);
+
+                Socket sock = ReceiveUDP.Client;
+
+                Stopwatch watch = new Stopwatch();
+                watch.Start();
+
+                while (true)
                 {
-                    //PEP Use NPDU.Create and APDU.Create (when written)
-                    sendBytes[0] = BVLC.BACNET_BVLC_TYPE_BIP;
-                    sendBytes[1] = BVLC.BACNET_BVLC_FUNC_UNICAST_NPDU;
-                    sendBytes[2] = 0;
-                    sendBytes[3] = 12;
-                    sendBytes[4] = BACnetEnums.BACNET_PROTOCOL_VERSION;
-                    sendBytes[5] = 0x20;  // Control flags
-                    sendBytes[6] = 0xFF;  // Destination network address (65535)
-                    sendBytes[7] = 0xFF;
-                    sendBytes[8] = 0;     // Destination MAC layer address length, 0 = Broadcast
-                    sendBytes[9] = 0xFF;  // Hop count = 255
-
-                    sendBytes[10] = (Byte)BACnetEnums.BACNET_PDU_TYPE.PDU_TYPE_UNCONFIRMED_SERVICE_REQUEST;
-                    sendBytes[11] = (Byte)BACnetEnums.BACNET_UNCONFIRMED_SERVICE.SERVICE_UNCONFIRMED_WHO_IS;
-
-                    SendUDP.EnableBroadcast = false;
-                    SendUDP.Send(sendBytes, 12, remoteEP);
-
-                    Socket sock = ReceiveUDP.Client;
-
-                    // Start the timer so we can receive multiple responses
-                    TimerDone = false;
-                    IAmTimer.Interval = milliseconds;
-                    IAmTimer.Start();
-                    while (!TimerDone)
+                    if (watch.Elapsed.TotalMilliseconds >= milliseconds)
+                        break;
+                    // Process the response packets
+                    //if (WinSockRecvReady() > 0)
+                    //{
+                    //  if (WinSockRecvFrom(recvBytes, ref count, ref ipaddr) > 0)
+                    // Process the response packets
+                    if (SendUDP.Client.Available > 0)
                     {
-                        Application.DoEvents();
-
-                        // Process the response packets
-                        //if (WinSockRecvReady() > 0)
-                        //{
-                        //  if (WinSockRecvFrom(recvBytes, ref count, ref ipaddr) > 0)
-                        // Process the response packets
-                        if (SendUDP.Client.Available > 0)
+                        recvBytes = SendUDP.Receive(ref remoteEP);
                         {
-                            recvBytes = SendUDP.Receive(ref remoteEP);
+                            // Parse and save the BACnet data
+                            int NPDUOffset = BVLC.Parse(recvBytes, 0);
+                            int APDUOffset = NPDU.Parse(recvBytes, NPDUOffset);
+                            if (APDU.ParseIAm(recvBytes, APDUOffset) > 0)
                             {
-                                // Parse and save the BACnet data
-                                int NPDUOffset = BVLC.Parse(recvBytes, 0);
-                                int APDUOffset = NPDU.Parse(recvBytes, NPDUOffset);
-                                if (APDU.ParseIAm(recvBytes, APDUOffset) > 0)
+                                Device device = new Device();
+                                device.Name = "Device";
+                                device.SourceLength = NPDU.SLEN;
+                                device.ServerEP = remoteEP;
+                                device.Network = NPDU.SNET;
+                                device.MACAddress = NPDU.SAddress;
+                                device.Instance = APDU.ObjectID;
+                                if (!BACnetData.Devices.Contains(device))
                                 {
-                                    Device device = new Device();
-                                    device.Name = "Device";
-                                    device.SourceLength = NPDU.SLEN;
-                                    device.ServerEP = remoteEP;
-                                    device.Network = NPDU.SNET;
-                                    device.MACAddress = NPDU.SAddress;
-                                    device.Instance = APDU.ObjectID;
-                                    if (!BACnetData.Devices.Contains(device))
-                                    {
-                                        BACnetData.Devices.Add(device);
-                                    }
-
-                                    // We should now have enough info to read/write properties for this device
+                                    BACnetData.Devices.Add(device);
                                 }
+
+                                // We should now have enough info to read/write properties for this device
                             }
-                            // Restart the timer - as long as I-AM packets come, we'll wait
-                            IAmTimer.Stop();
-                            IAmTimer.Start();
                         }
                     }
-                    return BACnetData.Devices;
                 }
-                catch (Exception e)
-                {
-                    MessageBox.Show(e.StackTrace);
-                }
-                finally
-                {
-                    IAmTimer.Stop();
-                }
+
+                watch.Stop();
+
             }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.StackTrace);
+            }
+
             return BACnetData.Devices;
         }
 
