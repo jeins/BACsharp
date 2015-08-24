@@ -148,7 +148,7 @@ namespace BACnet
                 return "???";
         }
 
-        public static string /*APDU*/ AppSpecialString(byte[] bytes, int offset)
+        public static string /*APDU*/ AppTerminatedString(byte[] bytes, int offset)
         {
             // AppTag = 0x74
             if (offset < 0) return "Error!";
@@ -393,7 +393,7 @@ namespace BACnet
             else if (tag == 0x74)
             {
                 property.Tag = BACnetEnums.BACNET_APPLICATION_TAG.BACNET_APPLICATION_TAG_CHARACTER_STRING;
-                property.ValueString = APDU.AppSpecialString(bytes, offset);
+                property.ValueString = APDU.AppTerminatedString(bytes, offset);
                 property.ToStringValue = property.ValueString;
             }
             else if (tag == 0x75)
