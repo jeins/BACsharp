@@ -57,7 +57,7 @@ namespace AppTest1
 
         private void btnGetProp_Click(object sender, EventArgs e)
         {
-            bacnetDevice = new BACnetIpDevice(CreateIPEndPoint("10.35.8.43:47808"), 0, 23, 0, 0);//bacnetDevices[idx];
+            bacnetDevice = new BACnetIpDevice(CreateIPEndPoint("192.168.77.129:47808"), 40, 0, 0, 0);//bacnetDevices[idx];
             BACService.FindDeviceProperties(ref bacnetDevice);
             listDeviceProp.Items.Clear();
             listDeviceProp.Items.Add("IP Address: " + bacnetDevice.IpAddress.ToString());
@@ -122,7 +122,10 @@ namespace AppTest1
 
         private void btnGetDeviceObj_Click(object sender, EventArgs e)
         {
-            bacnetDevice = new BACnetIpDevice(CreateIPEndPoint("10.35.8.43:47808"), 0, 23, 0, 0);//bacnetDevices[idx];
+            bacnetDevice = new BACnetIpDevice(CreateIPEndPoint("192.168.77.129:47808"), 40, 0, 0, 0);//bacnetDevices[idx];
+
+            BACService.IsBACnetIpDevice(CreateIPEndPoint("192.168.77.129:47808"));
+
             BACService.FindDeviceObjects(ref bacnetDevice);
             lblTotalProp.Text = bacnetDevice.DeviceObjects.Count.ToString();
             foreach (string values in bacnetDevice.DeviceObjects)

@@ -130,8 +130,15 @@ namespace BACnet
 
         public int IsBACnetIpDevice(IPEndPoint IpAddress)
         {
-            //TODO: implement
-            return -1;
+            Device newDev = (BACStack.CheckSingleDevice(IpAddress, 3000));
+            if (newDev == null)
+            {
+                return -1;
+            }
+            else
+            {
+                return (int)newDev.Instance;
+            }
 
         }
 
