@@ -53,11 +53,14 @@ namespace AppTest1
                 btnGetProp.Enabled = true;
                 btnGetDeviceObj.Enabled = true;
             }
+
+            // Check Function isBACnetIpDevice
+            Console.WriteLine(BACService.IsBACnetIpDevice(CreateIPEndPoint("10.35.8.43:47808")));
         }
 
         private void btnGetProp_Click(object sender, EventArgs e)
         {
-            bacnetDevice = new BACnetIpDevice(CreateIPEndPoint("192.168.77.129:47808"), 40, 0, 0, 0);//bacnetDevices[idx];
+            bacnetDevice = bacnetDevices[listDevices.SelectedIndex];
             BACService.FindDeviceProperties(ref bacnetDevice);
             listDeviceProp.Items.Clear();
             listDeviceProp.Items.Add("IP Address: " + bacnetDevice.IpAddress.ToString());
