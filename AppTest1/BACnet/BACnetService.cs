@@ -138,18 +138,15 @@ namespace BACnet
 
         public int IsBACnetIpDevice(IPEndPoint IpAddress)
         {
-            int instanceDevice = 0;
+            Device newDev = (BACStack.CheckSingleDevice(IpAddress, 3000));
             if (newDev == null)
             {
-
-            Device device = BACStack.CheckSingleDevice(IpAddress, 1000);
-
-            if (device.Instance != 0)
-            {
-                instanceDevice = (int)device.Instance;
+                return -1;
             }
-
-            return instanceDevice;
+            else
+            {
+                return (int)newDev.Instance;
+            }
         }
 
         public bool IsBbmdEnabled(IPEndPoint IpAddress)
