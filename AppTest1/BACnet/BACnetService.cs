@@ -13,25 +13,32 @@ namespace BACnet
         public UInt16 UdpPort { get; set; }
         private IBACnetStack BACStack;
 
-        public Service(UInt16 Port)
+        public Service(IPAddress localIpAddress)
         {
-            UdpPort = Port;
-            BACStack = new BACnetStack();
+            try
+            {
+                localIpAddress = System.Net.Dns.GetHostByName(Environment.MachineName).AddressList[0];
+                BACStack = new BACnetStack(localIpAddress);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
-        public List<BACnetIpDevice> FindBACnetDevices()
+        public List<BACnetDevice> FindBACnetDevices()
         {
             List<Device> FoundDevices = BACStack.GetDevices(2000);
-            List<BACnetIpDevice> FoundIpBacnetDevices = new List<BACnetIpDevice>();
+            List<BACnetDevice> FoundIpBacnetDevices = new List<BACnetDevice>();
             for (UInt16 i = 0; i < FoundDevices.Count; i++)
             {
-                FoundIpBacnetDevices.Add(new BACnetIpDevice(FoundDevices[i].ServerEP, FoundDevices[i].Network,
+                FoundIpBacnetDevices.Add(new BACnetDevice(FoundDevices[i].ServerEP, FoundDevices[i].Network,
                     (uint) FoundDevices[i].Instance, FoundDevices[i].VendorID, FoundDevices[i].SourceLength));
             }
             return FoundIpBacnetDevices;
         }
 
-        public bool FindDeviceProperties(ref BACnetIpDevice device)
+        public bool FindDeviceProperties(ref BACnetDevice device)
         {
             bool successful = true;
 
@@ -40,6 +47,7 @@ namespace BACnet
             if (!(GetApplicationSoftwareVersion(ref device))) { successful = false; }
             if (!(GetModelName(ref device))) { successful = false; }
             if (!(GetFirmwareRevision(ref device))) { successful = false; }
+            if (!(GetDeviceLocation(ref device))) { successful = false; }
 
             if (!(GetVendorIdentifier(ref device))) { successful = false; }
             if (!(GetProtocolRevision(ref device))) { successful = false; }
@@ -50,7 +58,7 @@ namespace BACnet
             return successful;
         }
 
-        public bool FindDeviceObjects(ref BACnetIpDevice device)
+        public bool FindDeviceObjects(ref BACnetDevice device)
         {
             bool successful = true;
 
@@ -167,35 +175,41 @@ namespace BACnet
 
         }
 
-        private bool GetObjectName(ref BACnetIpDevice device)
+        private bool GetObjectName(ref BACnetDevice device)
         {
             return GetStringPropertyValue(ref device, BACnetEnums.BACNET_PROPERTY_ID.PROP_OBJECT_NAME,
                 ref device.ObjectName);
         }
-        private bool GetVendorName(ref BACnetIpDevice device)
+        private bool GetVendorName(ref BACnetDevice device)
         {
             return GetStringPropertyValue(ref device, BACnetEnums.BACNET_PROPERTY_ID.PROP_VENDOR_NAME,
                 ref device.VendorName);
         }
-        private bool GetModelName(ref BACnetIpDevice device)
+        private bool GetModelName(ref BACnetDevice device)
         {
             return GetStringPropertyValue(ref device, BACnetEnums.BACNET_PROPERTY_ID.PROP_MODEL_NAME,
                 ref device.ModelName);
         }
 
-        private bool GetApplicationSoftwareVersion(ref BACnetIpDevice device)
+        private bool GetApplicationSoftwareVersion(ref BACnetDevice device)
         {
             return GetStringPropertyValue(ref device, BACnetEnums.BACNET_PROPERTY_ID.PROP_APPLICATION_SOFTWARE_VERSION,
                 ref device.ApplicationSoftwareVersion);
         }
 
-        private bool GetFirmwareRevision(ref BACnetIpDevice device)
+        private bool GetFirmwareRevision(ref BACnetDevice device)
         {
             return GetStringPropertyValue(ref device, BACnetEnums.BACNET_PROPERTY_ID.PROP_FIRMWARE_REVISION,
                 ref device.FirmwareRevision);
         }
 
-        private bool GetVendorIdentifier(ref BACnetIpDevice device)
+        private bool GetDeviceLocation(ref BACnetDevice device)
+        {
+            return GetStringPropertyValue(ref device, BACnetEnums.BACNET_PROPERTY_ID.PROP_LOCATION,
+                ref device.FirmwareRevision);
+        }
+
+        private bool GetVendorIdentifier(ref BACnetDevice device)
         {
             uint value = 0; 
             if ( GetUnsignedPropertyValue(ref device, BACnetEnums.BACNET_PROPERTY_ID.PROP_VENDOR_IDENTIFIER,
@@ -211,7 +225,7 @@ namespace BACnet
             
         }
 
-        private bool GetProtocolVersion(ref BACnetIpDevice device)
+        private bool GetProtocolVersion(ref BACnetDevice device)
         {
             uint value = 0;
             if (GetUnsignedPropertyValue(ref device, BACnetEnums.BACNET_PROPERTY_ID.PROP_PROTOCOL_VERSION,
@@ -227,7 +241,7 @@ namespace BACnet
 
         }
 
-        private bool GetProtocolRevision(ref BACnetIpDevice device)
+        private bool GetProtocolRevision(ref BACnetDevice device)
         {
             uint value = 0;
             if (GetUnsignedPropertyValue(ref device, BACnetEnums.BACNET_PROPERTY_ID.PROP_PROTOCOL_REVISION,
@@ -243,7 +257,7 @@ namespace BACnet
 
         }
 
-        private bool GetSystemStatus(ref BACnetIpDevice device)
+        private bool GetSystemStatus(ref BACnetDevice device)
         {
             string[] BacnetDeviceSytemStatusString =
             {
@@ -268,7 +282,7 @@ namespace BACnet
 
         }
 
-        private bool GetStringPropertyValue(ref BACnetIpDevice device, BACnetEnums.BACNET_PROPERTY_ID propId, ref string value)
+        private bool GetStringPropertyValue(ref BACnetDevice device, BACnetEnums.BACNET_PROPERTY_ID propId, ref string value)
         {
             Property property = new Property();
             property.Tag = BACnetEnums.BACNET_APPLICATION_TAG.BACNET_APPLICATION_TAG_ENUMERATED;
@@ -295,7 +309,7 @@ namespace BACnet
             return true;
         }
 
-        private bool GetUnsignedPropertyValue(ref BACnetIpDevice device, BACnetEnums.BACNET_PROPERTY_ID propId, ref uint value)
+        private bool GetUnsignedPropertyValue(ref BACnetDevice device, BACnetEnums.BACNET_PROPERTY_ID propId, ref uint value)
         {
             Property property = new Property();
             property.Tag = BACnetEnums.BACNET_APPLICATION_TAG.BACNET_APPLICATION_TAG_ENUMERATED;
@@ -321,8 +335,8 @@ namespace BACnet
             value = property.ValueUInt;
             return true;
         }
-        
-        private bool GetEnumeratedPropertyValue(ref BACnetIpDevice device, BACnetEnums.BACNET_PROPERTY_ID propId, ref uint value)
+
+        private bool GetEnumeratedPropertyValue(ref BACnetDevice device, BACnetEnums.BACNET_PROPERTY_ID propId, ref uint value)
         {
             Property property = new Property();
             property.Tag = BACnetEnums.BACNET_APPLICATION_TAG.BACNET_APPLICATION_TAG_NULL;

@@ -13,6 +13,7 @@ namespace AppTest1.BACnet
     /// <remarks>See <a href="http://www.bacnet.org/Bibliography/ES-7-96/ES-7-96.htm" /></remarks>
     public class BACnetDevice
     {
+        public IPEndPoint IpAddress;
         public uint InstanceNumber;
         public string ObjectName;
         public string SystemStatus;
@@ -25,7 +26,8 @@ namespace AppTest1.BACnet
         public int ProtocolRevision;
         public byte SourceLength;
         public int Network;
-        public List<string> DeviceObjects;  
+        public List<string> DeviceObjects;
+        public string DeviceLocation;
 
         public BACnetDevice()
         {
@@ -42,18 +44,10 @@ namespace AppTest1.BACnet
             SourceLength = 0;
             Network = 65535;
             DeviceObjects = null;
-        }
-    }
-
-    public class BACnetIpDevice : BACnetDevice
-    {
-        public IPEndPoint IpAddress;
-
-        public BACnetIpDevice()
-        {
+            DeviceLocation = null;
         }
 
-        public BACnetIpDevice(IPEndPoint IpAddress, int Network, uint InstanceNumber, int VendorIdentifier, byte SourceLength )
+        public BACnetDevice(IPEndPoint IpAddress, int Network, uint InstanceNumber, int VendorIdentifier, byte SourceLength)
         {
             this.IpAddress = IpAddress;
             this.Network = Network;
@@ -61,11 +55,10 @@ namespace AppTest1.BACnet
             this.VendorIdentifier = VendorIdentifier;
             this.SourceLength = SourceLength;
         }
-
     }
 
 
-    public class BACnetDeviceWithBBMD : BACnetIpDevice
+    public class BACnetDeviceWithBBMD : BACnetDevice
     {
         public bool SupportsFdRegistration;
     }
@@ -86,20 +79,20 @@ namespace AppTest1.BACnet
         /// Reading the required Device properties can be accomplished with a single ReadPropertyMultiple request.
         /// </remarks>
         /// <returns>A list of all found BACnet IP devices.</returns>
-        List<BACnetIpDevice> FindBACnetDevices();
+        List<BACnetDevice> FindBACnetDevices();
 
         /// <summary>
         /// Finds the device properties.
         /// </summary>
         /// <returns></returns>
-        bool FindDeviceProperties(ref BACnetIpDevice device);
+        bool FindDeviceProperties(ref BACnetDevice device);
 
         /// <summary>
         /// Finds the device objects.
         /// </summary>
         /// <param name="device">The device.</param>
         /// <returns></returns>
-        bool FindDeviceObjects(ref BACnetIpDevice device);
+        bool FindDeviceObjects(ref BACnetDevice device);
 
             /// <summary>
         /// Find all BACnet devices with enabled BBMD functionality.

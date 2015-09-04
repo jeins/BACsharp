@@ -17,14 +17,14 @@ namespace AppTest1
     public partial class Form2 : Form
     {
         public IBACnetService BACService;
-        public List<BACnetIpDevice> bacnetDevices;
-        private BACnetIpDevice bacnetDevice;
+        public List<BACnetDevice> bacnetDevices;
+        private BACnetDevice bacnetDevice;
 
         public Form2()
         {
             InitializeComponent();
 
-            BACService = new Service(47808);
+            BACService = new Service(IPAddress.Parse("127.0.0.0"));
             bacnetDevice = null;
 
             lblBBMDStatus.BackColor = Color.Red;
@@ -41,7 +41,7 @@ namespace AppTest1
             }
             else
             {
-                foreach (BACnetIpDevice dev in bacnetDevices)
+                foreach (BACnetDevice dev in bacnetDevices)
                 {
                     listDevices.Items.Add(
                       dev.VendorIdentifier.ToString() + ", " +
@@ -55,12 +55,12 @@ namespace AppTest1
             }
 
             // Check Function isBACnetIpDevice
-            Console.WriteLine(BACService.IsBACnetIpDevice(CreateIPEndPoint("10.35.8.43:47808")));
+            Console.WriteLine(BACService.IsBACnetIpDevice(CreateIPEndPoint("10.100.0.14:47808")));
         }
 
         private void btnGetProp_Click(object sender, EventArgs e)
         {
-            bacnetDevice = bacnetDevices[listDevices.SelectedIndex];
+            bacnetDevice = new BACnetDevice(CreateIPEndPoint("10.100.0.14:47808"), 0, 40, 0, 0);//bacnetDevices[idx];
             BACService.FindDeviceProperties(ref bacnetDevice);
             listDeviceProp.Items.Clear();
             listDeviceProp.Items.Add("IP Address: " + bacnetDevice.IpAddress.ToString());
@@ -125,7 +125,7 @@ namespace AppTest1
 
         private void btnGetDeviceObj_Click(object sender, EventArgs e)
         {
-            bacnetDevice = new BACnetIpDevice(CreateIPEndPoint("10.35.8.43:47808"), 0, 23, 0, 0);//bacnetDevices[idx];
+            bacnetDevice = new BACnetDevice(CreateIPEndPoint("10.100.0.14:47808"), 0, 40, 0, 0);//bacnetDevices[idx];
             BACService.FindDeviceObjects(ref bacnetDevice);
             lblTotalProp.Text = bacnetDevice.DeviceObjects.Count.ToString();
             foreach (string values in bacnetDevice.DeviceObjects)

@@ -77,7 +77,7 @@ namespace BACnetTest
       ObjectListLabel.Text = "";
 
       // Create the BACNet stack
-      BACStack = new BACnetStack();
+      BACStack = new BACnetStack(System.Net.Dns.GetHostByName(Environment.MachineName).AddressList[0]);
 
     }
 

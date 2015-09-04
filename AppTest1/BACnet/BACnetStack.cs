@@ -20,18 +20,21 @@ namespace BACnet
 
         IPEndPoint LocalEP;
         IPEndPoint BroadcastEP;
+        IPAddress currentUsedIpAddress;
 
         private const int UDPPort = 47808;
         private int InvokeCounter;
+        private bool isMatch = false;
 
         // Constructor --------------------------------------------------------------------------------
         //public BACnetStack(string server)
-        public BACnetStack()
+        public BACnetStack(IPAddress bindIpAddress)
         {
             // Machine dependent (little endian vs big endian) 
             // In this case we have to reverse the bytes for the Server IP
             byte[] maskbytes = new byte[4];
             byte[] addrbytes = new byte[4];
+            string checkMask = "";
 
             // Find the local IP address and Subnet Mask
             NetworkInterface[] Interfaces = NetworkInterface.GetAllNetworkInterfaces();
@@ -42,30 +45,49 @@ namespace BACnet
                 UnicastIPAddressInformationCollection UnicastIPInfoCol = Interface.GetIPProperties().UnicastAddresses;
                 foreach (UnicastIPAddressInformation UnicatIPInfo in UnicastIPInfoCol)
                 {
-                    //MessageBox.Show("\tIP Address is {0}" + UnicatIPInfo.Address);
                     //MessageBox.Show("\tSubnet Mask is {0}" + UnicatIPInfo.IPv4Mask);
                     if (UnicatIPInfo.IPv4Mask != null)
                     {
-                        byte[] tempbytes = UnicatIPInfo.IPv4Mask.GetAddressBytes();
-                        if (tempbytes[0] == 255)
+                        if (new IPAddress(UnicatIPInfo.Address.GetAddressBytes()).ToString() == bindIpAddress.ToString())
                         {
-                            // We found the correct subnet mask, and probably the correct IP address
                             addrbytes = UnicatIPInfo.Address.GetAddressBytes();
                             maskbytes = UnicatIPInfo.IPv4Mask.GetAddressBytes();
+                            checkMask = UnicatIPInfo.IPv4Mask.ToString();
+                            isMatch = true;
                             break;
                         }
                     }
                 }
+                if (isMatch)//check if IpAddress was matched 
+                {
+                    if (checkMask != "0.0.0.0") // check  if the subnetmask is valid
+                    {
+                        break;
+                    }
+                    else // if subnetmask is invalid we break the loop
+                    {
+                        isMatch = false;
+                        break;
+                    }
+                }
             }
-            // Set up broadcast address
-            if (maskbytes[3] == 0) maskbytes[3] = 255; else maskbytes[3] = addrbytes[3];
-            if (maskbytes[2] == 0) maskbytes[2] = 255; else maskbytes[2] = addrbytes[2];
-            if (maskbytes[1] == 0) maskbytes[1] = 255; else maskbytes[1] = addrbytes[1];
-            if (maskbytes[0] == 0) maskbytes[0] = 255; else maskbytes[0] = addrbytes[0];
-            IPAddress myip = new IPAddress(addrbytes);
+
+     
+            if (isMatch)
+            {
+                currentUsedIpAddress = new IPAddress(addrbytes);
+            }
+            else
+            {
+                throw new Exception("NetworkInterface not found. Either the IpAddress : " +
+                    new IPAddress(addrbytes).ToString() +
+                    " ,the Subnetmask is wrong or not configured." +
+                    "Please check your networkconfiguration! And restart the Service.");
+            }
+
             IPAddress broadcast = new IPAddress(maskbytes);
 
-            LocalEP = new IPEndPoint(myip, UDPPort);
+            LocalEP = new IPEndPoint(currentUsedIpAddress, UDPPort);
             BroadcastEP = new IPEndPoint(broadcast, UDPPort);
 
             SendUDP = new UdpClient();
