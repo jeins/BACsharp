@@ -1,42 +1,72 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net;
-using AppTest1.BACnet;
-using BACnet;
 
 namespace BACnet
 {
     //-----------------------------------------------------------------------------------------------
-    // The Stack
+    // The BACnetManager
     public class BACnetManager : IBACnetManager
     {
-        public UInt16 UdpPort { get; set; }
-        private IBACnetStack BACStack;
+        private IBACnetStack BACStack = null;
 
-        public BACnetManager(UInt16 Port)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="localIpAddress">The host's IP address where BACnet communication should take place.</param>
+        public BACnetManager(IPAddress localIpAddress)
         {
-            UdpPort = Port;
-            BACStack = new BACnetStack(System.Net.Dns.GetHostByName(Environment.MachineName).AddressList[0]);
+            try
+            {
+                //IPAddress localIpAddress = System.Net.Dns.GetHostByName(Environment.MachineName).AddressList[0];
+                BACStack = new BACnetStack(localIpAddress);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
+        /// <summary>
+        /// Find all BACnet devices.
+        /// </summary>
+        /// <returns>
+        /// A list of all found BACnet IP devices.
+        /// </returns>
+        /// <remarks>
+        /// BACnet devices should return an I-Am when requested by a Who-Is (with no device instance range).
+        /// Use unicast Who-Is service as we're not registered at a BBMD in the network.
+        /// Reading the required Device properties can be accomplished with a single ReadPropertyMultiple request.
+        /// </remarks>
         public List<BACnetDevice> FindBACnetDevices()
         {
-            List<Device> FoundDevices = BACStack.GetDevices(2000);
-            List<BACnetDevice> FoundIpBacnetDevices = new List<BACnetDevice>();
-            for (UInt16 i = 0; i < FoundDevices.Count; i++)
+            try
             {
-                FoundIpBacnetDevices.Add(new BACnetDevice(FoundDevices[i].ServerEP, FoundDevices[i].Network,
-                    (uint) FoundDevices[i].Instance, FoundDevices[i].VendorID, FoundDevices[i].SourceLength));
+                List<Device> FoundDevices = BACStack.GetDevices(2000);
+                List<BACnetDevice> FoundIpBacnetDevices = new List<BACnetDevice>();
+                for (UInt16 i = 0; i < FoundDevices.Count; i++)
+                {
+                    FoundIpBacnetDevices.Add(new BACnetDevice(FoundDevices[i].ServerEP, FoundDevices[i].Network,
+                        (uint)FoundDevices[i].Instance, FoundDevices[i].VendorID, FoundDevices[i].SourceLength));
+                }
+                return FoundIpBacnetDevices;
             }
-            return FoundIpBacnetDevices;
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
+        /// <summary>
+        /// Finds the device properties.
+        /// </summary>
+        /// <param name="device"></param>
+        /// <returns></returns>
         public bool FindDeviceProperties(ref BACnetDevice device)
         {
             bool successful = true;
 
-            if (!(GetObjectName (ref device))) { successful = false;}
-            if (!(GetVendorName(ref device))) { successful = false; }
+            if (!(GetObjectName(ref device))) { successful = false; }
             if (!(GetApplicationSoftwareVersion(ref device))) { successful = false; }
             if (!(GetModelName(ref device))) { successful = false; }
             if (!(GetFirmwareRevision(ref device))) { successful = false; }
@@ -50,6 +80,11 @@ namespace BACnet
             return successful;
         }
 
+        /// <summary>
+        /// Finds the device objects.
+        /// </summary>
+        /// <param name="device">The device.</param>
+        /// <returns></returns>
         public bool FindDeviceObjects(ref BACnetDevice device)
         {
             bool successful = true;
@@ -121,11 +156,19 @@ namespace BACnet
             return successful;
         }
 
-        public List<BACnetDeviceWithBBMD> FindBACnetBBMDs(IPAddress ip)
+        /// <summary>
+        /// Find all BACnet devices with enabled BBMD functionality.
+        /// </summary>
+        /// <param name="ipNetwork">The IP network address in CIDR format.</param>
+        /// <returns></returns>
+        /// <exception cref="System.NotImplementedException"></exception>
+        /// <remarks>
+        /// Devices with enabled BBMD should ACK ReadBroadcastDistributionTable requests.
+        /// BBMDs with enabled FD registration should ACK ReadForeignDeviceTable requests.
+        /// </remarks>
+        public List<BACnetDeviceWithBBMD> FindBACnetBBMDs(IPAddress ipNetwork)
         {
-            List<BACnetDeviceWithBBMD> FoundIpBacnetDevices = new List<BACnetDeviceWithBBMD>();
-            //TODO: implement
-            return FoundIpBacnetDevices;
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -138,7 +181,7 @@ namespace BACnet
         /// <exception cref="System.NotImplementedException"></exception>
         public int GetBACnetDeviceInstanceNumber(IPEndPoint ipAddress)
         {
-            /*Device newDev = (BACStack.UnicastWhoIsOnSingleIp(ipAddress, 1000));
+            Device newDev = (BACStack.UnicastWhoIsOnSingleIp(ipAddress, 1000));
             if (newDev == null)
             {
                 return -1;
@@ -146,13 +189,19 @@ namespace BACnet
             else
             {
                 return (int)newDev.Instance;
-            }*/
-            return 0;
+            }
         }
 
-        public bool IsBbmdEnabled(IPEndPoint IpAddress)
+        /// <summary>
+        /// Determines whether the BBMD is enabled.
+        /// </summary>
+        /// <param name="ipAddress">The IP address of a BACnet device.</param>
+        /// <returns>
+        /// True if BBMD is enabled, false otherwise.
+        /// </returns>
+        public bool IsBbmdEnabled(IPEndPoint ipAddress)
         {
-            if (BACStack.SendReadBdt(IpAddress))
+            if (BACStack.SendReadBdt(ipAddress))
             {
                 if (BVLC.BVLC_Function_ResultCode == 0)
                     return true;
@@ -162,17 +211,23 @@ namespace BACnet
             return false;
         }
 
-        public bool IsFdRegistrationSupported(IPEndPoint IpAddress)
+        /// <summary>
+        /// Determines whether the BBMD option "Foreign Device Registration" is enabled on a given BACnet BBMD.
+        /// </summary>
+        /// <param name="ipAddress">The IP address of a BACnet BBMD.</param>
+        /// <returns>
+        /// True if FD registration is enabled, false otherwise.
+        /// </returns>
+        public bool IsFdRegistrationSupported(IPEndPoint ipAddress)
         {
-            if (BACStack.SendReadFdt(IpAddress))
+            if (BACStack.SendReadFdt(ipAddress))
             {
                 if (BVLC.BVLC_Function_ResultCode == 0)
                     return true;
                 else
                     return false;
-            }            
+            }
             return false;
-
         }
 
         private bool GetObjectName(ref BACnetDevice device)
@@ -205,9 +260,9 @@ namespace BACnet
 
         private bool GetVendorIdentifier(ref BACnetDevice device)
         {
-            uint value = 0; 
-            if ( GetUnsignedPropertyValue(ref device, BACnetEnums.BACNET_PROPERTY_ID.PROP_VENDOR_IDENTIFIER,
-                ref value) )
+            uint value = 0;
+            if (GetUnsignedPropertyValue(ref device, BACnetEnums.BACNET_PROPERTY_ID.PROP_VENDOR_IDENTIFIER,
+                ref value))
             {
                 device.VendorIdentifier = (int)value;
                 return true;
@@ -216,7 +271,7 @@ namespace BACnet
             {
                 return false;
             }
-            
+
         }
 
         private bool GetProtocolVersion(ref BACnetDevice device)
@@ -262,7 +317,7 @@ namespace BACnet
             if (GetEnumeratedPropertyValue(ref device, BACnetEnums.BACNET_PROPERTY_ID.PROP_SYSTEM_STATUS,
                 ref value))
             {
-                if ( value < BacnetDeviceSytemStatusString.Length )
+                if (value < BacnetDeviceSytemStatusString.Length)
                     device.SystemStatus = BacnetDeviceSytemStatusString[value];
                 else
                     device.SystemStatus = "SystemStatus " + value.ToString();
@@ -284,6 +339,8 @@ namespace BACnet
             Device recipient = new Device();
             recipient.ServerEP = device.IpAddress;
             recipient.Instance = device.InstanceNumber;
+            recipient.Network = device.Network;
+            recipient.SourceLength = device.SourceLength;
 
             if (!BACStack.SendReadProperty(
                 recipient,
@@ -311,6 +368,8 @@ namespace BACnet
             Device recipient = new Device();
             recipient.ServerEP = device.IpAddress;
             recipient.Instance = device.InstanceNumber;
+            recipient.Network = device.Network;
+            recipient.SourceLength = device.SourceLength;
 
             if (!BACStack.SendReadProperty(
                 recipient,
@@ -358,9 +417,7 @@ namespace BACnet
             value = property.ValueEnum;
             return true;
         }
-    
     }
-
 }
 
 

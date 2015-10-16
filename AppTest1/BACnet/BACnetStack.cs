@@ -8,7 +8,7 @@ using System.Net.Sockets;
 namespace BACnet
 {
     //-----------------------------------------------------------------------------------------------
-    // The Stack
+    // The BACnetStack
     public class BACnetStack : IBACnetStack
     {
 

@@ -1,15 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
 using System.Globalization;
-using System.Linq;
 using System.Net;
-using System.Net.Configuration;
-using System.Text;
 using System.Windows.Forms;
-using AppTest1.BACnet;
 using BACnet;
 
 namespace AppTest1
@@ -24,7 +18,7 @@ namespace AppTest1
         {
             InitializeComponent();
 
-            BACnetManager = new BACnetManager(47808);
+            BACnetManager = new BACnetManager(System.Net.Dns.GetHostByName(Environment.MachineName).AddressList[0]);
             bacnetDevice = null;
 
             lblBBMDStatus.BackColor = Color.Red;
@@ -72,7 +66,6 @@ namespace AppTest1
             listDeviceProp.Items.Clear();
             listDeviceProp.Items.Add("IP Address: " + bacnetDevice.IpAddress.ToString());
             listDeviceProp.Items.Add("Model Name: " + bacnetDevice.ModelName.ToString());
-            listDeviceProp.Items.Add("Vendor Name: " + bacnetDevice.VendorName.ToString());
             listDeviceProp.Items.Add("Software Version: " + bacnetDevice.ApplicationSoftwareVersion.ToString());
             listDeviceProp.Items.Add("Firmware Revision: " + bacnetDevice.FirmwareRevision.ToString());
             listDeviceProp.Items.Add("Protocol Revision: " + bacnetDevice.ProtocolRevision.ToString());

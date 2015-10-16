@@ -1,19 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Runtime.CompilerServices;
-using System.Text;
-using BACnet;
 
 namespace BACnet
 {
 
     //-----------------------------------------------------------------------------------------------
     // BVLC Routines
-    public static class BVLC
+    public class BVLC
     {
-
         public const int BACNET_BVLC_HEADER_LEN = 0x04;
 
         public const byte BACNET_BVLC_TYPE_BIP = 0x81;
@@ -30,11 +24,6 @@ namespace BACnet
         public const int BACNET_BVLC_FUNC_DISTRIBUTE_BROADCAST_TO_NETWORK = 0x09;
         public const int BACNET_BVLC_FUNC_UNICAST_NPDU = 0x0A;
         public const int BACNET_BVLC_FUNC_BROADCAST_NPDU = 0x0B;
-        
-
-
-        
-
 
         public static byte BVLC_Type;
         public static byte BVLC_Function;
@@ -44,13 +33,13 @@ namespace BACnet
         public static BDTEntry[] BVLC_ListOfBdtEntries;
         public static FDTEntry[] BVLC_ListOfFdtEntries;
         public static IPEndPoint BVLC_BacnetIpAddress;
-        
+
         public static void /*BVLC*/ Clear()
         {
             // Clear the packet members
-            BVLC_Type     = 0;
+            BVLC_Type = 0;
             BVLC_Function = 0;
-            BVLC_Length   = 0;
+            BVLC_Length = 0;
 
             BVLC_Function_ResultCode = 0;
             BVLC_ListOfBdtEntries = null;
@@ -74,14 +63,14 @@ namespace BACnet
             int len = offset;
             byte[] temp;
             Clear();
-            BVLC_Type     = bytes[len++];
+            BVLC_Type = bytes[len++];
             BVLC_Function = bytes[len++];
 
             temp = new byte[2];
             temp[0] = bytes[len++];
             temp[1] = bytes[len++];
 
-            BVLC_Length = (UInt16) (temp[0] * 255 + temp[1]);
+            BVLC_Length = (UInt16)(temp[0] * 255 + temp[1]);
 
             if (BACNET_BVLC_TYPE_BIP != BVLC_Type)
             {
@@ -89,10 +78,10 @@ namespace BACnet
                 return 0;
             }
 
-            switch ( BVLC_Function )
+            switch (BVLC_Function)
             {
                 case BACNET_BVLC_FUNC_RESULT:
-                    return ParseResultCode( bytes, len );
+                    return ParseResultCode(bytes, len);
                 case BACNET_BVLC_FUNC_WRITE_BDT:
                 case BACNET_BVLC_FUNC_READ_BDT_ACK:
                     return ParseListOfBdtEntries(bytes, len);
@@ -104,7 +93,7 @@ namespace BACnet
                     return ParseListOfFdtEntries(bytes, len);
                 case BACNET_BVLC_FUNC_DELETE_FD:
                     return ParseBacnetIpAddress(bytes, len);
-                case BACNET_BVLC_FUNC_UNICAST_NPDU:                  
+                case BACNET_BVLC_FUNC_UNICAST_NPDU:
                 case BACNET_BVLC_FUNC_BROADCAST_NPDU:
                 case BACNET_BVLC_FUNC_DISTRIBUTE_BROADCAST_TO_NETWORK:
                 case BACNET_BVLC_FUNC_READ_BDT:
@@ -113,7 +102,7 @@ namespace BACnet
                 default:
                     return len;
             }
-            
+
         }
 
         public static int /*BVLC*/ ParseTimeToLive(byte[] bytes, int offset)
@@ -126,7 +115,7 @@ namespace BACnet
             timeToLive[1] = bytes[len++];
             timeToLive[0] = bytes[len++];
 
-            BVLC_TimeToLive = (UInt16) (timeToLive[1] * 256 + timeToLive[0]);
+            BVLC_TimeToLive = (UInt16)(timeToLive[1] * 256 + timeToLive[0]);
 
             return len;
         }
@@ -161,7 +150,7 @@ namespace BACnet
             temp = new byte[2];
             temp[1] = bytes[len++];
             temp[0] = bytes[len++];
-            BVLC_Function_ResultCode = (UInt16) (temp[1]*256+temp[0]);
+            BVLC_Function_ResultCode = (UInt16)(temp[1] * 256 + temp[0]);
             return len;
         }
 
@@ -169,7 +158,7 @@ namespace BACnet
         {
             int len = offset;
             int bytesBDTEntries = BVLC_Length - offset;
-            int numberOfBDTEntries = bytesBDTEntries/10; // 10 Bytes per Entry
+            int numberOfBDTEntries = bytesBDTEntries / 10; // 10 Bytes per Entry
             BVLC_ListOfBdtEntries = new BDTEntry[numberOfBDTEntries];
 
             for (int i = 0; i < numberOfBDTEntries; i++)
@@ -198,7 +187,7 @@ namespace BACnet
 
                 IPEndPoint point = new IPEndPoint(ip, udpPort[1] * 256 + udpPort[0]);
                 BDTEntry bdtEntry = new BDTEntry();
-                
+
                 bdtEntry.MACAddress = point;
                 bdtEntry.Mask = mask;
 
@@ -243,14 +232,13 @@ namespace BACnet
                 IPEndPoint point = new IPEndPoint(ip, udpPort[1] * 256 + udpPort[0]);
                 FDTEntry fdtEntry = new FDTEntry();
 
-                fdtEntry.MACAddress     = point;
-                fdtEntry.TimeToLive     = (UInt16) (timeToLive[1] * 256 + timeToLive[0]);
-                fdtEntry.TimeRemaining  = (UInt16) (timeRemaining[1] * 256 + timeRemaining[0]);
+                fdtEntry.MACAddress = point;
+                fdtEntry.TimeToLive = (UInt16)(timeToLive[1] * 256 + timeToLive[0]);
+                fdtEntry.TimeRemaining = (UInt16)(timeRemaining[1] * 256 + timeRemaining[0]);
 
                 BVLC_ListOfFdtEntries[i] = fdtEntry;
             }
             return len;
         }
-
     }
 }

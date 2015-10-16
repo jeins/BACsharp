@@ -1,12 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using BACnet;
 
 namespace BACnet
 {
-
     //-----------------------------------------------------------------------------------------------
     // NPDU Routines
     public static class NPDU
