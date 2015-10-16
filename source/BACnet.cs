@@ -45,16 +45,7 @@
 */
 
 using System;
-using System.Diagnostics;
-using System.Text;
-using System.IO;
-using System.Net;
-using System.Net.Sockets;
-using System.Net.NetworkInformation;
-using System.Windows.Forms;
-using System.Collections;
 using System.Collections.Generic;
-using System.Runtime.Remoting.Messaging;
 
 namespace BACnet
 {
@@ -74,85 +65,56 @@ namespace BACnet
   //      Application Layer Protocol
   //      Transactions
 
-  //-----------------------------------------------------------------------------------------------
-  // BACnet Services
-  class BACnetService
-  {
-  }
-
-  class BACnetServiceRequest : BACnetService
-  {
-  }
-
-  class BACnetServiceResponse : BACnetService
-  {
-  }
-
-  class BACnetServiceIndication : BACnetService
-  {
-  }
-
-  class BACnetServiceConfirm : BACnetService
-  {
-  }
-
-  //-----------------------------------------------------------------------------------------------
-  // BACnetTag Routines
-  public static class BACnetTag
-  {
-    public static byte TagNumber(byte tag)
+    //-----------------------------------------------------------------------------------------------
+    // BACnet Services
+    class BACnetService
     {
-      int x = ((int)tag >> 4) & 0x0F;
-      return (byte)x;
     }
 
-    public static byte Class(byte tag) 
+    class BACnetServiceRequest : BACnetService
     {
-      int x = ((int)tag >> 3) & 0x01;
-      return (byte)x;
-    }
-    public static byte LenValType(byte tag)
-    {
-      int x = (int)tag & 0x07;
-      return (byte)x;
-    }
-  }
-
-
-
-
-  //-----------------------------------------------------------------------------------------------
-  // Octet Class
-
-  
-
-  //-----------------------------------------------------------------------------------------------
-    
-  //-----------------------------------------------------------------------------------------------
-  // Transaction State Machine
-  class TransactionStateMachine
-  {
-    public enum TSMState { IDLE, AWAIT_CONFIRMATION, AWAIT_RESPONSE };
-    TSMState State = TSMState.IDLE;
-    int RetryCount;
-
-    // Constructor
-    public TransactionStateMachine()
-    {
-      // Create the timer
-      //Timer RequestTimer = new Timer();
-      //RequestTimer.Tick += new EventHandler(RequestTimer_Tick);
     }
 
-    // Welcome To The Machine - what to do here ?
+    class BACnetServiceResponse : BACnetService
+    {
+    }
 
-  }
+    class BACnetServiceIndication : BACnetService
+    {
+    }
 
-  public static class BACnetData
-  {
-    public static List<Device> Devices;   // A list of BACnet devices after the WhoIs
-    public static int DeviceIndex;        // The current BACnet device selected
-    public static UInt32 PacketRetryCount;
-  }
+    class BACnetServiceConfirm : BACnetService
+    {
+    }
+
+    //-----------------------------------------------------------------------------------------------
+    // BACnetTag Routines
+    public static class BACnetTag
+    {
+        public static byte TagNumber(byte tag)
+        {
+            int x = ((int)tag >> 4) & 0x0F;
+            return (byte)x;
+        }
+
+        public static byte Class(byte tag)
+        {
+            int x = ((int)tag >> 3) & 0x01;
+            return (byte)x;
+        }
+        public static byte LenValType(byte tag)
+        {
+            int x = (int)tag & 0x07;
+            return (byte)x;
+        }
+    }
+
+    public static class BACnetData
+    {
+        public static List<Device> Devices;   // A list of BACnet devices after the WhoIs
+        public static int DeviceIndex;        // The current BACnet device selected
+        public static UInt32 PacketRetryCount;
+    }
+
 
 }

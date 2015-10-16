@@ -18,7 +18,7 @@ namespace BACnet
         /// <param name="bIpAddress">The bacnet ip address.</param>
         /// <param name="milliseconds">The milliseconds.</param>
         /// <returns></returns>
-        Device CheckSingleDevice(IPEndPoint bIpAddress, int milliseconds);
+        Device UnicastWhoIsOnSingleIp(IPEndPoint bIpAddress, int milliseconds);
 
         /// <summary>
         /// I-Am.
@@ -45,9 +45,9 @@ namespace BACnet
             Property property);
 
         /// <summary>
-        /// Sends the write property.
+        /// Write Property.
         /// </summary>
-        /// <param name="recipient">The recipient.</param>
+        /// <param name="recipient">The receipient.</param>
         /// <param name="arrayidx">The arrayidx.</param>
         /// <param name="objtype">The objtype.</param>
         /// <param name="objprop">The objprop.</param>

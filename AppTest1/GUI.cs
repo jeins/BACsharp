@@ -14,26 +14,28 @@ using BACnet;
 
 namespace AppTest1
 {
-    public partial class Form2 : Form
+    public partial class GUI : Form
     {
-        public IBACnetService BACService;
-        public List<BACnetIpDevice> bacnetDevices;
-        private BACnetIpDevice bacnetDevice;
+        public IBACnetManager BACnetManager;
+        public List<BACnetDevice> bacnetDevices;
+        private BACnetDevice bacnetDevice;
 
-        public Form2()
+        public GUI()
         {
             InitializeComponent();
 
-            BACService = new Service(47808);
+            BACnetManager = new BACnetManager(47808);
             bacnetDevice = null;
 
             lblBBMDStatus.BackColor = Color.Red;
             lblFDRegister.BackColor = Color.Red;
+            btnGetDeviceObj.Enabled = false;
+            btnGetProp.Enabled = false;
         }
 
         private void btnGetDevice_Click(object sender, EventArgs e)
         {
-            bacnetDevices = BACService.FindBACnetDevices();
+            bacnetDevices = BACnetManager.FindBACnetDevices();
             listDevices.Items.Clear();
             if (bacnetDevices.Count == 0)
             {
@@ -41,7 +43,7 @@ namespace AppTest1
             }
             else
             {
-                foreach (BACnetIpDevice dev in bacnetDevices)
+                foreach (BACnetDevice dev in bacnetDevices)
                 {
                     listDevices.Items.Add(
                       dev.VendorIdentifier.ToString() + ", " +
@@ -50,6 +52,13 @@ namespace AppTest1
                       dev.IpAddress.ToString() + ":" +
                       dev.IpAddress.Port.ToString());
                 }
+
+                if (bacnetDevices.Count > 0)
+                {
+                    btnGetDeviceObj.Enabled = true;
+                    btnGetProp.Enabled = true;
+                }
+
                 btnGetProp.Enabled = true;
                 btnGetDeviceObj.Enabled = true;
             }
@@ -57,8 +66,9 @@ namespace AppTest1
 
         private void btnGetProp_Click(object sender, EventArgs e)
         {
-            bacnetDevice = new BACnetIpDevice(CreateIPEndPoint("10.35.8.43:47808"), 0, 23, 0, 0);//bacnetDevices[idx];
-            BACService.FindDeviceProperties(ref bacnetDevice);
+            bacnetDevice = bacnetDevices[listDevices.SelectedIndex];
+
+            BACnetManager.FindDeviceProperties(ref bacnetDevice);
             listDeviceProp.Items.Clear();
             listDeviceProp.Items.Add("IP Address: " + bacnetDevice.IpAddress.ToString());
             listDeviceProp.Items.Add("Model Name: " + bacnetDevice.ModelName.ToString());
@@ -93,11 +103,11 @@ namespace AppTest1
 
         private void listDevices_SelectedIndexChanged(object sender, EventArgs e)
         {
-            int idx = listDevices.SelectedIndex;
-            bacnetDevice = bacnetDevices[idx];
+            bacnetDevice = bacnetDevices[listDevices.SelectedIndex];
+
             lblDeviceIP.Text = bacnetDevice.IpAddress.ToString();
 
-            if (BACService.IsBbmdEnabled(bacnetDevice.IpAddress))
+            if (BACnetManager.IsBbmdEnabled(bacnetDevice.IpAddress))
             {
                 lblBBMDStatus.Text = "True";
                 lblBBMDStatus.BackColor = Color.Green;
@@ -108,7 +118,7 @@ namespace AppTest1
                 lblBBMDStatus.BackColor = Color.Red;
             }
 
-            if (BACService.IsFdRegistrationSupported(bacnetDevice.IpAddress))
+            if (BACnetManager.IsFdRegistrationSupported(bacnetDevice.IpAddress))
             {
                 lblFDRegister.Text = "True";
                 lblFDRegister.BackColor = Color.Green;
@@ -122,8 +132,9 @@ namespace AppTest1
 
         private void btnGetDeviceObj_Click(object sender, EventArgs e)
         {
-            bacnetDevice = new BACnetIpDevice(CreateIPEndPoint("10.35.8.43:47808"), 0, 23, 0, 0);//bacnetDevices[idx];
-            BACService.FindDeviceObjects(ref bacnetDevice);
+            bacnetDevice = bacnetDevices[listDevices.SelectedIndex];
+
+            BACnetManager.FindDeviceObjects(ref bacnetDevice);
             lblTotalProp.Text = bacnetDevice.DeviceObjects.Count.ToString();
             foreach (string values in bacnetDevice.DeviceObjects)
             {

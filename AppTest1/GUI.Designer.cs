@@ -1,6 +1,6 @@
 ﻿namespace AppTest1
 {
-    partial class Form2
+    partial class GUI
     {
         /// <summary>
         /// Required designer variable.
@@ -210,8 +210,8 @@
             this.Controls.Add(this.btnGetProp);
             this.Controls.Add(this.listDevices);
             this.Controls.Add(this.btnGetDevice);
-            this.Name = "Form2";
-            this.Text = "Form2";
+            this.Name = "BACnet";
+            this.Text = "BACnet";
             this.ResumeLayout(false);
             this.PerformLayout();
 

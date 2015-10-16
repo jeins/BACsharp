@@ -63,36 +63,28 @@
     <Compile Include="..\source\BACnetEnums.cs">
       <Link>BACnet\BACnetEnums.cs</Link>
     </Compile>
-    <Compile Include="BACnet\BACnetService.cs" />
+    <Compile Include="BACnet\BACnetDevice.cs" />
+    <Compile Include="BACnet\BACnetManager.cs" />
     <Compile Include="BACnet\BACnetStack.cs" />
     <Compile Include="BACnet\BACnetTypes.cs" />
     <Compile Include="BACnet\BVLC.cs" />
-    <Compile Include="BACnet\IBACnetService.cs" />
+    <Compile Include="BACnet\IBACnetManager.cs" />
     <Compile Include="BACnet\IBACnetStack.cs" />
     <Compile Include="BACnet\NPDU.cs" />
     <Compile Include="BACnet\Property.cs" />
     <Compile Include="BACnet\APDU.cs" />
     <Compile Include="BACnet\Devices.cs" />
-    <Compile Include="Form1.cs">
+    <Compile Include="GUI.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Form1.Designer.cs">
-      <DependentUpon>Form1.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Form2.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Form2.Designer.cs">
-      <DependentUpon>Form2.cs</DependentUpon>
+    <Compile Include="GUI.Designer.cs">
+      <DependentUpon>GUI.cs</DependentUpon>
     </Compile>
     <Compile Include="Ini.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="Form1.resx">
-      <DependentUpon>Form1.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Form2.resx">
-      <DependentUpon>Form2.cs</DependentUpon>
+    <EmbeddedResource Include="GUI.resx">
+      <DependentUpon>GUI.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
