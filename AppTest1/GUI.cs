@@ -60,7 +60,7 @@ namespace AppTest1
 
         private void btnGetProp_Click(object sender, EventArgs e)
         {
-            bacnetDevice = bacnetDevices[listDevices.SelectedIndex];
+            bacnetDevice = bacnetDevices[listDevices.SelectedIndex]; //bacnetDevice = new BACnetDevice(CreateIPEndPoint("10.35.8.43:47808"), 0, 23, 0, 0);
 
             BACnetManager.FindDeviceProperties(ref bacnetDevice);
             listDeviceProp.Items.Clear();
@@ -75,23 +75,6 @@ namespace AppTest1
             listDeviceProp.Items.Add("Object Name: " + bacnetDevice.ObjectName.ToString());
             listDeviceProp.Items.Add("Source Length: " + bacnetDevice.SourceLength.ToString());
             listDeviceProp.Items.Add("Vendor Identifier: " + bacnetDevice.VendorIdentifier.ToString());
-        }
-
-        public static IPEndPoint CreateIPEndPoint(string endPoint)
-        {
-            string[] ep = endPoint.Split(':');
-            if (ep.Length != 2) throw new FormatException("Invalid endpoint format");
-            IPAddress ip;
-            if (!IPAddress.TryParse(ep[0], out ip))
-            {
-                throw new FormatException("Invalid ip-adress");
-            }
-            int port;
-            if (!int.TryParse(ep[1], NumberStyles.None, NumberFormatInfo.CurrentInfo, out port))
-            {
-                throw new FormatException("Invalid port");
-            }
-            return new IPEndPoint(ip, port);
         }
 
         private void listDevices_SelectedIndexChanged(object sender, EventArgs e)
@@ -125,7 +108,7 @@ namespace AppTest1
 
         private void btnGetDeviceObj_Click(object sender, EventArgs e)
         {
-            bacnetDevice = bacnetDevices[listDevices.SelectedIndex];
+            bacnetDevice = bacnetDevices[listDevices.SelectedIndex]; //bacnetDevice = new BACnetDevice(CreateIPEndPoint("10.35.8.43:47808"), 0, 23, 0, 0);
 
             BACnetManager.FindDeviceObjects(ref bacnetDevice);
             lblTotalProp.Text = bacnetDevice.DeviceObjects.Count.ToString();
@@ -133,6 +116,23 @@ namespace AppTest1
             {
                 listDeviceObj.Items.Add(values);
             }
+        }
+
+        private static IPEndPoint CreateIPEndPoint(string endPoint)
+        {
+            string[] ep = endPoint.Split(':');
+            if (ep.Length != 2) throw new FormatException("Invalid endpoint format");
+            IPAddress ip;
+            if (!IPAddress.TryParse(ep[0], out ip))
+            {
+                throw new FormatException("Invalid ip-adress");
+            }
+            int port;
+            if (!int.TryParse(ep[1], NumberStyles.None, NumberFormatInfo.CurrentInfo, out port))
+            {
+                throw new FormatException("Invalid port");
+            }
+            return new IPEndPoint(ip, port);
         }
     }
 }

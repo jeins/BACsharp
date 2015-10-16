@@ -83,6 +83,72 @@ namespace BACnet
 
             // Init the Devices list
             BACnetData.Devices = new List<Device>();
+//            foreach (NetworkInterface Interface in Interfaces)
+//            {
+//                if (Interface.NetworkInterfaceType == NetworkInterfaceType.Loopback) continue;
+//                //MessageBox.Show(Interface.Description);
+//                UnicastIPAddressInformationCollection UnicastIPInfoCol = Interface.GetIPProperties().UnicastAddresses;
+//                foreach (UnicastIPAddressInformation UnicatIPInfo in UnicastIPInfoCol)
+//                {
+//                    //MessageBox.Show("\tIP Address is {0}" + UnicatIPInfo.Address);
+//                    //MessageBox.Show("\tSubnet Mask is {0}" + UnicatIPInfo.IPv4Mask);
+//                    if (UnicatIPInfo.IPv4Mask != null)
+//                    {
+//                        if (new IPAddress(UnicatIPInfo.Address.GetAddressBytes()).ToString() == bindIpAddress.ToString())
+//                        {
+//                            // We found the correct IpAdress, and probably the correct subnet mask --->>> 
+//                            // but probably is not enough !!!! 
+//                            // because there are a lot of probably right Networkinterfaces on a machine, such as VMnet 0-9, VPN Tunnel and so on...
+//                            // The risk of taking the wrong NetworkInterface and it´s IpAddress is at 90%
+//                            // if the Ip matching has succeded, there is still the risk of getting no Subnet Mask in here and the Subnetmask has to be configured 
+//                            // manually for an networkinterface by the User/Administrator
+//                            addrbytes = UnicatIPInfo.Address.GetAddressBytes();
+//                            maskbytes = UnicatIPInfo.IPv4Mask.GetAddressBytes();
+//                            checkMask = UnicatIPInfo.IPv4Mask.ToString();
+//                            isMatch = true;
+//                            break;
+//                        }
+//                    }
+//                }
+//                if (isMatch)//check if IpAddress was matched 
+//                {
+//                    if (checkMask != "0.0.0.0") // check  if the subnetmask is valid
+//                    {
+//                        break;
+//                    }
+//                    else // if subnetmask is invalid we break the loop
+//                    {
+//                        isMatch = false;
+//                        break;
+//                    }
+//                }
+//            }
+//
+//
+//            if (isMatch)
+//            {
+//                currentUsedIpAddress = new IPAddress(addrbytes);
+//            }
+//            else
+//            {
+//                throw new Exception("NetworkInterface not found. Either the IpAddress : " +
+//                    new IPAddress(addrbytes).ToString() +
+//                    " ,the Subnetmask is wrong or not configured." +
+//                    "Please check your networkconfiguration! And restart the Service.");
+//            }
+//
+//            IPAddress broadcast = new IPAddress(maskbytes);
+//            LocalEP = new IPEndPoint(currentUsedIpAddress, UDPPort);
+//            BroadcastEP = new IPEndPoint(broadcast, UDPPort);
+//
+//            SendUDP = new UdpClient();
+//            SendUDP.ExclusiveAddressUse = false;
+//            SendUDP.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
+//            SendUDP.Client.Bind(LocalEP);
+//
+//            ReceiveUDP = new UdpClient(UDPPort, AddressFamily.InterNetwork);
+//            // Init the Devices list
+//            BACnetData.Devices = new List<Device>();
         }
 
         /// <summary>
