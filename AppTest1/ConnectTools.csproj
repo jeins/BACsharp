@@ -61,8 +61,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BACnet\Properties\Apdu.cs" />
-    <Compile Include="BACnet\BACnet.cs" />
-    <Compile Include="BACnet\BACnetData.cs" />
     <Compile Include="BACnet\BACnetDevice.cs" />
     <Compile Include="BACnet\Properties\BacnetEnums.cs" />
     <Compile Include="BACnet\BACnetManager.cs" />
@@ -75,7 +73,6 @@
     <Compile Include="BACnet\IBACnetStack.cs" />
     <Compile Include="BACnet\Properties\NPDU.cs" />
     <Compile Include="BACnet\Properties\Property.cs" />
-    <Compile Include="BACnet\Properties\TransactionStateMachine.cs" />
     <Compile Include="Gui.cs">
       <SubType>Form</SubType>
     </Compile>

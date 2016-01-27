@@ -44,17 +44,6 @@ namespace ConnectTools.BACnet
         bool FindDeviceObjects(ref BaCnetDevice device);
 
         /// <summary>
-        ///     Find all BACnet devices with enabled BBMD functionality.
-        /// </summary>
-        /// <param name="ipNetwork">The IP network address in CIDR format.</param>
-        /// <remarks>
-        ///     Devices with enabled BBMD should ACK ReadBroadcastDistributionTable requests.
-        ///     BBMDs with enabled FD registration should ACK ReadForeignDeviceTable requests.
-        /// </remarks>
-        /// <returns></returns>
-        List<BaCnetDeviceWithBbmd> FindBacnetBbmds(IPAddress ipNetwork);
-
-        /// <summary>
         ///     Determines whether there is a BACnet device at the specified IP address and port.
         /// </summary>
         /// <param name="ipAddress">The ip address.</param>

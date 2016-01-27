@@ -12,14 +12,14 @@
 // Kieback&Peter and is expressly PROHIBITED.
 // -----------------------------------------------------------------------------------
 
-using ConnectTools.BACnet.Properties;
-
 namespace ConnectTools.BACnet
 {
     using System;
     using System.Collections.Generic;
     using System.Net;
     using System.Reflection;
+
+    using Properties;
 
     using log4net;
 
@@ -118,8 +118,7 @@ namespace ConnectTools.BACnet
                 SourceLength = device.SourceLength
             };
 
-            var property = new Property();
-            property.Tag = BacnetEnums.BacnetApplicationTag.BacnetApplicationTagEnumerated;
+            var property = new Property {Tag = BacnetEnums.BacnetApplicationTag.BacnetApplicationTagEnumerated};
             if (!_bacStack.SendReadProperty(
               recipient,
               0, // Array[0] is Object Count
@@ -171,27 +170,12 @@ namespace ConnectTools.BACnet
                             case BacnetEnums.BacnetObjectType.ObjectFile: s = "File"; break;
                             default: s = "Other"; break;
                         }
-                        s = s + "  " + property.ValueObjectInstance.ToString();
+                        s = s + "  " + property.ValueObjectInstance;
                         deviceObjects.Add(s);
                     }
                 }
             device.DeviceObjects = deviceObjects;
             return successful;
-        }
-
-        /// <summary>
-        /// Find all BACnet devices with enabled BBMD functionality.
-        /// </summary>
-        /// <param name="ipNetwork">The IP network address in CIDR format.</param>
-        /// <returns></returns>
-        /// <exception cref="System.NotImplementedException"></exception>
-        /// <remarks>
-        /// Devices with enabled BBMD should ACK ReadBroadcastDistributionTable requests.
-        /// BBMDs with enabled FD registration should ACK ReadForeignDeviceTable requests.
-        /// </remarks>
-        public List<BaCnetDeviceWithBbmd> FindBacnetBbmds(IPAddress ipNetwork)
-        {
-            throw new NotImplementedException();
         }
 
         /// <summary>

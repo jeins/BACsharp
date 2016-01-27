@@ -12,8 +12,6 @@
 // Kieback&Peter and is expressly PROHIBITED.
 // -----------------------------------------------------------------------------------
 
-using ConnectTools.BACnet.Properties;
-
 namespace ConnectTools.BACnet
 {
     using System;
@@ -25,6 +23,8 @@ namespace ConnectTools.BACnet
     using System.Reflection;
 
     using log4net;
+
+    using Properties;
 
     public class BaCnetStack : IBaCnetStack
     {
@@ -40,8 +40,8 @@ namespace ConnectTools.BACnet
         private const int UdpPort = 47808;
         private int _invokeCounter;
         private readonly bool _isMatch;
-        // Constructor --------------------------------------------------------------------------------
-        //public BACnetStack(string server)
+
+        private readonly List<Device> _devices;
 
 
         // The Constructor needs an IpEndpoint with the IpAddress to use. 
@@ -98,7 +98,7 @@ namespace ConnectTools.BACnet
             _receiveUdp = new UdpClient(UdpPort, AddressFamily.InterNetwork);
 
             // Init the Devices list
-            BaCnetData.Devices = new List<Device>();
+            _devices = new List<Device>();
 //            // Machine dependent (little endian vs big endian) 
 //            // In this case we have to reverse the bytes for the Server IP
 //            IPAddress currentUsedIpAddress;
@@ -173,7 +173,7 @@ namespace ConnectTools.BACnet
             // Get the host data, send a Who-Is, accept responses and save in the DeviceList
             var sendBytes = new byte[12];
 
-            BaCnetData.Devices.Clear();
+            _devices.Clear();
 
             // Send the request
             try
@@ -225,9 +225,9 @@ namespace ConnectTools.BACnet
                             MacAddress = Npdu.SAddress,
                             Instance = Apdu.ObjectId
                         };
-                        if (!BaCnetData.Devices.Contains(device))
+                        if (!_devices.Contains(device))
                         {
-                            BaCnetData.Devices.Add(device);
+                            _devices.Add(device);
                         }
                     }
                 }
@@ -238,7 +238,7 @@ namespace ConnectTools.BACnet
             {
                 Log.ErrorFormat("Error GetDevices {0}", ex.Message);
             }
-            return BaCnetData.Devices;
+            return _devices;
         }
 
         /// <summary>
@@ -485,7 +485,6 @@ namespace ConnectTools.BACnet
                 }
 
                 count++;
-                BaCnetData.PacketRetryCount++;
             }
             return getResponse;
         }
@@ -617,7 +616,6 @@ namespace ConnectTools.BACnet
                     }
                 }
                 count++;
-                BaCnetData.PacketRetryCount++;
             }
             return getResponse; // This will still execute the finally
         }
@@ -668,7 +666,6 @@ namespace ConnectTools.BACnet
                     }
                 }
                 count++;
-                BaCnetData.PacketRetryCount++;
             }
             return getResponse;  // This will still execute the finally
         }
@@ -719,7 +716,6 @@ namespace ConnectTools.BACnet
                     }
                 }
                 count++;
-                BaCnetData.PacketRetryCount++;
             }
             return getResponse;  // This will still execute the finally
         }
