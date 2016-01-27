@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Net;
+using ConnectTools.BACnet.Properties;
 
 namespace ConnectTools.BACnet
 {
@@ -39,8 +40,8 @@ namespace ConnectTools.BACnet
         bool SendReadProperty(
             Device recipient,
             int arrayidx,
-            BaCnetEnums.BacnetObjectType objtype,
-            BaCnetEnums.BacnetPropertyId objprop,
+            BacnetEnums.BacnetObjectType objtype,
+            BacnetEnums.BacnetPropertyId objprop,
             Property property);
 
         /// <summary>
@@ -56,8 +57,8 @@ namespace ConnectTools.BACnet
         bool SendWriteProperty(
             Device recipient,
             int arrayidx,
-            BaCnetEnums.BacnetObjectType objtype,
-            BaCnetEnums.BacnetPropertyId objprop,
+            BacnetEnums.BacnetObjectType objtype,
+            BacnetEnums.BacnetPropertyId objprop,
             Property property,
             int priority);
 

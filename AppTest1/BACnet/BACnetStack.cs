@@ -183,15 +183,15 @@ namespace ConnectTools.BACnet
                 sendBytes[1] = Bvlc.BacnetBvlcFuncUnicastNpdu;
                 sendBytes[2] = 0;
                 sendBytes[3] = 12;
-                sendBytes[4] = BaCnetEnums.BacnetProtocolVersion;
+                sendBytes[4] = BacnetEnums.BacnetProtocolVersion;
                 sendBytes[5] = 0x20; // Control flags
                 sendBytes[6] = 0xFF; // Destination network address (65535)
                 sendBytes[7] = 0xFF;
                 sendBytes[8] = 0; // Destination MAC layer address length, 0 = Broadcast
                 sendBytes[9] = 0xFF; // Hop count = 255
 
-                sendBytes[10] = (Byte)BaCnetEnums.BacnetPduType.PduTypeUnconfirmedServiceRequest;
-                sendBytes[11] = (Byte)BaCnetEnums.BacnetUnconfirmedService.ServiceUnconfirmedWhoIs;
+                sendBytes[10] = (Byte)BacnetEnums.BacnetPduType.PduTypeUnconfirmedServiceRequest;
+                sendBytes[11] = (Byte)BacnetEnums.BacnetUnconfirmedService.ServiceUnconfirmedWhoIs;
 
                 _sendUdp.EnableBroadcast = false;
                 _sendUdp.Send(sendBytes, 12, _broadcastEp);
@@ -260,15 +260,15 @@ namespace ConnectTools.BACnet
                 sendBytes[1] = Bvlc.BacnetBvlcFuncUnicastNpdu;
                 sendBytes[2] = 0;
                 sendBytes[3] = 12;
-                sendBytes[4] = BaCnetEnums.BacnetProtocolVersion;
+                sendBytes[4] = BacnetEnums.BacnetProtocolVersion;
                 sendBytes[5] = 0x20;  // Control flags
                 sendBytes[6] = 0xFF;  // Destination network address (65535)
                 sendBytes[7] = 0xFF;
                 sendBytes[8] = 0;     // Destination MAC layer address length, 0 = Broadcast
                 sendBytes[9] = 0xFF;  // Hop count = 255
 
-                sendBytes[10] = (byte)BaCnetEnums.BacnetPduType.PduTypeUnconfirmedServiceRequest;
-                sendBytes[11] = (byte)BaCnetEnums.BacnetUnconfirmedService.ServiceUnconfirmedWhoIs;
+                sendBytes[10] = (byte)BacnetEnums.BacnetPduType.PduTypeUnconfirmedServiceRequest;
+                sendBytes[11] = (byte)BacnetEnums.BacnetUnconfirmedService.ServiceUnconfirmedWhoIs;
 
                 _sendUdp.EnableBroadcast = false;
                 _sendUdp.Send(sendBytes, 12, bIpAddress);
@@ -374,8 +374,8 @@ namespace ConnectTools.BACnet
         public bool SendReadProperty(
             Device recipient,
             int arrayidx,
-            BaCnetEnums.BacnetObjectType objtype,
-            BaCnetEnums.BacnetPropertyId objprop,
+            BacnetEnums.BacnetObjectType objtype,
+            BacnetEnums.BacnetPropertyId objprop,
             Property property)
         {
             // Create and send an Confirmed Request
@@ -396,7 +396,7 @@ namespace ConnectTools.BACnet
             sendBytes[3] = 0x00;  // BVLL Length, fix later (24?)
 
             // NPDU
-            sendBytes[4] = BaCnetEnums.BacnetProtocolVersion;
+            sendBytes[4] = BacnetEnums.BacnetProtocolVersion;
             if (recipient.SourceLength == 0)
                 sendBytes[5] = 0x04;  // Control flags, no destination address
             else
@@ -503,8 +503,8 @@ namespace ConnectTools.BACnet
         public bool SendWriteProperty(
             Device recipient,
             int arrayidx,
-            BaCnetEnums.BacnetObjectType objtype,
-            BaCnetEnums.BacnetPropertyId objprop,
+            BacnetEnums.BacnetObjectType objtype,
+            BacnetEnums.BacnetPropertyId objprop,
             Property property,
             int priority)
         {
@@ -519,7 +519,7 @@ namespace ConnectTools.BACnet
             var len = Bvlc.Fill(ref sendBytes, Bvlc.BacnetBvlcFuncUnicastNpdu, 0);
 
             // NPDU
-            sendBytes[len++] = BaCnetEnums.BacnetProtocolVersion;
+            sendBytes[len++] = BacnetEnums.BacnetProtocolVersion;
             if (recipient.SourceLength == 0)
                 sendBytes[len++] = 0x04;  // Control flags, no destination address
             else

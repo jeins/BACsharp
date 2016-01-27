@@ -12,17 +12,37 @@
 // Kieback&Peter and is expressly PROHIBITED.
 // -----------------------------------------------------------------------------------
 
-namespace ConnectTools.BACnet
+namespace ConnectTools.BACnet.Properties
 {
-    public class BaCnetEnums
+    /// <summary>
+    /// bacnet enums
+    /// </summary>
+    public static class BacnetEnums
     {
+
+        /// <summary>
+        /// The bacnet maximum object
+        /// </summary>
         public const int BacnetMaxObject = 0x3FF;
 
+        /// <summary>
+        /// The bacnet maximum instance
+        /// </summary>
         public const int BacnetMaxInstance = 0x3FFFFF;
+
+        /// <summary>
+        /// The bacnet instance bits
+        /// </summary>
         public const int BacnetInstanceBits = 22;
 
+        /// <summary>
+        /// The bacnet protocol version
+        /// </summary>
         public const int BacnetProtocolVersion = 0x01;
 
+        /// <summary>
+        /// The bacnet property
+        /// </summary>
         public enum BacnetPropertyId
         {
             PropAckedTransitions = 0,

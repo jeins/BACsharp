@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using ConnectTools.BACnet.Properties;
 
 namespace ConnectTools.BACnet
 {
@@ -18,7 +19,7 @@ namespace ConnectTools.BACnet
             ServerEp = null;
             Network = 0;
             SourceLength = 0;
-            Instance = BaCnetEnums.MaxBacnetPropertyId;
+            Instance = BacnetEnums.MaxBacnetPropertyId;
             MacAddress = 0;
         }
 

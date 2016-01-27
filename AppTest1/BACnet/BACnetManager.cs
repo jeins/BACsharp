@@ -12,6 +12,8 @@
 // Kieback&Peter and is expressly PROHIBITED.
 // -----------------------------------------------------------------------------------
 
+using ConnectTools.BACnet.Properties;
+
 namespace ConnectTools.BACnet
 {
     using System;
@@ -117,18 +119,18 @@ namespace ConnectTools.BACnet
             };
 
             var property = new Property();
-            property.Tag = BaCnetEnums.BacnetApplicationTag.BacnetApplicationTagEnumerated;
+            property.Tag = BacnetEnums.BacnetApplicationTag.BacnetApplicationTagEnumerated;
             if (!_bacStack.SendReadProperty(
               recipient,
               0, // Array[0] is Object Count
-              BaCnetEnums.BacnetObjectType.ObjectDevice,
-              BaCnetEnums.BacnetPropertyId.PropObjectList,
+              BacnetEnums.BacnetObjectType.ObjectDevice,
+              BacnetEnums.BacnetPropertyId.PropObjectList,
               property))
             {
                 successful = false;
             }
 
-            if (property.Tag != BaCnetEnums.BacnetApplicationTag.BacnetApplicationTagUnsignedInt)
+            if (property.Tag != BacnetEnums.BacnetApplicationTag.BacnetApplicationTagUnsignedInt)
             {
                 successful = false;
             }
@@ -147,26 +149,26 @@ namespace ConnectTools.BACnet
                             recipient,
                             i,
                             // each array index
-                            BaCnetEnums.BacnetObjectType.ObjectDevice,
-                            BaCnetEnums.BacnetPropertyId.PropObjectList,
+                            BacnetEnums.BacnetObjectType.ObjectDevice,
+                            BacnetEnums.BacnetPropertyId.PropObjectList,
                             property))
                         {
                             continue;
                         }
                         tries = 5; // Next object
                         string s;
-                        if (property.Tag != BaCnetEnums.BacnetApplicationTag.BacnetApplicationTagObjectId)
+                        if (property.Tag != BacnetEnums.BacnetApplicationTag.BacnetApplicationTagObjectId)
                             tries = 5; // continue;
                         switch (property.ValueObjectType)
                         {
-                            case BaCnetEnums.BacnetObjectType.ObjectDevice: s = "Device"; break;
-                            case BaCnetEnums.BacnetObjectType.ObjectAnalogInput: s = "Analog Input"; break;
-                            case BaCnetEnums.BacnetObjectType.ObjectAnalogOutput: s = "Analog Output"; break;
-                            case BaCnetEnums.BacnetObjectType.ObjectAnalogValue: s = "Analog value"; break;
-                            case BaCnetEnums.BacnetObjectType.ObjectBinaryInput: s = "Binary Input"; break;
-                            case BaCnetEnums.BacnetObjectType.ObjectBinaryOutput: s = "Binary Output"; break;
-                            case BaCnetEnums.BacnetObjectType.ObjectBinaryValue: s = "Binary value"; break;
-                            case BaCnetEnums.BacnetObjectType.ObjectFile: s = "File"; break;
+                            case BacnetEnums.BacnetObjectType.ObjectDevice: s = "Device"; break;
+                            case BacnetEnums.BacnetObjectType.ObjectAnalogInput: s = "Analog Input"; break;
+                            case BacnetEnums.BacnetObjectType.ObjectAnalogOutput: s = "Analog Output"; break;
+                            case BacnetEnums.BacnetObjectType.ObjectAnalogValue: s = "Analog value"; break;
+                            case BacnetEnums.BacnetObjectType.ObjectBinaryInput: s = "Binary Input"; break;
+                            case BacnetEnums.BacnetObjectType.ObjectBinaryOutput: s = "Binary Output"; break;
+                            case BacnetEnums.BacnetObjectType.ObjectBinaryValue: s = "Binary value"; break;
+                            case BacnetEnums.BacnetObjectType.ObjectFile: s = "File"; break;
                             default: s = "Other"; break;
                         }
                         s = s + "  " + property.ValueObjectInstance.ToString();
@@ -240,36 +242,36 @@ namespace ConnectTools.BACnet
 
         private bool GetObjectName(ref BaCnetDevice device)
         {
-            return GetStringPropertyValue(ref device, BaCnetEnums.BacnetPropertyId.PropObjectName,
+            return GetStringPropertyValue(ref device, BacnetEnums.BacnetPropertyId.PropObjectName,
                 ref device.ObjectName);
         }
         private bool GetVendorName(ref BaCnetDevice device)
         {
-            return GetStringPropertyValue(ref device, BaCnetEnums.BacnetPropertyId.PropVendorName,
+            return GetStringPropertyValue(ref device, BacnetEnums.BacnetPropertyId.PropVendorName,
                 ref device.VendorName);
         }
         private bool GetModelName(ref BaCnetDevice device)
         {
-            return GetStringPropertyValue(ref device, BaCnetEnums.BacnetPropertyId.PropModelName,
+            return GetStringPropertyValue(ref device, BacnetEnums.BacnetPropertyId.PropModelName,
                 ref device.ModelName);
         }
 
         private bool GetApplicationSoftwareVersion(ref BaCnetDevice device)
         {
-            return GetStringPropertyValue(ref device, BaCnetEnums.BacnetPropertyId.PropApplicationSoftwareVersion,
+            return GetStringPropertyValue(ref device, BacnetEnums.BacnetPropertyId.PropApplicationSoftwareVersion,
                 ref device.ApplicationSoftwareVersion);
         }
 
         private bool GetFirmwareRevision(ref BaCnetDevice device)
         {
-            return GetStringPropertyValue(ref device, BaCnetEnums.BacnetPropertyId.PropFirmwareRevision,
+            return GetStringPropertyValue(ref device, BacnetEnums.BacnetPropertyId.PropFirmwareRevision,
                 ref device.FirmwareRevision);
         }
 
         private bool GetVendorIdentifier(ref BaCnetDevice device)
         {
             uint value = 0;
-            if (GetUnsignedPropertyValue(ref device, BaCnetEnums.BacnetPropertyId.PropVendorIdentifier,
+            if (GetUnsignedPropertyValue(ref device, BacnetEnums.BacnetPropertyId.PropVendorIdentifier,
                 ref value))
             {
                 device.VendorIdentifier = (int)value;
@@ -285,7 +287,7 @@ namespace ConnectTools.BACnet
         private bool GetProtocolVersion(ref BaCnetDevice device)
         {
             uint value = 0;
-            if (GetUnsignedPropertyValue(ref device, BaCnetEnums.BacnetPropertyId.PropProtocolVersion,
+            if (GetUnsignedPropertyValue(ref device, BacnetEnums.BacnetPropertyId.PropProtocolVersion,
                 ref value))
             {
                 device.ProtocolVersion = (int)value;
@@ -301,7 +303,7 @@ namespace ConnectTools.BACnet
         private bool GetProtocolRevision(ref BaCnetDevice device)
         {
             uint value = 0;
-            if (!GetUnsignedPropertyValue(ref device, BaCnetEnums.BacnetPropertyId.PropProtocolRevision, ref value))
+            if (!GetUnsignedPropertyValue(ref device, BacnetEnums.BacnetPropertyId.PropProtocolRevision, ref value))
                 return false;
 
             device.ProtocolRevision = (int)value;
@@ -316,7 +318,7 @@ namespace ConnectTools.BACnet
                 "download-in-progress", "non-operational", "backup-in-progress"
             };
             uint value = 0;
-            if (GetEnumeratedPropertyValue(ref device, BaCnetEnums.BacnetPropertyId.PropSystemStatus,
+            if (GetEnumeratedPropertyValue(ref device, BacnetEnums.BacnetPropertyId.PropSystemStatus,
                 ref value))
             {
                 if (value < bacnetDeviceSytemStatusString.Length)
@@ -330,9 +332,9 @@ namespace ConnectTools.BACnet
             return false;
         }
 
-        private bool GetStringPropertyValue(ref BaCnetDevice device, BaCnetEnums.BacnetPropertyId propId, ref string value)
+        private bool GetStringPropertyValue(ref BaCnetDevice device, BacnetEnums.BacnetPropertyId propId, ref string value)
         {
-            var property = new Property { Tag = BaCnetEnums.BacnetApplicationTag.BacnetApplicationTagEnumerated };
+            var property = new Property { Tag = BacnetEnums.BacnetApplicationTag.BacnetApplicationTagEnumerated };
 
             var recipient = new Device
             {
@@ -345,14 +347,14 @@ namespace ConnectTools.BACnet
             if (!_bacStack.SendReadProperty(
                 recipient,
                 -1, // Array[0] is Object Count
-                BaCnetEnums.BacnetObjectType.ObjectDevice,
+                BacnetEnums.BacnetObjectType.ObjectDevice,
                 propId,
                 property))
             {
                 return false;
             }
 
-            if (property.Tag != BaCnetEnums.BacnetApplicationTag.BacnetApplicationTagCharacterString)
+            if (property.Tag != BacnetEnums.BacnetApplicationTag.BacnetApplicationTagCharacterString)
             {
                 return false;
             }
@@ -360,9 +362,9 @@ namespace ConnectTools.BACnet
             return true;
         }
 
-        private bool GetUnsignedPropertyValue(ref BaCnetDevice device, BaCnetEnums.BacnetPropertyId propId, ref uint value)
+        private bool GetUnsignedPropertyValue(ref BaCnetDevice device, BacnetEnums.BacnetPropertyId propId, ref uint value)
         {
-            var property = new Property { Tag = BaCnetEnums.BacnetApplicationTag.BacnetApplicationTagEnumerated };
+            var property = new Property { Tag = BacnetEnums.BacnetApplicationTag.BacnetApplicationTagEnumerated };
 
             var recipient = new Device
             {
@@ -375,14 +377,14 @@ namespace ConnectTools.BACnet
             if (!_bacStack.SendReadProperty(
                 recipient,
                 -1, // Array[0] is Object Count
-                BaCnetEnums.BacnetObjectType.ObjectDevice,
+                BacnetEnums.BacnetObjectType.ObjectDevice,
                 propId,
                 property))
             {
                 return false;
             }
 
-            if (property.Tag != BaCnetEnums.BacnetApplicationTag.BacnetApplicationTagUnsignedInt)
+            if (property.Tag != BacnetEnums.BacnetApplicationTag.BacnetApplicationTagUnsignedInt)
             {
                 return false;
             }
@@ -391,9 +393,9 @@ namespace ConnectTools.BACnet
             return true;
         }
 
-        private bool GetEnumeratedPropertyValue(ref BaCnetDevice device, BaCnetEnums.BacnetPropertyId propId, ref uint value)
+        private bool GetEnumeratedPropertyValue(ref BaCnetDevice device, BacnetEnums.BacnetPropertyId propId, ref uint value)
         {
-            var property = new Property { Tag = BaCnetEnums.BacnetApplicationTag.BacnetApplicationTagNull };
+            var property = new Property { Tag = BacnetEnums.BacnetApplicationTag.BacnetApplicationTagNull };
 
             var recipient = new Device
             {
@@ -406,14 +408,14 @@ namespace ConnectTools.BACnet
             if (!_bacStack.SendReadProperty(
                 recipient,
                 -1, // Array[0] is Object Count
-                BaCnetEnums.BacnetObjectType.ObjectDevice,
+                BacnetEnums.BacnetObjectType.ObjectDevice,
                 propId,
                 property))
             {
                 return false;
             }
 
-            if (property.Tag != BaCnetEnums.BacnetApplicationTag.BacnetApplicationTagEnumerated)
+            if (property.Tag != BacnetEnums.BacnetApplicationTag.BacnetApplicationTagEnumerated)
             {
                 return false;
             }

@@ -60,11 +60,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BACnet\Properties\APDU.cs" />
+    <Compile Include="BACnet\Properties\Apdu.cs" />
     <Compile Include="BACnet\BACnet.cs" />
     <Compile Include="BACnet\BACnetData.cs" />
     <Compile Include="BACnet\BACnetDevice.cs" />
-    <Compile Include="BACnet\Properties\BACnetEnums.cs" />
+    <Compile Include="BACnet\Properties\BacnetEnums.cs" />
     <Compile Include="BACnet\BACnetManager.cs" />
     <Compile Include="BACnet\BACnetStack.cs" />
     <Compile Include="BACnet\Properties\BACnetTag.cs" />
