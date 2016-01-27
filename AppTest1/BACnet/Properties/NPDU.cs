@@ -15,6 +15,7 @@
 namespace ConnectTools.BACnet.Properties
 {
     using System;
+
     public static class Npdu
     {
         private static byte _pduControl;

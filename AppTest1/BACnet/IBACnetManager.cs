@@ -12,11 +12,11 @@
 // Kieback&Peter and is expressly PROHIBITED.
 // -----------------------------------------------------------------------------------
 
-using System.Collections.Generic;
-using System.Net;
-
 namespace ConnectTools.BACnet
 {
+    using System.Collections.Generic;
+    using System.Net;
+
     public interface IBaCnetManager
     {
         /// <summary>

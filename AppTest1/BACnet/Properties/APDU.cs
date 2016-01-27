@@ -20,6 +20,7 @@ namespace ConnectTools.BACnet.Properties
     using System.Linq;
     using System.Reflection;
     using System.Text;
+
     using log4net;
 
     public static class Apdu
