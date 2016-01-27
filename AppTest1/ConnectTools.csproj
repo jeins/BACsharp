@@ -61,17 +61,17 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BACnet\Properties\Apdu.cs" />
-    <Compile Include="BACnet\BACnetDevice.cs" />
+    <Compile Include="BACnet\BacnetDevice.cs" />
     <Compile Include="BACnet\Properties\BacnetEnums.cs" />
-    <Compile Include="BACnet\BACnetManager.cs" />
-    <Compile Include="BACnet\BACnetStack.cs" />
-    <Compile Include="BACnet\Properties\BACnetTag.cs" />
-    <Compile Include="BACnet\Properties\BACnetTypes.cs" />
-    <Compile Include="BACnet\Properties\BVLC.cs" />
+    <Compile Include="BACnet\BacnetManager.cs" />
+    <Compile Include="BACnet\BacnetStack.cs" />
+    <Compile Include="BACnet\Properties\BacnetTag.cs" />
+    <Compile Include="BACnet\Properties\BacnetTypes.cs" />
+    <Compile Include="BACnet\Properties\Bvlc.cs" />
     <Compile Include="BACnet\Properties\Devices.cs" />
-    <Compile Include="BACnet\IBACnetManager.cs" />
-    <Compile Include="BACnet\IBACnetStack.cs" />
-    <Compile Include="BACnet\Properties\NPDU.cs" />
+    <Compile Include="BACnet\IBacnetManager.cs" />
+    <Compile Include="BACnet\IBacnetStack.cs" />
+    <Compile Include="BACnet\Properties\Npdu.cs" />
     <Compile Include="BACnet\Properties\Property.cs" />
     <Compile Include="Gui.cs">
       <SubType>Form</SubType>

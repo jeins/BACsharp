@@ -23,9 +23,9 @@ namespace ConnectTools
 
     public partial class Gui : Form
     {
-        private readonly IBaCnetManager _bacnetManager;
-        private List<BaCnetDevice> _bacnetDevices;
-        private BaCnetDevice _bacnetDevice;
+        private readonly IBacnetManager _bacnetManager;
+        private List<BacnetDevice> _bacnetDevices;
+        private BacnetDevice _bacnetDevice;
 
 
         /// <summary>
@@ -35,7 +35,7 @@ namespace ConnectTools
         {
             InitializeComponent();
 
-            _bacnetManager = new BaCnetManager(System.Net.Dns.GetHostByName(Environment.MachineName).AddressList[0]);
+            _bacnetManager = new BacnetManager(System.Net.Dns.GetHostByName(Environment.MachineName).AddressList[0]);
             _bacnetDevice = null;
 
             lblBBMDStatus.BackColor = Color.Red;
@@ -54,7 +54,7 @@ namespace ConnectTools
             }
             else
             {
-                foreach (BaCnetDevice dev in _bacnetDevices)
+                foreach (BacnetDevice dev in _bacnetDevices)
                 {
                     listDevices.Items.Add(
                       dev.VendorIdentifier + ", " +

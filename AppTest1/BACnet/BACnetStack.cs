@@ -26,14 +26,14 @@ namespace ConnectTools.BACnet
 
     using Properties;
 
-    public class BaCnetStack : IBaCnetStack
+    public class BacnetStack : IBacnetStack
     {
         private const int BacnetUnicastRequestRepeatCount = 3; // repeat request x times
         private static readonly ILog Log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
-        private readonly UdpClient _sendUdp; // = new Udp  Client(UDPPort);
+        private readonly UdpClient _sendUdp; 
 
-        private readonly UdpClient _receiveUdp; // = new UdpClient(UDPPort, AddressFamily.InterNetwork);
+        private readonly UdpClient _receiveUdp; 
 
         private readonly IPEndPoint _broadcastEp;
 
@@ -46,7 +46,7 @@ namespace ConnectTools.BACnet
 
         // The Constructor needs an IpEndpoint with the IpAddress to use. 
         // The IpAddress will be matched with a "probably found Networkinterface" if there is a match we break the Loop.
-        public BaCnetStack(IPAddress bindIpAddress)
+        public BacnetStack(IPAddress bindIpAddress)
         {
             byte[] maskbytes = new byte[4];
             byte[] addrbytes = new byte[4];
@@ -159,8 +159,9 @@ namespace ConnectTools.BACnet
 //            _sendUdp.Client.Bind(localEp);
 //
 //            _receiveUdp = new UdpClient(UdpPort, AddressFamily.InterNetwork);
+//
 //            // Init the Devices list
-//            BACnetData.Devices = new List<Device>();
+//            _devices = new List<Device>();
         }
 
         /// <summary>

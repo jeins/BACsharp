@@ -17,7 +17,7 @@ namespace ConnectTools.BACnet
     using System.Collections.Generic;
     using System.Net;
 
-    public interface IBaCnetManager
+    public interface IBacnetManager
     {
         /// <summary>
         ///     Find all BACnet devices.
@@ -28,20 +28,20 @@ namespace ConnectTools.BACnet
         ///     Reading the required Device properties can be accomplished with a single ReadPropertyMultiple request.
         /// </remarks>
         /// <returns>A list of all found BACnet IP devices.</returns>
-        List<BaCnetDevice> FindBaCnetDevices();
+        List<BacnetDevice> FindBaCnetDevices();
 
         /// <summary>
         ///     Finds the device properties.
         /// </summary>
         /// <returns></returns>
-        bool FindDeviceProperties(ref BaCnetDevice device);
+        bool FindDeviceProperties(ref BacnetDevice device);
 
         /// <summary>
         ///     Finds the device objects.
         /// </summary>
         /// <param name="device">The device.</param>
         /// <returns></returns>
-        bool FindDeviceObjects(ref BaCnetDevice device);
+        bool FindDeviceObjects(ref BacnetDevice device);
 
         /// <summary>
         ///     Determines whether there is a BACnet device at the specified IP address and port.

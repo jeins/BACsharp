@@ -17,7 +17,7 @@ namespace ConnectTools.BACnet
     using System.Collections.Generic;
     using System.Net;
 
-    public class BaCnetDevice
+    public class BacnetDevice
     {
         public string ApplicationSoftwareVersion;
 
@@ -39,9 +39,9 @@ namespace ConnectTools.BACnet
         public string VendorName;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="BaCnetDevice"/> class.
+        /// Initializes a new instance of the <see cref="BacnetDevice"/> class.
         /// </summary>
-        public BaCnetDevice()
+        public BacnetDevice()
         {
             InstanceNumber = 0;
             ObjectName = "unknown";
@@ -62,14 +62,14 @@ namespace ConnectTools.BACnet
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="BaCnetDevice"/> class.
+        /// Initializes a new instance of the <see cref="BacnetDevice"/> class.
         /// </summary>
         /// <param name="ipAddress">The ip address.</param>
         /// <param name="network">The network.</param>
         /// <param name="instanceNumber">The instance number.</param>
         /// <param name="vendorIdentifier">The vendor identifier.</param>
         /// <param name="sourceLength">Length of the source.</param>
-        public BaCnetDevice(IPEndPoint ipAddress, int network, uint instanceNumber, int vendorIdentifier,
+        public BacnetDevice(IPEndPoint ipAddress, int network, uint instanceNumber, int vendorIdentifier,
             byte sourceLength)
         {
             IpAddress = ipAddress;

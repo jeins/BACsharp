@@ -19,7 +19,7 @@ namespace ConnectTools.BACnet
 
     using Properties;
 
-    public interface IBaCnetStack
+    public interface IBacnetStack
     {
         /// <summary>
         ///     Who-Is, and collect information about who answers
