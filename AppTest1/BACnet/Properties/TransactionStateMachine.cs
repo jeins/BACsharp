@@ -1,4 +1,4 @@
-﻿namespace ConnectTools.BACnet
+﻿namespace ConnectTools.BACnet.Properties
 {
     /// <summary>
     /// Transaction State Machine

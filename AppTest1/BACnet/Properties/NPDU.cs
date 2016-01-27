@@ -1,96 +1,97 @@
-﻿using System;
+﻿// -----------------------------------------------------------------------------------
+// Copyright (C) 2015 Kieback&Peter GmbH & Co KG All Rights Reserved
+// 
+// Kieback&Peter Confidential Proprietary Information
+// 
+// This Software is confidential and proprietary to Kieback&Peter. 
+// The reproduction or disclosure in whole or part to anyone outside of Kieback&Peter
+// without the written approval of an officer of Kieback&Peter GmbH & Co.KG,
+// under a Non-Disclosure Agreement, or to any employee who has not previously
+// obtained a written authorization for access from the individual responsible
+// for the software will have a significant detrimental effect on
+// Kieback&Peter and is expressly PROHIBITED.
+// -----------------------------------------------------------------------------------
 
-namespace ConnectTools.BACnet
+namespace ConnectTools.BACnet.Properties
 {
-    //-----------------------------------------------------------------------------------------------
-    // NPDU Routines
-    public class Npdu
+    using System;
+    public static class Npdu
     {
-        public static byte PduControl;
-        public static ushort Dnet;
-        public static byte Dlen;
-        public static byte[] Dadr;
+        private static byte _pduControl;
+        private static byte _dlen;
+        private static byte[] _dadr;
         public static ushort Snet;
         public static byte Slen;
-        public static byte[] Sadr;
-        public static byte HopCount;
-        public static byte MessageType;
-        public static ushort VendorId;
-        public static uint DAddress;
+        private static byte[] _sadr;
+        private static byte _messageType;
+        private static ushort _vendorId;
         public static uint SAddress;
+        private static uint _dAddress;
+        private static int HopCount;
+        private static int Dnet;
 
-        public static void /*NPDU*/ Clear()
+        private static void Clear()
         {
-            // Clear the packet members
-            PduControl = 0;
+            _pduControl = 0;
             Dnet = 0;
-            Dlen = 0;
-            Dadr = null;
+            _dlen = 0;
+            _dadr = null;
             Snet = 0;
             Slen = 0;
-            Sadr = null;
+            _sadr = null;
             HopCount = 0;
-            MessageType = 0;
-            VendorId = 0;
-            DAddress = 0;
+            _messageType = 0;
+            _vendorId = 0;
+            _dAddress = 0;
             SAddress = 0;
         }
 
-        public static int /*NPDU*/ Assemble(byte[] bytes, int offset)
+        /// <summary>
+        /// Parses the specified bytes.
+        /// </summary>
+        /// <param name="bytes">The bytes.</param>
+        /// <param name="offset">The offset.</param>
+        /// <returns></returns>
+        public static int Parse(byte[] bytes, int offset)
         {
-            // Create a NPUD packet in the bytes array, starting at offset given
-            // Return the length
-            var len = 0;
-            return len;
-        }
-
-        public static int /*NPDU*/ Parse(byte[] bytes, int offset)
-        {
-            // Returns the Length of the NPDU portion of the packet (offset of APDU)
-            // We assume the BVLL is always present, so the NPDU always starts at offset 4
             var len = offset; // 4
             byte[] temp;
             Clear();
             if (bytes[len++] != 0x01) return 0;
-            PduControl = bytes[len++]; // 5
-            if ((PduControl & 0x20) > 0)
+            _pduControl = bytes[len++]; // 5
+            if ((_pduControl & 0x20) > 0)
             {
-                // We have a Destination 
                 temp = new byte[2];
                 temp[1] = bytes[len++];
                 temp[0] = bytes[len++];
                 Dnet = BitConverter.ToUInt16(temp, 0);
-                Dlen = bytes[len++];
-                if (Dlen == 1)
+                _dlen = bytes[len++];
+                if (_dlen == 1)
                 {
-                    Dadr = new byte[1];
-                    Dadr[0] = bytes[len++];
-                    DAddress = Dadr[0];
+                    _dadr = new byte[1];
+                    _dadr[0] = bytes[len++];
+                    _dAddress = _dadr[0];
                 }
-                if (Dlen == 2)
+                if (_dlen == 2)
                 {
-                    temp = new byte[2];
-                    Dadr[1] = bytes[len++];
-                    Dadr[0] = bytes[len++];
-                    DAddress = BitConverter.ToUInt16(Dadr, 0);
+                    _dadr[1] = bytes[len++];
+                    _dadr[0] = bytes[len++];
+                    _dAddress = BitConverter.ToUInt16(_dadr, 0);
                 }
-                if (Dlen == 4)
+                if (_dlen == 4)
                 {
-                    temp = new byte[4];
-                    Dadr[3] = bytes[len++];
-                    Dadr[2] = bytes[len++];
-                    Dadr[1] = bytes[len++];
-                    Dadr[0] = bytes[len++];
-                    DAddress = BitConverter.ToUInt32(Dadr, 0);
+                    _dadr[3] = bytes[len++];
+                    _dadr[2] = bytes[len++];
+                    _dadr[1] = bytes[len++];
+                    _dadr[0] = bytes[len++];
+                    _dAddress = BitConverter.ToUInt32(_dadr, 0);
                 }
-                //PEP Other DLEN values ...
             }
             else
-                Dlen = 0;
+                _dlen = 0;
 
-            if ((PduControl & 0x08) > 0)
+            if ((_pduControl & 0x08) > 0)
             {
-                // We have a Source
                 temp = new byte[2];
                 temp[1] = bytes[len++];
                 temp[0] = bytes[len++];
@@ -98,53 +99,35 @@ namespace ConnectTools.BACnet
                 Slen = bytes[len++];
                 if (Slen == 1)
                 {
-                    Sadr = new byte[1];
-                    Sadr[0] = bytes[len++];
-                    SAddress = Sadr[0];
+                    _sadr = new byte[1];
+                    _sadr[0] = bytes[len++];
+                    SAddress = _sadr[0];
                 }
                 if (Slen == 2)
                 {
-                    Sadr = new byte[2];
-                    Sadr[1] = bytes[len++];
-                    Sadr[0] = bytes[len++];
-                    SAddress = BitConverter.ToUInt16(Sadr, 0);
+                    _sadr = new byte[2];
+                    _sadr[1] = bytes[len++];
+                    _sadr[0] = bytes[len++];
+                    SAddress = BitConverter.ToUInt16(_sadr, 0);
                 }
                 if (Slen == 4)
                 {
-                    Sadr = new byte[4];
-                    Sadr[3] = bytes[len++];
-                    Sadr[2] = bytes[len++];
-                    Sadr[1] = bytes[len++];
-                    Sadr[0] = bytes[len++];
-                    SAddress = BitConverter.ToUInt32(Sadr, 0);
+                    _sadr = new byte[4];
+                    _sadr[3] = bytes[len++];
+                    _sadr[2] = bytes[len++];
+                    _sadr[1] = bytes[len++];
+                    _sadr[0] = bytes[len++];
+                    SAddress = BitConverter.ToUInt32(_sadr, 0);
                 }
-                //PEP Other SLEN values ...
             }
             else
                 Slen = 0;
 
-            if ((PduControl & 0x20) > 0)
+            if ((_pduControl & 0x20) > 0)
             {
-                HopCount = bytes[len++]; // Get the Hop Count 
+                HopCount = bytes[len++];
             }
 
-            /*
-                  if ((PDUControl & 0x80) > 0)
-                  {
-                    MessageType = bytes[len + offset];
-                    len++;                  // Message Type field
-                      if (MessageType >= 0x80)
-                      {
-                        temp = new byte[2];
-                        temp[0] = bytes[len + offset + 2];
-                        temp[1] = bytes[len + offset + 1];
-                        VendorID = BitConverter.ToUInt16(temp, 0);
-                        len += 2;             // VendorID field
-                      }
-                    }
-                    len += offset;
-                  }
-            */
             return len;
         }
     }

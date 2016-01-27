@@ -1,4 +1,6 @@
-﻿namespace ConnectTools.BACnet
+﻿using ConnectTools.BACnet.Properties;
+
+namespace ConnectTools.BACnet
 {
     using System;
     using System.Collections.Generic;
