@@ -12,12 +12,12 @@
 // Kieback&Peter and is expressly PROHIBITED.
 // -----------------------------------------------------------------------------------
 
+using System.Net;
+
 namespace ConnectTools.BACnet.Properties
 {
-    using System.Net;
-
     /// <summary>
-    /// the Bdt Entry
+    ///     the Bdt Entry
     /// </summary>
     public class BdtEntry
     {
@@ -34,7 +34,7 @@ namespace ConnectTools.BACnet.Properties
 
 
     /// <summary>
-    /// the Fdt Entry
+    ///     the Fdt Entry
     /// </summary>
     public class FdtEntry
     {

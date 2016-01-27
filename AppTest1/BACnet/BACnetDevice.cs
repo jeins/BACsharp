@@ -12,19 +12,19 @@
 // Kieback&Peter and is expressly PROHIBITED.
 // -----------------------------------------------------------------------------------
 
+using System.Collections.Generic;
+using System.Net;
+
 namespace ConnectTools.BACnet
 {
-    using System.Collections.Generic;
-    using System.Net;
-
     public class BacnetDevice
     {
+        public readonly uint InstanceNumber;
+        public readonly IPEndPoint IpAddress;
         public string ApplicationSoftwareVersion;
 
         public List<string> DeviceObjects;
         public string FirmwareRevision;
-        public readonly uint InstanceNumber;
-        public readonly IPEndPoint IpAddress;
         public bool IsBbmdActive;
         public string MobileUri;
         public string ModelName;
@@ -39,7 +39,7 @@ namespace ConnectTools.BACnet
         public string VendorName;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="BacnetDevice"/> class.
+        ///     Initializes a new instance of the <see cref="BacnetDevice" /> class.
         /// </summary>
         public BacnetDevice()
         {
@@ -62,7 +62,7 @@ namespace ConnectTools.BACnet
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="BacnetDevice"/> class.
+        ///     Initializes a new instance of the <see cref="BacnetDevice" /> class.
         /// </summary>
         /// <param name="ipAddress">The ip address.</param>
         /// <param name="network">The network.</param>
@@ -78,5 +78,5 @@ namespace ConnectTools.BACnet
             VendorIdentifier = vendorIdentifier;
             SourceLength = sourceLength;
         }
-    }  
+    }
 }

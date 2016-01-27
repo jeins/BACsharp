@@ -12,53 +12,51 @@
 // Kieback&Peter and is expressly PROHIBITED.
 // -----------------------------------------------------------------------------------
 
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Net;
+using System.Net.NetworkInformation;
+using System.Net.Sockets;
+using System.Reflection;
+using ConnectTools.BACnet.Properties;
+using log4net;
+
 namespace ConnectTools.BACnet
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Diagnostics;
-    using System.Net;
-    using System.Net.NetworkInformation;
-    using System.Net.Sockets;
-    using System.Reflection;
-
-    using log4net;
-
-    using Properties;
-
     public class BacnetStack : IBacnetStack
     {
         private const int BacnetUnicastRequestRepeatCount = 3; // repeat request x times
+
+        private const int UdpPort = 47808;
         private static readonly ILog Log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
-
-        private readonly UdpClient _sendUdp; 
-
-        private readonly UdpClient _receiveUdp; 
 
         private readonly IPEndPoint _broadcastEp;
 
-        private const int UdpPort = 47808;
-        private int _invokeCounter;
+        private readonly List<Device> _devices;
         private readonly bool _isMatch;
 
-        private readonly List<Device> _devices;
+        private readonly UdpClient _receiveUdp;
+
+        private readonly UdpClient _sendUdp;
+        private int _invokeCounter;
 
 
         // The Constructor needs an IpEndpoint with the IpAddress to use. 
         // The IpAddress will be matched with a "probably found Networkinterface" if there is a match we break the Loop.
         public BacnetStack(IPAddress bindIpAddress)
         {
-            byte[] maskbytes = new byte[4];
-            byte[] addrbytes = new byte[4];
-            string checkMask = "";
+            var maskbytes = new byte[4];
+            var addrbytes = new byte[4];
+            var checkMask = "";
             // Find the local IP address and Subnet Mask
-            NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
-            foreach (NetworkInterface Interface in interfaces)
+            var interfaces = NetworkInterface.GetAllNetworkInterfaces();
+            foreach (var Interface in interfaces)
             {
                 if (Interface.NetworkInterfaceType == NetworkInterfaceType.Loopback) continue;
                 //MessageBox.Show(Interface.Description);
-                UnicastIPAddressInformationCollection unicastIpInfoCol = Interface.GetIPProperties().UnicastAddresses;
-                foreach (UnicastIPAddressInformation unicatIpInfo in unicastIpInfoCol)
+                var unicastIpInfoCol = Interface.GetIPProperties().UnicastAddresses;
+                foreach (var unicatIpInfo in unicastIpInfoCol)
                 {
                     //MessageBox.Show("\tIP Address is {0}" + UnicatIPInfo.Address);
                     //MessageBox.Show("\tSubnet Mask is {0}" + UnicatIPInfo.IPv4Mask);
@@ -66,7 +64,7 @@ namespace ConnectTools.BACnet
                     {
                         if (unicatIpInfo.IPv4Mask != null)
                         {
-                            byte[] tempbytes = unicatIpInfo.IPv4Mask.GetAddressBytes();
+                            var tempbytes = unicatIpInfo.IPv4Mask.GetAddressBytes();
                             if (tempbytes[0] == 255)
                             {
                                 // We found the correct subnet mask, and probably the correct IP address
@@ -80,12 +78,16 @@ namespace ConnectTools.BACnet
             }
 
             // Set up broadcast address
-            if (maskbytes[3] == 0) maskbytes[3] = 255; else maskbytes[3] = addrbytes[3];
-            if (maskbytes[2] == 0) maskbytes[2] = 255; else maskbytes[2] = addrbytes[2];
-            if (maskbytes[1] == 0) maskbytes[1] = 255; else maskbytes[1] = addrbytes[1];
-            if (maskbytes[0] == 0) maskbytes[0] = 255; else maskbytes[0] = addrbytes[0];
-            IPAddress myip = new IPAddress(addrbytes);
-            IPAddress broadcast = new IPAddress(maskbytes);
+            if (maskbytes[3] == 0) maskbytes[3] = 255;
+            else maskbytes[3] = addrbytes[3];
+            if (maskbytes[2] == 0) maskbytes[2] = 255;
+            else maskbytes[2] = addrbytes[2];
+            if (maskbytes[1] == 0) maskbytes[1] = 255;
+            else maskbytes[1] = addrbytes[1];
+            if (maskbytes[0] == 0) maskbytes[0] = 255;
+            else maskbytes[0] = addrbytes[0];
+            var myip = new IPAddress(addrbytes);
+            var broadcast = new IPAddress(maskbytes);
 
             var localEp = new IPEndPoint(myip, UdpPort);
             _broadcastEp = new IPEndPoint(broadcast, UdpPort);
@@ -165,7 +167,7 @@ namespace ConnectTools.BACnet
         }
 
         /// <summary>
-        /// Who-Is, and collect the device about who answers
+        ///     Who-Is, and collect the device about who answers
         /// </summary>
         /// <param name="milliseconds"></param>
         /// <returns></returns>
@@ -191,8 +193,8 @@ namespace ConnectTools.BACnet
                 sendBytes[8] = 0; // Destination MAC layer address length, 0 = Broadcast
                 sendBytes[9] = 0xFF; // Hop count = 255
 
-                sendBytes[10] = (Byte)BacnetEnums.BacnetPduType.PduTypeUnconfirmedServiceRequest;
-                sendBytes[11] = (Byte)BacnetEnums.BacnetUnconfirmedService.ServiceUnconfirmedWhoIs;
+                sendBytes[10] = (byte) BacnetEnums.BacnetPduType.PduTypeUnconfirmedServiceRequest;
+                sendBytes[11] = (byte) BacnetEnums.BacnetUnconfirmedService.ServiceUnconfirmedWhoIs;
 
                 _sendUdp.EnableBroadcast = false;
                 _sendUdp.Send(sendBytes, 12, _broadcastEp);
@@ -243,8 +245,8 @@ namespace ConnectTools.BACnet
         }
 
         /// <summary>
-        /// Collect Who-Is information from a single IP address.
-        /// @todo: Use exceptions for timeout.
+        ///     Collect Who-Is information from a single IP address.
+        ///     @todo: Use exceptions for timeout.
         /// </summary>
         /// <param name="bIpAddress">IP host address of suspected BACnet device.</param>
         /// <param name="milliseconds">I-Am receive timeout in milliseconds.</param>
@@ -262,19 +264,19 @@ namespace ConnectTools.BACnet
                 sendBytes[2] = 0;
                 sendBytes[3] = 12;
                 sendBytes[4] = BacnetEnums.BacnetProtocolVersion;
-                sendBytes[5] = 0x20;  // Control flags
-                sendBytes[6] = 0xFF;  // Destination network address (65535)
+                sendBytes[5] = 0x20; // Control flags
+                sendBytes[6] = 0xFF; // Destination network address (65535)
                 sendBytes[7] = 0xFF;
-                sendBytes[8] = 0;     // Destination MAC layer address length, 0 = Broadcast
-                sendBytes[9] = 0xFF;  // Hop count = 255
+                sendBytes[8] = 0; // Destination MAC layer address length, 0 = Broadcast
+                sendBytes[9] = 0xFF; // Hop count = 255
 
-                sendBytes[10] = (byte)BacnetEnums.BacnetPduType.PduTypeUnconfirmedServiceRequest;
-                sendBytes[11] = (byte)BacnetEnums.BacnetUnconfirmedService.ServiceUnconfirmedWhoIs;
+                sendBytes[10] = (byte) BacnetEnums.BacnetPduType.PduTypeUnconfirmedServiceRequest;
+                sendBytes[11] = (byte) BacnetEnums.BacnetUnconfirmedService.ServiceUnconfirmedWhoIs;
 
                 _sendUdp.EnableBroadcast = false;
                 _sendUdp.Send(sendBytes, 12, bIpAddress);
 
-                Stopwatch watch = new Stopwatch();
+                var watch = new Stopwatch();
                 watch.Start();
 
                 while (true)
@@ -310,7 +312,6 @@ namespace ConnectTools.BACnet
                 }
 
                 watch.Stop();
-
             }
             catch (Exception e)
             {
@@ -321,7 +322,7 @@ namespace ConnectTools.BACnet
         }
 
         /// <summary>
-        /// I-Am.
+        ///     I-Am.
         /// </summary>
         /// <param name="network">The network.</param>
         /// <param name="objectid">The objectid.</param>
@@ -364,7 +365,7 @@ namespace ConnectTools.BACnet
         }
 
         /// <summary>
-        /// Read Property.
+        ///     Read Property.
         /// </summary>
         /// <param name="recipient">The recipient.</param>
         /// <param name="arrayidx">The arrayidx.</param>
@@ -394,14 +395,14 @@ namespace ConnectTools.BACnet
             sendBytes[0] = Bvlc.BacnetBvlcTypeBip;
             sendBytes[1] = Bvlc.BacnetBvlcFuncUnicastNpdu;
             sendBytes[2] = 0x00;
-            sendBytes[3] = 0x00;  // BVLL Length, fix later (24?)
+            sendBytes[3] = 0x00; // BVLL Length, fix later (24?)
 
             // NPDU
             sendBytes[4] = BacnetEnums.BacnetProtocolVersion;
             if (recipient.SourceLength == 0)
-                sendBytes[5] = 0x04;  // Control flags, no destination address
+                sendBytes[5] = 0x04; // Control flags, no destination address
             else
-                sendBytes[5] = 0x24;  // Control flags, with broadcast or destination address
+                sendBytes[5] = 0x24; // Control flags, with broadcast or destination address
 
             uint len = 6;
             if (recipient.SourceLength > 0)
@@ -414,20 +415,20 @@ namespace ConnectTools.BACnet
                 // Get the MAC address (0x0D)
                 var temp4 = BitConverter.GetBytes(recipient.MacAddress);
 
-                sendBytes[len++] = 0x01;  // MAC address length - adjust for other lengths ...
+                sendBytes[len++] = 0x01; // MAC address length - adjust for other lengths ...
                 sendBytes[len++] = temp4[0];
-                sendBytes[len++] = 0xFF;  // Hop count = 255
+                sendBytes[len++] = 0xFF; // Hop count = 255
             }
 
             // APDU
-            sendBytes[len++] = 0x00;  // Control flags
-            sendBytes[len++] = 0x05;  // Max APDU length (1476)
+            sendBytes[len++] = 0x00; // Control flags
+            sendBytes[len++] = 0x05; // Max APDU length (1476)
 
             // Create invoke counter
-            sendBytes[len++] = (byte)(_invokeCounter);
+            sendBytes[len++] = (byte) (_invokeCounter);
             _invokeCounter = ((_invokeCounter + 1) & 0xFF);
 
-            sendBytes[len++] = 0x0C;  // Service Choice: Read Property request
+            sendBytes[len++] = 0x0C; // Service Choice: Read Property request
 
             // Service Request (var part of APDU):
             // Set up Object ID (Context Tag)
@@ -441,14 +442,14 @@ namespace ConnectTools.BACnet
                 len = Apdu.SetArrayIdx(ref sendBytes, len, arrayidx);
 
             // Fix the BVLL length
-            sendBytes[3] = (byte)len;
+            sendBytes[3] = (byte) len;
 
             var getResponse = false;
             var count = 0;
             while (count < BacnetUnicastRequestRepeatCount && !getResponse)
             {
                 _sendUdp.EnableBroadcast = false;
-                _sendUdp.Send(sendBytes, (int)len, recipient.ServerEp);
+                _sendUdp.Send(sendBytes, (int) len, recipient.ServerEp);
 
                 while (!getResponse)
                 {
@@ -476,13 +477,13 @@ namespace ConnectTools.BACnet
                         continue;
                     }
                     // Verify the Invoke ID is the same
-                    var ic = (byte)(_invokeCounter == 0 ? 255 : _invokeCounter - 1);
+                    var ic = (byte) (_invokeCounter == 0 ? 255 : _invokeCounter - 1);
                     if (ic != recvBytes[apduOffset + 1])
                     {
                         continue;
                     }
                     Apdu.ParseProperty(ref recvBytes, apduOffset, property);
-                    getResponse = true;  // This will still execute the finally
+                    getResponse = true; // This will still execute the finally
                 }
 
                 count++;
@@ -491,7 +492,7 @@ namespace ConnectTools.BACnet
         }
 
         /// <summary>
-        /// Write Property.
+        ///     Write Property.
         /// </summary>
         /// <param name="recipient">The receipient.</param>
         /// <param name="arrayidx">The arrayidx.</param>
@@ -521,9 +522,9 @@ namespace ConnectTools.BACnet
             // NPDU
             sendBytes[len++] = BacnetEnums.BacnetProtocolVersion;
             if (recipient.SourceLength == 0)
-                sendBytes[len++] = 0x04;  // Control flags, no destination address
+                sendBytes[len++] = 0x04; // Control flags, no destination address
             else
-                sendBytes[len++] = 0x24;  // Control flags, with broadcast or destination
+                sendBytes[len++] = 0x24; // Control flags, with broadcast or destination
 
             if (recipient.SourceLength > 0)
             {
@@ -538,22 +539,22 @@ namespace ConnectTools.BACnet
                 //sendBytes[8] = 0x01;  // MAC address length
                 //sendBytes[9] = 0x0D;  // Destination MAC layer address
                 var temp4 = BitConverter.GetBytes(recipient.MacAddress);
-                sendBytes[len++] = 0x01;  // MAC address length - adjust for other lengths ...
+                sendBytes[len++] = 0x01; // MAC address length - adjust for other lengths ...
                 sendBytes[len++] = temp4[0];
 
-                sendBytes[len++] = 0xFF;  // Hop count = 255
+                sendBytes[len++] = 0xFF; // Hop count = 255
             }
 
             // APDU
-            sendBytes[len++] = 0x00;  // Control flags
-            sendBytes[len++] = 0x05;  // Max APDU length (1476)
+            sendBytes[len++] = 0x00; // Control flags
+            sendBytes[len++] = 0x05; // Max APDU length (1476)
 
             // Create invoke counter
             //sendBytes[len++] = InvokeCounter++;  // Invoke ID
-            sendBytes[len++] = (byte)(_invokeCounter);
+            sendBytes[len++] = (byte) (_invokeCounter);
             _invokeCounter = ((_invokeCounter + 1) & 0xFF);
 
-            sendBytes[len++] = 0x0F;  // Service Choice: Write Property request
+            sendBytes[len++] = 0x0F; // Service Choice: Write Property request
 
             // Service Request (var part of APDU):
             // Set up Object ID (Context Tag)
@@ -576,14 +577,14 @@ namespace ConnectTools.BACnet
                 len = Apdu.SetPriority(ref sendBytes, len, priority);
 
             // Fix the BVLL length
-            sendBytes[3] = (byte)len;
+            sendBytes[3] = (byte) len;
 
             var count = 0;
             var getResponse = false;
             while (count < BacnetUnicastRequestRepeatCount && !getResponse)
             {
                 _sendUdp.EnableBroadcast = false;
-                _sendUdp.Send(sendBytes, (int)len, recipient.ServerEp);
+                _sendUdp.Send(sendBytes, (int) len, recipient.ServerEp);
 
                 while (!getResponse)
                 {
@@ -610,7 +611,7 @@ namespace ConnectTools.BACnet
                         continue;
                     }
                     // Verify the Invoke ID is the same
-                    var ic = (byte)(_invokeCounter == 0 ? 255 : _invokeCounter - 1);
+                    var ic = (byte) (_invokeCounter == 0 ? 255 : _invokeCounter - 1);
                     if (ic == recvBytes[apduOffset + 1])
                     {
                         getResponse = true; // This will still execute the finally
@@ -622,7 +623,7 @@ namespace ConnectTools.BACnet
         }
 
         /// <summary>
-        /// Sends the read BDT.
+        ///     Sends the read BDT.
         /// </summary>
         /// <param name="bIpAddress">The bacnet ip address.</param>
         /// <returns></returns>
@@ -643,7 +644,7 @@ namespace ConnectTools.BACnet
             while (count < BacnetUnicastRequestRepeatCount && !getResponse)
             {
                 _sendUdp.EnableBroadcast = false;
-                _sendUdp.Send(sendBytes, (int)len, bIpAddress);
+                _sendUdp.Send(sendBytes, (int) len, bIpAddress);
 
                 while (!getResponse)
                 {
@@ -668,11 +669,11 @@ namespace ConnectTools.BACnet
                 }
                 count++;
             }
-            return getResponse;  // This will still execute the finally
+            return getResponse; // This will still execute the finally
         }
 
         /// <summary>
-        /// Sends the read FDT.
+        ///     Sends the read FDT.
         /// </summary>
         /// <param name="bIpAddress">The bacnet ip address.</param>
         /// <returns></returns>
@@ -693,7 +694,7 @@ namespace ConnectTools.BACnet
             while (count < BacnetUnicastRequestRepeatCount && !getResponse)
             {
                 _sendUdp.EnableBroadcast = false;
-                _sendUdp.Send(sendBytes, (int)len, bIpAddress);
+                _sendUdp.Send(sendBytes, (int) len, bIpAddress);
 
                 while (!getResponse)
                 {
@@ -713,12 +714,11 @@ namespace ConnectTools.BACnet
                                 getResponse = true;
                             }
                         }
-
                     }
                 }
                 count++;
             }
-            return getResponse;  // This will still execute the finally
+            return getResponse; // This will still execute the finally
         }
     }
 }

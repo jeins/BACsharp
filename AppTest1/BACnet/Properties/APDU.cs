@@ -12,17 +12,16 @@
 // Kieback&Peter and is expressly PROHIBITED.
 // -----------------------------------------------------------------------------------
 
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
+using System.Reflection;
+using System.Text;
+using log4net;
+
 namespace ConnectTools.BACnet.Properties
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Globalization;
-    using System.Linq;
-    using System.Reflection;
-    using System.Text;
-
-    using log4net;
-
     public static class Apdu
     {
         private static byte _apduType;
@@ -31,7 +30,7 @@ namespace ConnectTools.BACnet.Properties
         private static readonly ILog Log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         /// <summary>
-        /// Parses the i am.
+        ///     Parses the i am.
         /// </summary>
         /// <param name="bytes">The bytes.</param>
         /// <param name="offset">The offset.</param>
@@ -57,7 +56,7 @@ namespace ConnectTools.BACnet.Properties
         }
 
         /// <summary>
-        /// Sets the object identifier.
+        ///     Sets the object identifier.
         /// </summary>
         /// <param name="bytes">The bytes.</param>
         /// <param name="pos">The position.</param>
@@ -88,7 +87,7 @@ namespace ConnectTools.BACnet.Properties
         }
 
         /// <summary>
-        /// Sets the property identifier.
+        ///     Sets the property identifier.
         /// </summary>
         /// <param name="bytes">The bytes.</param>
         /// <param name="pos">The position.</param>
@@ -100,12 +99,12 @@ namespace ConnectTools.BACnet.Properties
             var value = (uint) type;
             if (value <= 255)
             {
-                bytes[pos++] = 0x19; 
+                bytes[pos++] = 0x19;
                 bytes[pos++] = (byte) type;
             }
             else if (value < 65535)
             {
-                bytes[pos++] = 0x1A; 
+                bytes[pos++] = 0x1A;
                 var temp2 = BitConverter.GetBytes(value);
                 bytes[pos++] = temp2[1];
                 bytes[pos++] = temp2[0];
@@ -114,7 +113,7 @@ namespace ConnectTools.BACnet.Properties
         }
 
         /// <summary>
-        /// Sets the index of the array.
+        ///     Sets the index of the array.
         /// </summary>
         /// <param name="bytes">The bytes.</param>
         /// <param name="pos">The position.</param>
@@ -139,7 +138,7 @@ namespace ConnectTools.BACnet.Properties
         }
 
         /// <summary>
-        /// Sets the property.
+        ///     Sets the property.
         /// </summary>
         /// <param name="bytes">The bytes.</param>
         /// <param name="pos">The position.</param>
@@ -249,7 +248,7 @@ namespace ConnectTools.BACnet.Properties
         }
 
         /// <summary>
-        /// Parses the property.
+        ///     Parses the property.
         /// </summary>
         /// <param name="bytes">The bytes.</param>
         /// <param name="pos">The position.</param>
@@ -331,7 +330,7 @@ namespace ConnectTools.BACnet.Properties
         }
 
         /// <summary>
-        /// Sets the priority.
+        ///     Sets the priority.
         /// </summary>
         /// <param name="bytes">The bytes.</param>
         /// <param name="pos">The position.</param>
@@ -339,7 +338,7 @@ namespace ConnectTools.BACnet.Properties
         /// <returns></returns>
         public static uint SetPriority(ref byte[] bytes, uint pos, int priority)
         {
-            bytes[pos++] = 0x49; 
+            bytes[pos++] = 0x49;
             bytes[pos++] = (byte) priority;
             return pos;
         }

@@ -12,11 +12,11 @@
 // Kieback&Peter and is expressly PROHIBITED.
 // -----------------------------------------------------------------------------------
 
+using System.Collections.Generic;
+using System.Net;
+
 namespace ConnectTools.BACnet.Properties
 {
-    using System.Collections.Generic;
-    using System.Net;
-
     public static class Bvlc
     {
         public const int BacnetBvlcHeaderLen = 0x04;
@@ -55,7 +55,7 @@ namespace ConnectTools.BACnet.Properties
         }
 
         /// <summary>
-        /// Fills the specified bytes.
+        ///     Fills the specified bytes.
         /// </summary>
         /// <param name="bytes">The bytes.</param>
         /// <param name="bvlcFunctionType">Type of the BVLC function.</param>
@@ -66,13 +66,13 @@ namespace ConnectTools.BACnet.Properties
             bytes[offset + 0] = BacnetBvlcTypeBip;
             bytes[offset + 1] = (byte) bvlcFunctionType;
             bytes[offset + 2] = 0x00;
-            bytes[offset + 3] = BacnetBvlcHeaderLen; 
+            bytes[offset + 3] = BacnetBvlcHeaderLen;
 
             return offset + BacnetBvlcHeaderLen;
         }
 
         /// <summary>
-        /// Parses the specified bytes.
+        ///     Parses the specified bytes.
         /// </summary>
         /// <param name="bytes">The bytes.</param>
         /// <param name="offset">The offset.</param>

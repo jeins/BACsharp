@@ -12,20 +12,12 @@
 // Kieback&Peter and is expressly PROHIBITED.
 // -----------------------------------------------------------------------------------
 
+using System.Net;
+
 namespace ConnectTools.BACnet.Properties
 {
-    using System.Net;
-
     public class Device
     {
-        public string Name { get; set; }
-        public int VendorId { get; set; }
-        public IPEndPoint ServerEp { get; set; }
-        public int Network { get; set; }
-        public byte SourceLength { get; set; }
-        public uint Instance { get; set; }
-        public uint MacAddress { get; set; }
-
         public Device()
         {
             Name = "(no name)";
@@ -47,11 +39,19 @@ namespace ConnectTools.BACnet.Properties
             Instance = instance;
         }
 
+        public string Name { get; set; }
+        public int VendorId { get; set; }
+        public IPEndPoint ServerEp { get; set; }
+        public int Network { get; set; }
+        public byte SourceLength { get; set; }
+        public uint Instance { get; set; }
+        public uint MacAddress { get; set; }
+
         /// <summary>
-        /// Returns a <see cref="System.String" /> that represents this instance.
+        ///     Returns a <see cref="System.String" /> that represents this instance.
         /// </summary>
         /// <returns>
-        /// A <see cref="System.String" /> that represents this instance.
+        ///     A <see cref="System.String" /> that represents this instance.
         /// </returns>
         public override string ToString()
         {
@@ -59,11 +59,11 @@ namespace ConnectTools.BACnet.Properties
         }
 
         /// <summary>
-        /// Determines whether the specified <see cref="System.Object" />, is equal to this instance.
+        ///     Determines whether the specified <see cref="System.Object" />, is equal to this instance.
         /// </summary>
         /// <param name="obj">The <see cref="System.Object" /> to compare with this instance.</param>
         /// <returns>
-        ///   <c>true</c> if the specified <see cref="System.Object" /> is equal to this instance; otherwise, <c>false</c>.
+        ///     <c>true</c> if the specified <see cref="System.Object" /> is equal to this instance; otherwise, <c>false</c>.
         /// </returns>
         public override bool Equals(object obj)
         {
@@ -72,12 +72,12 @@ namespace ConnectTools.BACnet.Properties
         }
 
         /// <summary>
-        /// Implements the operator ==.
+        ///     Implements the operator ==.
         /// </summary>
         /// <param name="obj1">The obj1.</param>
         /// <param name="obj2">The obj2.</param>
         /// <returns>
-        /// The result of the operator.
+        ///     The result of the operator.
         /// </returns>
         public static bool operator ==(Device obj1, Device obj2)
         {
@@ -89,12 +89,12 @@ namespace ConnectTools.BACnet.Properties
         }
 
         /// <summary>
-        /// Implements the operator !=.
+        ///     Implements the operator !=.
         /// </summary>
         /// <param name="obj1">The obj1.</param>
         /// <param name="obj2">The obj2.</param>
         /// <returns>
-        /// The result of the operator.
+        ///     The result of the operator.
         /// </returns>
         public static bool operator !=(Device obj1, Device obj2)
         {

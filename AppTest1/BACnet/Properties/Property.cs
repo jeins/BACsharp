@@ -16,21 +16,10 @@ namespace ConnectTools.BACnet.Properties
 {
     public class Property
     {
-        public BacnetEnums.BacnetApplicationTag Tag { get; set; }
-        public bool ValueBool { get; set; }
-        public uint ValueUInt { get; set; }
-        private int ValueInt { get; set; }
-        public float ValueSingle { get; set; }
-        private double ValueDouble { get; set; }
-        public byte[] ValueOctet { get; set; }
-        public string ValueString { get; set; }
-        public uint ValueEnum { get; set; }
-        public BacnetEnums.BacnetObjectType ValueObjectType { get; set; }
-        public uint ValueObjectInstance { get; set; }
         public string ToStringValue;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Property"/> class.
+        ///     Initializes a new instance of the <see cref="Property" /> class.
         /// </summary>
         public Property()
         {
@@ -48,11 +37,23 @@ namespace ConnectTools.BACnet.Properties
             ToStringValue = "";
         }
 
+        public BacnetEnums.BacnetApplicationTag Tag { get; set; }
+        public bool ValueBool { get; set; }
+        public uint ValueUInt { get; set; }
+        private int ValueInt { get; set; }
+        public float ValueSingle { get; set; }
+        private double ValueDouble { get; set; }
+        public byte[] ValueOctet { get; set; }
+        public string ValueString { get; set; }
+        public uint ValueEnum { get; set; }
+        public BacnetEnums.BacnetObjectType ValueObjectType { get; set; }
+        public uint ValueObjectInstance { get; set; }
+
         /// <summary>
-        /// Returns a <see cref="System.String" /> that represents this instance.
+        ///     Returns a <see cref="System.String" /> that represents this instance.
         /// </summary>
         /// <returns>
-        /// A <see cref="System.String" /> that represents this instance.
+        ///     A <see cref="System.String" /> that represents this instance.
         /// </returns>
         public override string ToString()
         {

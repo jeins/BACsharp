@@ -12,10 +12,10 @@
 // Kieback&Peter and is expressly PROHIBITED.
 // -----------------------------------------------------------------------------------
 
+using System;
+
 namespace ConnectTools.BACnet.Properties
 {
-    using System;
-
     public static class Npdu
     {
         private static byte _pduControl;
@@ -48,7 +48,7 @@ namespace ConnectTools.BACnet.Properties
         }
 
         /// <summary>
-        /// Parses the specified bytes.
+        ///     Parses the specified bytes.
         /// </summary>
         /// <param name="bytes">The bytes.</param>
         /// <param name="offset">The offset.</param>
