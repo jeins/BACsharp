@@ -1,26 +1,41 @@
-﻿
+﻿// -----------------------------------------------------------------------------------
+// Copyright (C) 2015 Kieback&Peter GmbH & Co KG All Rights Reserved
+// 
+// Kieback&Peter Confidential Proprietary Information
+// 
+// This Software is confidential and proprietary to Kieback&Peter. 
+// The reproduction or disclosure in whole or part to anyone outside of Kieback&Peter
+// without the written approval of an officer of Kieback&Peter GmbH & Co.KG,
+// under a Non-Disclosure Agreement, or to any employee who has not previously
+// obtained a written authorization for access from the individual responsible
+// for the software will have a significant detrimental effect on
+// Kieback&Peter and is expressly PROHIBITED.
+// -----------------------------------------------------------------------------------
 
 namespace ConnectTools
 {
     using System;
     using System.Collections.Generic;
     using System.Drawing;
-    using System.Net;
     using System.Windows.Forms;
 
     using BACnet;
 
     public partial class Gui : Form
     {
-        public readonly IBaCnetManager BacnetManager;
-        public List<BaCnetDevice> BacnetDevices;
+        private readonly IBaCnetManager _bacnetManager;
+        private List<BaCnetDevice> _bacnetDevices;
         private BaCnetDevice _bacnetDevice;
 
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Gui"/> class.
+        /// </summary>
         public Gui()
         {
             InitializeComponent();
 
-            BacnetManager = new BaCnetManager(System.Net.Dns.GetHostByName(Environment.MachineName).AddressList[0]);
+            _bacnetManager = new BaCnetManager(System.Net.Dns.GetHostByName(Environment.MachineName).AddressList[0]);
             _bacnetDevice = null;
 
             lblBBMDStatus.BackColor = Color.Red;
@@ -31,15 +46,15 @@ namespace ConnectTools
 
         private void btnGetDevice_Click(object sender, EventArgs e)
         {
-            BacnetDevices = BacnetManager.FindBaCnetDevices();
+            _bacnetDevices = _bacnetManager.FindBaCnetDevices();
             listDevices.Items.Clear();
-            if (BacnetDevices.Count == 0)
+            if (_bacnetDevices.Count == 0)
             {
                 MessageBox.Show("No Devices");
             }
             else
             {
-                foreach (BaCnetDevice dev in BacnetDevices)
+                foreach (BaCnetDevice dev in _bacnetDevices)
                 {
                     listDevices.Items.Add(
                       dev.VendorIdentifier + ", " +
@@ -49,7 +64,7 @@ namespace ConnectTools
                       dev.IpAddress.Port);
                 }
 
-                if (BacnetDevices.Count > 0)
+                if (_bacnetDevices.Count > 0)
                 {
                     btnGetDeviceObj.Enabled = true;
                     btnGetProp.Enabled = true;
@@ -62,9 +77,9 @@ namespace ConnectTools
 
         private void btnGetProp_Click(object sender, EventArgs e)
         {
-            _bacnetDevice = BacnetDevices[listDevices.SelectedIndex]; //bacnetDevice = new BACnetDevice(CreateIPEndPoint("10.35.8.43:47808"), 0, 23, 0, 0);
+            _bacnetDevice = _bacnetDevices[listDevices.SelectedIndex]; 
 
-            BacnetManager.FindDeviceProperties(ref _bacnetDevice);
+            _bacnetManager.FindDeviceProperties(ref _bacnetDevice);
             listDeviceProp.Items.Clear();
             listDeviceProp.Items.Add("IP Address: " + _bacnetDevice.IpAddress);
             listDeviceProp.Items.Add("Model Name: " + _bacnetDevice.ModelName);
@@ -81,39 +96,43 @@ namespace ConnectTools
 
         private void listDevices_SelectedIndexChanged(object sender, EventArgs e)
         {
-            _bacnetDevice = BacnetDevices[listDevices.SelectedIndex];
+            _bacnetDevice = _bacnetDevices[listDevices.SelectedIndex];
 
             lblDeviceIP.Text = _bacnetDevice.IpAddress.ToString();
 
-            if (BacnetManager.IsBbmdEnabled(_bacnetDevice.IpAddress))
+            if (_bacnetManager.IsBbmdEnabled(_bacnetDevice.IpAddress))
             {
-                lblBBMDStatus.Text = "True";
+                lblBBMDStatus.Text = @"True";
                 lblBBMDStatus.BackColor = Color.Green;
             }
             else
             {
-                lblBBMDStatus.Text = "False";
+                lblBBMDStatus.Text = @"False";
                 lblBBMDStatus.BackColor = Color.Red;
             }
 
-            if (BacnetManager.IsFdRegistrationSupported(_bacnetDevice.IpAddress))
+            if (_bacnetManager.IsFdRegistrationSupported(_bacnetDevice.IpAddress))
             {
-                lblFDRegister.Text = "True";
+                lblFDRegister.Text = @"True";
                 lblFDRegister.BackColor = Color.Green;
             }
             else
             {
-                lblBBMDStatus.Text = "False";
+                lblBBMDStatus.Text = @"False";
                 lblBBMDStatus.BackColor = Color.Red;
             }
         }
 
         private void btnGetDeviceObj_Click(object sender, EventArgs e)
         {
-            _bacnetDevice = BacnetDevices[listDevices.SelectedIndex]; //bacnetDevice = new BACnetDevice(CreateIPEndPoint("10.35.8.43:47808"), 0, 23, 0, 0);
+            _bacnetDevice = _bacnetDevices[listDevices.SelectedIndex]; 
 
-            BacnetManager.FindDeviceObjects(ref _bacnetDevice);
+            _bacnetManager.FindDeviceObjects(ref _bacnetDevice);
+
             lblTotalProp.Text = _bacnetDevice.DeviceObjects.Count.ToString();
+
+            listDeviceObj.Items.Clear();
+
             foreach (string values in _bacnetDevice.DeviceObjects)
             {
                 listDeviceObj.Items.Add(values);
