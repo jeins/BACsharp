@@ -1,6 +1,6 @@
-﻿namespace AppTest1
+﻿namespace ConnectTools
 {
-    partial class GUI
+    partial class Gui
     {
         /// <summary>
         /// Required designer variable.

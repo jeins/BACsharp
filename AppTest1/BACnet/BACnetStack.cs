@@ -1,61 +1,77 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Net;
-using System.Net.NetworkInformation;
-using System.Net.Sockets;
+﻿// -----------------------------------------------------------------------------------
+// Copyright (C) 2015 Kieback&Peter GmbH & Co KG All Rights Reserved
+// 
+// Kieback&Peter Confidential Proprietary Information
+// 
+// This Software is confidential and proprietary to Kieback&Peter. 
+// The reproduction or disclosure in whole or part to anyone outside of Kieback&Peter
+// without the written approval of an officer of Kieback&Peter GmbH & Co.KG,
+// under a Non-Disclosure Agreement, or to any employee who has not previously
+// obtained a written authorization for access from the individual responsible
+// for the software will have a significant detrimental effect on
+// Kieback&Peter and is expressly PROHIBITED.
+// -----------------------------------------------------------------------------------
 
-namespace BACnet
+using ConnectTools.BACnet.Properties;
+
+namespace ConnectTools.BACnet
 {
-    //-----------------------------------------------------------------------------------------------
-    // The BACnetStack
-    public class BACnetStack : IBACnetStack
+    using System;
+    using System.Collections.Generic;
+    using System.Diagnostics;
+    using System.Net;
+    using System.Net.NetworkInformation;
+    using System.Net.Sockets;
+    using System.Reflection;
+
+    using log4net;
+
+    public class BaCnetStack : IBaCnetStack
     {
+        private const int BacnetUnicastRequestRepeatCount = 3; // repeat request x times
+        private static readonly ILog Log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
-        public const int BACNET_UNICAST_REQUEST_REPEAT_COUNT = 3; // repeat request x times
-        UdpClient SendUDP; // = new Udp  Client(UDPPort);
-        UdpClient ReceiveUDP; // = new UdpClient(UDPPort, AddressFamily.InterNetwork);
+        private readonly UdpClient _sendUdp; // = new Udp  Client(UDPPort);
 
-        IPEndPoint LocalEP;
-        IPEndPoint BroadcastEP;
-        IPAddress currentUsedIpAddress;
-        private const int UDPPort = 47808;
-        private int InvokeCounter;
-        private bool isMatch = false;
+        private readonly UdpClient _receiveUdp; // = new UdpClient(UDPPort, AddressFamily.InterNetwork);
+
+        private readonly IPEndPoint _broadcastEp;
+
+        private const int UdpPort = 47808;
+        private int _invokeCounter;
+        private readonly bool _isMatch;
         // Constructor --------------------------------------------------------------------------------
         //public BACnetStack(string server)
 
 
         // The Constructor needs an IpEndpoint with the IpAddress to use. 
         // The IpAddress will be matched with a "probably found Networkinterface" if there is a match we break the Loop.
-        public BACnetStack(IPAddress bindIpAddress)
+        public BaCnetStack(IPAddress bindIpAddress)
         {
-            // Machine dependent (little endian vs big endian) 
-            // In this case we have to reverse the bytes for the Server IP
             byte[] maskbytes = new byte[4];
             byte[] addrbytes = new byte[4];
             string checkMask = "";
             // Find the local IP address and Subnet Mask
-            NetworkInterface[] Interfaces = NetworkInterface.GetAllNetworkInterfaces();
-            foreach (NetworkInterface Interface in Interfaces)
+            NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
+            foreach (NetworkInterface Interface in interfaces)
             {
                 if (Interface.NetworkInterfaceType == NetworkInterfaceType.Loopback) continue;
                 //MessageBox.Show(Interface.Description);
-                UnicastIPAddressInformationCollection UnicastIPInfoCol = Interface.GetIPProperties().UnicastAddresses;
-                foreach (UnicastIPAddressInformation UnicatIPInfo in UnicastIPInfoCol)
+                UnicastIPAddressInformationCollection unicastIpInfoCol = Interface.GetIPProperties().UnicastAddresses;
+                foreach (UnicastIPAddressInformation unicatIpInfo in unicastIpInfoCol)
                 {
                     //MessageBox.Show("\tIP Address is {0}" + UnicatIPInfo.Address);
                     //MessageBox.Show("\tSubnet Mask is {0}" + UnicatIPInfo.IPv4Mask);
-                    if (UnicatIPInfo.IPv4Mask != null)
+                    if (unicatIpInfo.IPv4Mask != null)
                     {
-                        if (UnicatIPInfo.IPv4Mask != null)
+                        if (unicatIpInfo.IPv4Mask != null)
                         {
-                            byte[] tempbytes = UnicatIPInfo.IPv4Mask.GetAddressBytes();
+                            byte[] tempbytes = unicatIpInfo.IPv4Mask.GetAddressBytes();
                             if (tempbytes[0] == 255)
                             {
                                 // We found the correct subnet mask, and probably the correct IP address
-                                addrbytes = UnicatIPInfo.Address.GetAddressBytes();
-                                maskbytes = UnicatIPInfo.IPv4Mask.GetAddressBytes();
+                                addrbytes = unicatIpInfo.Address.GetAddressBytes();
+                                maskbytes = unicatIpInfo.IPv4Mask.GetAddressBytes();
                                 break;
                             }
                         }
@@ -71,82 +87,78 @@ namespace BACnet
             IPAddress myip = new IPAddress(addrbytes);
             IPAddress broadcast = new IPAddress(maskbytes);
 
-            LocalEP = new IPEndPoint(myip, UDPPort);
-            BroadcastEP = new IPEndPoint(broadcast, UDPPort);
+            var localEp = new IPEndPoint(myip, UdpPort);
+            _broadcastEp = new IPEndPoint(broadcast, UdpPort);
 
-            SendUDP = new UdpClient();
-            SendUDP.ExclusiveAddressUse = false;
-            SendUDP.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
-            SendUDP.Client.Bind(LocalEP);
+            _sendUdp = new UdpClient();
+            _sendUdp.ExclusiveAddressUse = false;
+            _sendUdp.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
+            _sendUdp.Client.Bind(localEp);
 
-            ReceiveUDP = new UdpClient(UDPPort, AddressFamily.InterNetwork);
+            _receiveUdp = new UdpClient(UdpPort, AddressFamily.InterNetwork);
 
             // Init the Devices list
-            BACnetData.Devices = new List<Device>();
-//            foreach (NetworkInterface Interface in Interfaces)
+            BaCnetData.Devices = new List<Device>();
+//            // Machine dependent (little endian vs big endian) 
+//            // In this case we have to reverse the bytes for the Server IP
+//            IPAddress currentUsedIpAddress;
+//            var maskbytes = new byte[4];
+//            var addrbytes = new byte[4];
+//            var checkMask = "";
+//            // Find the local IP address and Subnet Mask
+//            var interfaces = NetworkInterface.GetAllNetworkInterfaces();
+//            foreach (var Interface in interfaces)
 //            {
 //                if (Interface.NetworkInterfaceType == NetworkInterfaceType.Loopback) continue;
-//                //MessageBox.Show(Interface.Description);
-//                UnicastIPAddressInformationCollection UnicastIPInfoCol = Interface.GetIPProperties().UnicastAddresses;
-//                foreach (UnicastIPAddressInformation UnicatIPInfo in UnicastIPInfoCol)
+//
+//                var unicastIpInfoCol = Interface.GetIPProperties().UnicastAddresses;
+//                foreach (var unicatIpInfo in unicastIpInfoCol)
 //                {
-//                    //MessageBox.Show("\tIP Address is {0}" + UnicatIPInfo.Address);
-//                    //MessageBox.Show("\tSubnet Mask is {0}" + UnicatIPInfo.IPv4Mask);
-//                    if (UnicatIPInfo.IPv4Mask != null)
+//                    if (unicatIpInfo.IPv4Mask != null)
 //                    {
-//                        if (new IPAddress(UnicatIPInfo.Address.GetAddressBytes()).ToString() == bindIpAddress.ToString())
+//                        if (new IPAddress(unicatIpInfo.Address.GetAddressBytes()).ToString() == bindIpAddress.ToString())
 //                        {
-//                            // We found the correct IpAdress, and probably the correct subnet mask --->>> 
-//                            // but probably is not enough !!!! 
-//                            // because there are a lot of probably right Networkinterfaces on a machine, such as VMnet 0-9, VPN Tunnel and so on...
-//                            // The risk of taking the wrong NetworkInterface and it´s IpAddress is at 90%
-//                            // if the Ip matching has succeded, there is still the risk of getting no Subnet Mask in here and the Subnetmask has to be configured 
-//                            // manually for an networkinterface by the User/Administrator
-//                            addrbytes = UnicatIPInfo.Address.GetAddressBytes();
-//                            maskbytes = UnicatIPInfo.IPv4Mask.GetAddressBytes();
-//                            checkMask = UnicatIPInfo.IPv4Mask.ToString();
-//                            isMatch = true;
+//                            addrbytes = unicatIpInfo.Address.GetAddressBytes();
+//                            maskbytes = unicatIpInfo.IPv4Mask.GetAddressBytes();
+//                            checkMask = unicatIpInfo.IPv4Mask.ToString();
+//                            _isMatch = true;
 //                            break;
 //                        }
 //                    }
 //                }
-//                if (isMatch)//check if IpAddress was matched 
+//                if (_isMatch)//check if IpAddress was matched 
 //                {
 //                    if (checkMask != "0.0.0.0") // check  if the subnetmask is valid
 //                    {
 //                        break;
 //                    }
-//                    else // if subnetmask is invalid we break the loop
-//                    {
-//                        isMatch = false;
-//                        break;
-//                    }
+//                    _isMatch = false;
+//                    break;
 //                }
 //            }
 //
-//
-//            if (isMatch)
+//   
+//            if (_isMatch)
 //            {
 //                currentUsedIpAddress = new IPAddress(addrbytes);
 //            }
 //            else
 //            {
 //                throw new Exception("NetworkInterface not found. Either the IpAddress : " +
-//                    new IPAddress(addrbytes).ToString() +
+//                    new IPAddress(addrbytes) +
 //                    " ,the Subnetmask is wrong or not configured." +
 //                    "Please check your networkconfiguration! And restart the Service.");
 //            }
 //
-//            IPAddress broadcast = new IPAddress(maskbytes);
-//            LocalEP = new IPEndPoint(currentUsedIpAddress, UDPPort);
-//            BroadcastEP = new IPEndPoint(broadcast, UDPPort);
+//            var broadcast = new IPAddress(maskbytes);
+//            var localEp = new IPEndPoint(currentUsedIpAddress, UdpPort);
+//            _broadcastEp = new IPEndPoint(broadcast, UdpPort);
 //
-//            SendUDP = new UdpClient();
-//            SendUDP.ExclusiveAddressUse = false;
-//            SendUDP.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
-//            SendUDP.Client.Bind(LocalEP);
+//            _sendUdp = new UdpClient { ExclusiveAddressUse = false };
+//            _sendUdp.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
+//            _sendUdp.Client.Bind(localEp);
 //
-//            ReceiveUDP = new UdpClient(UDPPort, AddressFamily.InterNetwork);
+//            _receiveUdp = new UdpClient(UdpPort, AddressFamily.InterNetwork);
 //            // Init the Devices list
 //            BACnetData.Devices = new List<Device>();
         }
@@ -159,63 +171,64 @@ namespace BACnet
         public List<Device> GetDevices(int milliseconds)
         {
             // Get the host data, send a Who-Is, accept responses and save in the DeviceList
-            Byte[] sendBytes = new Byte[12];
-            Byte[] recvBytes = new Byte[512];
+            var sendBytes = new byte[12];
 
-            BACnetData.Devices.Clear();
+            BaCnetData.Devices.Clear();
 
             // Send the request
             try
             {
                 //PEP Use NPDU.Create and APDU.Create (when written)
-                sendBytes[0] = BVLC.BACNET_BVLC_TYPE_BIP;
-                sendBytes[1] = BVLC.BACNET_BVLC_FUNC_UNICAST_NPDU;
+                sendBytes[0] = Bvlc.BacnetBvlcTypeBip;
+                sendBytes[1] = Bvlc.BacnetBvlcFuncUnicastNpdu;
                 sendBytes[2] = 0;
                 sendBytes[3] = 12;
-                sendBytes[4] = BACnetEnums.BACNET_PROTOCOL_VERSION;
+                sendBytes[4] = BaCnetEnums.BacnetProtocolVersion;
                 sendBytes[5] = 0x20; // Control flags
                 sendBytes[6] = 0xFF; // Destination network address (65535)
                 sendBytes[7] = 0xFF;
                 sendBytes[8] = 0; // Destination MAC layer address length, 0 = Broadcast
                 sendBytes[9] = 0xFF; // Hop count = 255
 
-                sendBytes[10] = (Byte)BACnetEnums.BACNET_PDU_TYPE.PDU_TYPE_UNCONFIRMED_SERVICE_REQUEST;
-                sendBytes[11] = (Byte)BACnetEnums.BACNET_UNCONFIRMED_SERVICE.SERVICE_UNCONFIRMED_WHO_IS;
+                sendBytes[10] = (Byte)BaCnetEnums.BacnetPduType.PduTypeUnconfirmedServiceRequest;
+                sendBytes[11] = (Byte)BaCnetEnums.BacnetUnconfirmedService.ServiceUnconfirmedWhoIs;
 
-                SendUDP.EnableBroadcast = false;
-                SendUDP.Send(sendBytes, 12, BroadcastEP);
+                _sendUdp.EnableBroadcast = false;
+                _sendUdp.Send(sendBytes, 12, _broadcastEp);
 
-                Stopwatch watch = new Stopwatch();
+                var watch = new Stopwatch();
                 watch.Start();
 
                 while (true)
                 {
                     if (watch.Elapsed.TotalMilliseconds >= milliseconds)
                         break;
-                    IPEndPoint RemoteIpEndPoint = new IPEndPoint(IPAddress.Any, 0);
+                    var remoteIpEndPoint = new IPEndPoint(IPAddress.Any, 0);
 
-                    if (SendUDP.Client.Available > 0)
+                    if (_sendUdp.Client.Available > 0)
                     {
-                        recvBytes = SendUDP.Receive(ref RemoteIpEndPoint);
+                        var recvBytes = _sendUdp.Receive(ref remoteIpEndPoint);
                         // Parse and save the BACnet data
-                        int NPDUOffset = BVLC.Parse(recvBytes, 0);
-                        int APDUOffset = NPDU.Parse(recvBytes, NPDUOffset);
+                        var npduOffset = Bvlc.Parse(recvBytes, 0);
+                        var apduOffset = Npdu.Parse(recvBytes, npduOffset);
 
-                        if (APDU.ParseIAm(recvBytes, APDUOffset) > 0)
+                        if (Apdu.ParseIAm(recvBytes, apduOffset) <= 0)
                         {
-                            Device device = new Device();
-                            device.Name = "Device";
-                            device.SourceLength = NPDU.SLEN;
-                            device.ServerEP = RemoteIpEndPoint;
-                            device.Network = NPDU.SNET;
-                            device.MACAddress = NPDU.SAddress;
-                            device.Instance = APDU.ObjectID;
-                            if (!BACnetData.Devices.Contains(device))
-                            {
-                                BACnetData.Devices.Add(device);
-                            }
+                            continue;
                         }
-
+                        var device = new Device
+                        {
+                            Name = "Device",
+                            SourceLength = Npdu.Slen,
+                            ServerEp = remoteIpEndPoint,
+                            Network = Npdu.Snet,
+                            MacAddress = Npdu.SAddress,
+                            Instance = Apdu.ObjectId
+                        };
+                        if (!BaCnetData.Devices.Contains(device))
+                        {
+                            BaCnetData.Devices.Add(device);
+                        }
                     }
                 }
 
@@ -223,9 +236,9 @@ namespace BACnet
             }
             catch (Exception ex)
             {
-                throw ex;
+                Log.ErrorFormat("Error GetDevices {0}", ex.Message);
             }
-            return BACnetData.Devices;
+            return BaCnetData.Devices;
         }
 
         /// <summary>
@@ -237,29 +250,28 @@ namespace BACnet
         /// <returns>A BACnet Device object representation MAYBE with filled properties.</returns>
         public Device UnicastWhoIsOnSingleIp(IPEndPoint bIpAddress, int milliseconds)
         {
-            Byte[] sendBytes = new Byte[12];
-            Byte[] recvBytes = new Byte[512];
-            Device device = new Device();
+            var sendBytes = new byte[12];
+            var device = new Device();
 
             try
             {
                 //PEP Use NPDU.Create and APDU.Create (when written)
-                sendBytes[0] = BVLC.BACNET_BVLC_TYPE_BIP;
-                sendBytes[1] = BVLC.BACNET_BVLC_FUNC_UNICAST_NPDU;
+                sendBytes[0] = Bvlc.BacnetBvlcTypeBip;
+                sendBytes[1] = Bvlc.BacnetBvlcFuncUnicastNpdu;
                 sendBytes[2] = 0;
                 sendBytes[3] = 12;
-                sendBytes[4] = BACnetEnums.BACNET_PROTOCOL_VERSION;
+                sendBytes[4] = BaCnetEnums.BacnetProtocolVersion;
                 sendBytes[5] = 0x20;  // Control flags
                 sendBytes[6] = 0xFF;  // Destination network address (65535)
                 sendBytes[7] = 0xFF;
                 sendBytes[8] = 0;     // Destination MAC layer address length, 0 = Broadcast
                 sendBytes[9] = 0xFF;  // Hop count = 255
 
-                sendBytes[10] = (Byte)BACnetEnums.BACNET_PDU_TYPE.PDU_TYPE_UNCONFIRMED_SERVICE_REQUEST;
-                sendBytes[11] = (Byte)BACnetEnums.BACNET_UNCONFIRMED_SERVICE.SERVICE_UNCONFIRMED_WHO_IS;
+                sendBytes[10] = (byte)BaCnetEnums.BacnetPduType.PduTypeUnconfirmedServiceRequest;
+                sendBytes[11] = (byte)BaCnetEnums.BacnetUnconfirmedService.ServiceUnconfirmedWhoIs;
 
-                SendUDP.EnableBroadcast = false;
-                SendUDP.Send(sendBytes, 12, bIpAddress);
+                _sendUdp.EnableBroadcast = false;
+                _sendUdp.Send(sendBytes, 12, bIpAddress);
 
                 Stopwatch watch = new Stopwatch();
                 watch.Start();
@@ -273,24 +285,25 @@ namespace BACnet
                     //{
                     //  if (WinSockRecvFrom(recvBytes, ref count, ref ipaddr) > 0)
                     // Process the response packets
-                    if (SendUDP.Client.Available > 0)
+                    if (_sendUdp.Client.Available > 0)
                     {
-                        recvBytes = SendUDP.Receive(ref bIpAddress);
+                        var recvBytes = _sendUdp.Receive(ref bIpAddress);
                         {
                             // Parse and save the BACnet data
-                            int NPDUOffset = BVLC.Parse(recvBytes, 0);
-                            int APDUOffset = NPDU.Parse(recvBytes, NPDUOffset);
-                            if (APDU.ParseIAm(recvBytes, APDUOffset) > 0)
+                            var npduOffset = Bvlc.Parse(recvBytes, 0);
+                            var apduOffset = Npdu.Parse(recvBytes, npduOffset);
+                            if (Apdu.ParseIAm(recvBytes, apduOffset) <= 0)
                             {
-                                device.Name = "Device";
-                                device.SourceLength = NPDU.SLEN;
-                                device.ServerEP = bIpAddress;
-                                device.Network = NPDU.SNET;
-                                device.MACAddress = NPDU.SAddress;
-                                device.Instance = APDU.ObjectID;
-
-                                // We should now have enough info to read/write properties for this device
+                                continue;
                             }
+                            device.Name = "Device";
+                            device.SourceLength = Npdu.Slen;
+                            device.ServerEp = bIpAddress;
+                            device.Network = Npdu.Snet;
+                            device.MacAddress = Npdu.SAddress;
+                            device.Instance = Apdu.ObjectId;
+
+                            // We should now have enough info to read/write properties for this device
                         }
                     }
                 }
@@ -300,7 +313,7 @@ namespace BACnet
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.StackTrace);
+                Log.ErrorFormat("Error on UnicastWhoIsOnSingleIp {0}", e.Message);
             }
 
             return device;
@@ -315,25 +328,24 @@ namespace BACnet
         public bool GetIAm(int network, uint objectid)
         {
             // Wait for I-Am packet
-            Byte[] recvBytes = new Byte[512];
-            bool found = false;
+            var found = false;
 
             try
             {
-                Socket sock = ReceiveUDP.Client;
-                IPEndPoint RemoteIpEndPoint = new IPEndPoint(IPAddress.Any, 0);
+                var sock = _receiveUdp.Client;
+                var remoteIpEndPoint = new IPEndPoint(IPAddress.Any, 0);
 
                 // Process receive packets
                 if (sock.Available > 0)
                 {
-                    recvBytes = ReceiveUDP.Receive(ref RemoteIpEndPoint);
+                    var recvBytes = _receiveUdp.Receive(ref remoteIpEndPoint);
                     {
                         // Parse the packet - is it IAm?
-                        int NPDUOffset = BVLC.Parse(recvBytes, 0);
-                        int APDUOffset = NPDU.Parse(recvBytes, NPDUOffset);
-                        if (APDU.ParseIAm(recvBytes, APDUOffset) > 0)
+                        var npduOffset = Bvlc.Parse(recvBytes, 0);
+                        var apduOffset = Npdu.Parse(recvBytes, npduOffset);
+                        if (Apdu.ParseIAm(recvBytes, apduOffset) > 0)
                         {
-                            if ((network == NPDU.SNET) && (objectid == APDU.ObjectID))
+                            if ((network == Npdu.Snet) && (objectid == Apdu.ObjectId))
                             {
                                 // Found it!
                                 found = true;
@@ -344,7 +356,7 @@ namespace BACnet
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
+                Log.Error(e.Message);
                 return false;
             }
             return found;
@@ -362,8 +374,8 @@ namespace BACnet
         public bool SendReadProperty(
             Device recipient,
             int arrayidx,
-            BACnetEnums.BACNET_OBJECT_TYPE objtype,
-            BACnetEnums.BACNET_PROPERTY_ID objprop,
+            BaCnetEnums.BacnetObjectType objtype,
+            BaCnetEnums.BacnetPropertyId objprop,
             Property property)
         {
             // Create and send an Confirmed Request
@@ -375,35 +387,31 @@ namespace BACnet
 
             //uint instance = BACnetData.Devices[deviceidx].Instance;
 
-            Byte[] sendBytes = new Byte[50];
-            Byte[] recvBytes = new Byte[512];
-            uint len;
+            var sendBytes = new byte[50];
 
             // BVLL
-            sendBytes[0] = BVLC.BACNET_BVLC_TYPE_BIP;
-            sendBytes[1] = BVLC.BACNET_BVLC_FUNC_UNICAST_NPDU;
+            sendBytes[0] = Bvlc.BacnetBvlcTypeBip;
+            sendBytes[1] = Bvlc.BacnetBvlcFuncUnicastNpdu;
             sendBytes[2] = 0x00;
             sendBytes[3] = 0x00;  // BVLL Length, fix later (24?)
 
             // NPDU
-            sendBytes[4] = BACnetEnums.BACNET_PROTOCOL_VERSION;
+            sendBytes[4] = BaCnetEnums.BacnetProtocolVersion;
             if (recipient.SourceLength == 0)
                 sendBytes[5] = 0x04;  // Control flags, no destination address
             else
                 sendBytes[5] = 0x24;  // Control flags, with broadcast or destination address
 
-            len = 6;
+            uint len = 6;
             if (recipient.SourceLength > 0)
             {
                 // Get the (MSTP) Network number (2001)
-                byte[] temp2 = new byte[2];
-                temp2 = BitConverter.GetBytes(recipient.Network);
+                var temp2 = BitConverter.GetBytes(recipient.Network);
                 sendBytes[len++] = temp2[1];
                 sendBytes[len++] = temp2[0];
 
                 // Get the MAC address (0x0D)
-                byte[] temp4 = new byte[4];
-                temp4 = BitConverter.GetBytes(recipient.MACAddress);
+                var temp4 = BitConverter.GetBytes(recipient.MacAddress);
 
                 sendBytes[len++] = 0x01;  // MAC address length - adjust for other lengths ...
                 sendBytes[len++] = temp4[0];
@@ -415,66 +423,69 @@ namespace BACnet
             sendBytes[len++] = 0x05;  // Max APDU length (1476)
 
             // Create invoke counter
-            sendBytes[len++] = (byte)(InvokeCounter);
-            InvokeCounter = ((InvokeCounter + 1) & 0xFF);
+            sendBytes[len++] = (byte)(_invokeCounter);
+            _invokeCounter = ((_invokeCounter + 1) & 0xFF);
 
             sendBytes[len++] = 0x0C;  // Service Choice: Read Property request
 
             // Service Request (var part of APDU):
             // Set up Object ID (Context Tag)
-            len = APDU.SetObjectID(ref sendBytes, len, objtype, recipient.Instance);
+            len = Apdu.SetObjectId(ref sendBytes, len, objtype, recipient.Instance);
 
             // Set up Property ID (Context Tag)
-            len = APDU.SetPropertyID(ref sendBytes, len, objprop);
+            len = Apdu.SetPropertyId(ref sendBytes, len, objprop);
 
             // Optional array index goes here
             if (arrayidx >= 0)
-                len = APDU.SetArrayIdx(ref sendBytes, len, arrayidx);
+                len = Apdu.SetArrayIdx(ref sendBytes, len, arrayidx);
 
             // Fix the BVLL length
             sendBytes[3] = (byte)len;
 
-            bool getResponse = false;
-            int Count = 0;
-            while (Count < BACNET_UNICAST_REQUEST_REPEAT_COUNT && !getResponse)
+            var getResponse = false;
+            var count = 0;
+            while (count < BacnetUnicastRequestRepeatCount && !getResponse)
             {
-                SendUDP.EnableBroadcast = false;
-                SendUDP.Send(sendBytes, (int)len, recipient.ServerEP);
+                _sendUdp.EnableBroadcast = false;
+                _sendUdp.Send(sendBytes, (int)len, recipient.ServerEp);
 
                 while (!getResponse)
                 {
-                    if (SendUDP.Client.Available > 0)
+                    if (_sendUdp.Client.Available <= 0)
                     {
-                        //recvBytes = SendUDP.Receive(ref RemoteEP);
-                        IPEndPoint sendTo = recipient.ServerEP;
-                        recvBytes = SendUDP.Receive(ref sendTo);
-
-                        int APDUOffset = NPDU.Parse(recvBytes, BVLC.BACNET_BVLC_HEADER_LEN); // BVLL is always 4 bytes
-
-                        // Check for APDU response 
-                        // 0x - Confirmed Request 
-                        // 1x - Un-Confirmed Request
-                        // 2x - Simple ACK
-                        // 3x - Complex ACK
-                        // 4x - Segment ACK
-                        // 5x - Error
-                        // 6x - Reject
-                        // 7x - Abort
-                        if (recvBytes[APDUOffset] == 0x30)
-                        {
-                            // Verify the Invoke ID is the same
-                            byte ic = (byte)(InvokeCounter == 0 ? 255 : InvokeCounter - 1);
-                            if (ic == recvBytes[APDUOffset + 1])
-                            {
-                                APDU.ParseProperty(ref recvBytes, APDUOffset, property);
-                                getResponse = true;  // This will still execute the finally
-                            }
-                        }
+                        continue;
                     }
+                    //recvBytes = SendUDP.Receive(ref RemoteEP);
+                    var sendTo = recipient.ServerEp;
+                    var recvBytes = _sendUdp.Receive(ref sendTo);
+
+                    var apduOffset = Npdu.Parse(recvBytes, Bvlc.BacnetBvlcHeaderLen); // BVLL is always 4 bytes
+
+                    // Check for APDU response 
+                    // 0x - Confirmed Request 
+                    // 1x - Un-Confirmed Request
+                    // 2x - Simple ACK
+                    // 3x - Complex ACK
+                    // 4x - Segment ACK
+                    // 5x - Error
+                    // 6x - Reject
+                    // 7x - Abort
+                    if (recvBytes[apduOffset] != 0x30)
+                    {
+                        continue;
+                    }
+                    // Verify the Invoke ID is the same
+                    var ic = (byte)(_invokeCounter == 0 ? 255 : _invokeCounter - 1);
+                    if (ic != recvBytes[apduOffset + 1])
+                    {
+                        continue;
+                    }
+                    Apdu.ParseProperty(ref recvBytes, apduOffset, property);
+                    getResponse = true;  // This will still execute the finally
                 }
 
-                Count++;
-                BACnetData.PacketRetryCount++;
+                count++;
+                BaCnetData.PacketRetryCount++;
             }
             return getResponse;
         }
@@ -492,8 +503,8 @@ namespace BACnet
         public bool SendWriteProperty(
             Device recipient,
             int arrayidx,
-            BACnetEnums.BACNET_OBJECT_TYPE objtype,
-            BACnetEnums.BACNET_PROPERTY_ID objprop,
+            BaCnetEnums.BacnetObjectType objtype,
+            BaCnetEnums.BacnetPropertyId objprop,
             Property property,
             int priority)
         {
@@ -502,14 +513,13 @@ namespace BACnet
 
             if (property == null) return false;
 
-            Byte[] sendBytes = new Byte[50];
-            Byte[] recvBytes = new Byte[512];
+            var sendBytes = new byte[50];
 
             // BVLL
-            uint len = BVLC.Fill(ref sendBytes, BVLC.BACNET_BVLC_FUNC_UNICAST_NPDU, 0);
+            var len = Bvlc.Fill(ref sendBytes, Bvlc.BacnetBvlcFuncUnicastNpdu, 0);
 
             // NPDU
-            sendBytes[len++] = BACnetEnums.BACNET_PROTOCOL_VERSION;
+            sendBytes[len++] = BaCnetEnums.BacnetProtocolVersion;
             if (recipient.SourceLength == 0)
                 sendBytes[len++] = 0x04;  // Control flags, no destination address
             else
@@ -520,16 +530,14 @@ namespace BACnet
                 // Get the (MSTP) Network number (2001)
                 //sendBytes[6] = 0x07;  // Destination network address (2001)
                 //sendBytes[7] = 0xD1;
-                byte[] temp2 = new byte[2];
-                temp2 = BitConverter.GetBytes(recipient.Network);
+                var temp2 = BitConverter.GetBytes(recipient.Network);
                 sendBytes[len++] = temp2[1];
                 sendBytes[len++] = temp2[0];
 
                 // Get the MAC address (0x0D)
                 //sendBytes[8] = 0x01;  // MAC address length
                 //sendBytes[9] = 0x0D;  // Destination MAC layer address
-                byte[] temp4 = new byte[4];
-                temp4 = BitConverter.GetBytes(recipient.MACAddress);
+                var temp4 = BitConverter.GetBytes(recipient.MacAddress);
                 sendBytes[len++] = 0x01;  // MAC address length - adjust for other lengths ...
                 sendBytes[len++] = temp4[0];
 
@@ -542,72 +550,74 @@ namespace BACnet
 
             // Create invoke counter
             //sendBytes[len++] = InvokeCounter++;  // Invoke ID
-            sendBytes[len++] = (byte)(InvokeCounter);
-            InvokeCounter = ((InvokeCounter + 1) & 0xFF);
+            sendBytes[len++] = (byte)(_invokeCounter);
+            _invokeCounter = ((_invokeCounter + 1) & 0xFF);
 
             sendBytes[len++] = 0x0F;  // Service Choice: Write Property request
 
             // Service Request (var part of APDU):
             // Set up Object ID (Context Tag)
-            len = APDU.SetObjectID(ref sendBytes, len, objtype, recipient.Instance);
+            len = Apdu.SetObjectId(ref sendBytes, len, objtype, recipient.Instance);
 
             // Set up Property ID (Context Tag)
-            len = APDU.SetPropertyID(ref sendBytes, len, objprop);
+            len = Apdu.SetPropertyId(ref sendBytes, len, objprop);
 
             // Optional array index goes here
             if (arrayidx >= 0)
-                len = APDU.SetArrayIdx(ref sendBytes, len, arrayidx);
+                len = Apdu.SetArrayIdx(ref sendBytes, len, arrayidx);
 
             // Set the value to send
-            len = APDU.SetProperty(ref sendBytes, len, property);
+            len = Apdu.SetProperty(ref sendBytes, len, property);
 
             //PEP Optional array index goes here
 
             // Set priority
             if (priority > 0)
-                len = APDU.SetPriority(ref sendBytes, len, priority);
+                len = Apdu.SetPriority(ref sendBytes, len, priority);
 
             // Fix the BVLL length
             sendBytes[3] = (byte)len;
 
-            int Count = 0;
-            bool getResponse = false;
-            while (Count < BACNET_UNICAST_REQUEST_REPEAT_COUNT && !getResponse)
+            var count = 0;
+            var getResponse = false;
+            while (count < BacnetUnicastRequestRepeatCount && !getResponse)
             {
-                SendUDP.EnableBroadcast = false;
-                SendUDP.Send(sendBytes, (int)len, recipient.ServerEP);
+                _sendUdp.EnableBroadcast = false;
+                _sendUdp.Send(sendBytes, (int)len, recipient.ServerEp);
 
                 while (!getResponse)
                 {
-                    if (SendUDP.Client.Available > 0)
+                    if (_sendUdp.Client.Available <= 0)
                     {
-                        //recvBytes = SendUDP.Receive(ref RemoteEP);
-                        IPEndPoint sendTo = recipient.ServerEP;
-                        recvBytes = SendUDP.Receive(ref sendTo);
+                        continue;
+                    }
+                    //recvBytes = SendUDP.Receive(ref RemoteEP);
+                    var sendTo = recipient.ServerEp;
+                    var recvBytes = _sendUdp.Receive(ref sendTo);
 
-                        int APDUOffset = NPDU.Parse(recvBytes, 4); // BVLL is always 4 bytes
-                        // Check for APDU response, and decide what to do
-                        // 0x - Confirmed Request 
-                        // 1x - Un-Confirmed Request
-                        // 2x - Simple ACK
-                        // 3x - Complex ACK
-                        // 4x - Segment ACK
-                        // 5x - Error
-                        // 6x - Reject
-                        // 7x - Abort
-                        if (recvBytes[APDUOffset] == 0x20)
-                        {
-                            // Verify the Invoke ID is the same
-                            byte ic = (byte)(InvokeCounter == 0 ? 255 : InvokeCounter - 1);
-                            if (ic == recvBytes[APDUOffset + 1])
-                            {
-                                getResponse = true; // This will still execute the finally
-                            }
-                        }
+                    var apduOffset = Npdu.Parse(recvBytes, 4); // BVLL is always 4 bytes
+                    // Check for APDU response, and decide what to do
+                    // 0x - Confirmed Request 
+                    // 1x - Un-Confirmed Request
+                    // 2x - Simple ACK
+                    // 3x - Complex ACK
+                    // 4x - Segment ACK
+                    // 5x - Error
+                    // 6x - Reject
+                    // 7x - Abort
+                    if (recvBytes[apduOffset] != 0x20)
+                    {
+                        continue;
+                    }
+                    // Verify the Invoke ID is the same
+                    var ic = (byte)(_invokeCounter == 0 ? 255 : _invokeCounter - 1);
+                    if (ic == recvBytes[apduOffset + 1])
+                    {
+                        getResponse = true; // This will still execute the finally
                     }
                 }
-                Count++;
-                BACnetData.PacketRetryCount++;
+                count++;
+                BaCnetData.PacketRetryCount++;
             }
             return getResponse; // This will still execute the finally
         }
@@ -624,42 +634,41 @@ namespace BACnet
 
             //uint instance = BACnetData.Devices[deviceidx].Instance;
 
-            Byte[] sendBytes = new Byte[50];
-            Byte[] recvBytes = new Byte[512];
+            var sendBytes = new byte[50];
 
             // BVLL
-            uint len = BVLC.Fill(ref sendBytes, BVLC.BACNET_BVLC_FUNC_READ_BDT, 0);
-            int Count = 0;
-            bool getResponse = false;
+            var len = Bvlc.Fill(ref sendBytes, Bvlc.BacnetBvlcFuncReadBdt, 0);
+            var count = 0;
+            var getResponse = false;
 
-            while (Count < BACNET_UNICAST_REQUEST_REPEAT_COUNT && !getResponse)
+            while (count < BacnetUnicastRequestRepeatCount && !getResponse)
             {
-                SendUDP.EnableBroadcast = false;
-                SendUDP.Send(sendBytes, (int)len, bIpAddress);
+                _sendUdp.EnableBroadcast = false;
+                _sendUdp.Send(sendBytes, (int)len, bIpAddress);
 
                 while (!getResponse)
                 {
-                    if (SendUDP.Client.Available > 0)
+                    if (_sendUdp.Client.Available > 0)
                     {
-                        recvBytes = SendUDP.Receive(ref bIpAddress);
+                        var recvBytes = _sendUdp.Receive(ref bIpAddress);
 
-                        BVLC.Parse(recvBytes, 0);
-                        if (BVLC.BACNET_BVLC_FUNC_READ_BDT_ACK == BVLC.BVLC_Function &&
-                            null != BVLC.BVLC_ListOfBdtEntries)
+                        Bvlc.Parse(recvBytes, 0);
+                        if (Bvlc.BacnetBvlcFuncReadBdtAck == Bvlc.BvlcFunction &&
+                            null != Bvlc.BvlcListOfBdtEntries)
                         {
-                            getResponse = true; ;
+                            getResponse = true;
                         }
-                        else if (BVLC.BACNET_BVLC_FUNC_RESULT == BVLC.BVLC_Function)
+                        else if (Bvlc.BacnetBvlcFuncResult == Bvlc.BvlcFunction)
                         {
-                            if (0x0020 == BVLC.BVLC_Function_ResultCode)
+                            if (0x0020 == Bvlc.BvlcFunctionResultCode)
                             {
                                 getResponse = true;
                             }
                         }
                     }
                 }
-                Count++;
-                BACnetData.PacketRetryCount++;
+                count++;
+                BaCnetData.PacketRetryCount++;
             }
             return getResponse;  // This will still execute the finally
         }
@@ -675,34 +684,33 @@ namespace BACnet
             if (bIpAddress == null) return false;
 
 
-            Byte[] sendBytes = new Byte[50];
-            Byte[] recvBytes = new Byte[512];
+            var sendBytes = new byte[50];
 
             // BVLL
-            uint len = BVLC.Fill(ref sendBytes, BVLC.BACNET_BVLC_FUNC_READ_FDT, 0);
+            var len = Bvlc.Fill(ref sendBytes, Bvlc.BacnetBvlcFuncReadFdt, 0);
 
-            int Count = 0;
-            bool getResponse = false;
+            var count = 0;
+            var getResponse = false;
 
-            while (Count < BACNET_UNICAST_REQUEST_REPEAT_COUNT && !getResponse)
+            while (count < BacnetUnicastRequestRepeatCount && !getResponse)
             {
-                SendUDP.EnableBroadcast = false;
-                SendUDP.Send(sendBytes, (int)len, bIpAddress);
+                _sendUdp.EnableBroadcast = false;
+                _sendUdp.Send(sendBytes, (int)len, bIpAddress);
 
                 while (!getResponse)
                 {
-                    if (SendUDP.Client.Available > 0)
+                    if (_sendUdp.Client.Available > 0)
                     {
-                        recvBytes = SendUDP.Receive(ref bIpAddress);
-                        BVLC.Parse(recvBytes, 0);
-                        if (BVLC.BACNET_BVLC_FUNC_READ_FDT_ACK == BVLC.BVLC_Function &&
-                            null != BVLC.BVLC_ListOfFdtEntries)
+                        var recvBytes = _sendUdp.Receive(ref bIpAddress);
+                        Bvlc.Parse(recvBytes, 0);
+                        if (Bvlc.BacnetBvlcFuncReadFdtAck == Bvlc.BvlcFunction &&
+                            null != Bvlc.BvlcListOfFdtEntries)
                         {
                             getResponse = true;
                         }
-                        else if (BVLC.BACNET_BVLC_FUNC_RESULT == BVLC.BVLC_Function)
+                        else if (Bvlc.BacnetBvlcFuncResult == Bvlc.BvlcFunction)
                         {
-                            if (0x0040 == BVLC.BVLC_Function_ResultCode)
+                            if (0x0040 == Bvlc.BvlcFunctionResultCode)
                             {
                                 getResponse = true;
                             }
@@ -710,8 +718,8 @@ namespace BACnet
 
                     }
                 }
-                Count++;
-                BACnetData.PacketRetryCount++;
+                count++;
+                BaCnetData.PacketRetryCount++;
             }
             return getResponse;  // This will still execute the finally
         }

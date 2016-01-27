@@ -1,30 +1,30 @@
 ﻿using System.Collections.Generic;
 using System.Net;
 
-namespace BACnet
+namespace ConnectTools.BACnet
 {
-    /// <summary>
-    /// BACnet Device object properties.
-    /// </summary>
-    /// <remarks>See <a href="http://www.bacnet.org/Bibliography/ES-7-96/ES-7-96.htm" /></remarks>
-    public class BACnetDevice
+    public class BaCnetDevice
     {
-        public IPEndPoint IpAddress;
-        public uint InstanceNumber;
-        public string ObjectName;
-        public string SystemStatus;
-        public string VendorName;
-        public int VendorIdentifier;
-        public string ModelName;
-        public string FirmwareRevision;
         public string ApplicationSoftwareVersion;
-        public int ProtocolVersion;
-        public int ProtocolRevision;
-        public byte SourceLength;
-        public int Network;
-        public List<string> DeviceObjects;
 
-        public BACnetDevice()
+        public List<string> DeviceObjects;
+        public string FirmwareRevision;
+        public readonly uint InstanceNumber;
+        public readonly IPEndPoint IpAddress;
+        public bool IsBbmdActive;
+        public string MobileUri;
+        public string ModelName;
+        public int Network;
+        public string ObjectName;
+        public int ProtocolRevision;
+        public int ProtocolVersion;
+        public byte SourceLength;
+        public string SystemStatus;
+        public string Uri;
+        public int VendorIdentifier;
+        public string VendorName;
+
+        public BaCnetDevice()
         {
             InstanceNumber = 0;
             ObjectName = "unknown";
@@ -39,28 +39,32 @@ namespace BACnet
             SourceLength = 0;
             Network = 65535;
             DeviceObjects = null;
+            IsBbmdActive = false;
+            Uri = "unknown";
+            MobileUri = "unknown";
         }
 
-        public BACnetDevice(IPEndPoint IpAddress, uint InstanceNumber)
+        public BaCnetDevice(IPEndPoint ipAddress, uint instanceNumber)
         {
-            this.IpAddress = IpAddress;
-            this.Network = 0;
-            this.InstanceNumber = InstanceNumber;
-            this.VendorIdentifier = 0;
-            this.SourceLength = 0;
+            this.IpAddress = ipAddress;
+            Network = 0;
+            this.InstanceNumber = instanceNumber;
+            VendorIdentifier = 0;
+            SourceLength = 0;
         }
 
-        public BACnetDevice(IPEndPoint IpAddress, int Network, uint InstanceNumber, int VendorIdentifier, byte SourceLength)
+        public BaCnetDevice(IPEndPoint ipAddress, int network, uint instanceNumber, int vendorIdentifier,
+            byte sourceLength)
         {
-            this.IpAddress = IpAddress;
-            this.Network = Network;
-            this.InstanceNumber = InstanceNumber;
-            this.VendorIdentifier = VendorIdentifier;
-            this.SourceLength = SourceLength;
+            this.IpAddress = ipAddress;
+            this.Network = network;
+            this.InstanceNumber = instanceNumber;
+            this.VendorIdentifier = vendorIdentifier;
+            this.SourceLength = sourceLength;
         }
     }
 
-    public class BACnetDeviceWithBBMD : BACnetDevice
+    public class BaCnetDeviceWithBbmd : BaCnetDevice
     {
         public bool SupportsFdRegistration;
     }

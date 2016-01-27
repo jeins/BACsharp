@@ -1,19 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Net;
 
-namespace BACnet
+namespace ConnectTools.BACnet
 {
-    public interface IBACnetStack
+    public interface IBaCnetStack
     {
         /// <summary>
-        /// Who-Is, and collect information about who answers
+        ///     Who-Is, and collect information about who answers
         /// </summary>
         /// <param name="milliseconds"></param>
         List<Device> GetDevices(int milliseconds);
 
         /// <summary>
-        /// Checks the single device.
+        ///     Checks the single device.
         /// </summary>
         /// <param name="bIpAddress">The bacnet ip address.</param>
         /// <param name="milliseconds">The milliseconds.</param>
@@ -21,15 +20,15 @@ namespace BACnet
         Device UnicastWhoIsOnSingleIp(IPEndPoint bIpAddress, int milliseconds);
 
         /// <summary>
-        /// I-Am.
+        ///     I-Am.
         /// </summary>
         /// <param name="network">The network.</param>
         /// <param name="objectid">The objectid.</param>
         /// <returns></returns>
-        bool GetIAm(int network, UInt32 objectid);
+        bool GetIAm(int network, uint objectid);
 
         /// <summary>
-        /// Read Property.
+        ///     Read Property.
         /// </summary>
         /// <param name="recipient">The recipient.</param>
         /// <param name="arrayidx">The arrayidx.</param>
@@ -40,12 +39,12 @@ namespace BACnet
         bool SendReadProperty(
             Device recipient,
             int arrayidx,
-            BACnetEnums.BACNET_OBJECT_TYPE objtype,
-            BACnetEnums.BACNET_PROPERTY_ID objprop,
+            BaCnetEnums.BacnetObjectType objtype,
+            BaCnetEnums.BacnetPropertyId objprop,
             Property property);
 
         /// <summary>
-        /// Write Property.
+        ///     Write Property.
         /// </summary>
         /// <param name="recipient">The receipient.</param>
         /// <param name="arrayidx">The arrayidx.</param>
@@ -57,20 +56,20 @@ namespace BACnet
         bool SendWriteProperty(
             Device recipient,
             int arrayidx,
-            BACnetEnums.BACNET_OBJECT_TYPE objtype,
-            BACnetEnums.BACNET_PROPERTY_ID objprop,
+            BaCnetEnums.BacnetObjectType objtype,
+            BaCnetEnums.BacnetPropertyId objprop,
             Property property,
             int priority);
 
         /// <summary>
-        /// Sends the read BDT.
+        ///     Sends the read BDT.
         /// </summary>
         /// <param name="bIpAddress">The bacnet ip address.</param>
         /// <returns></returns>
         bool SendReadBdt(IPEndPoint bIpAddress);
 
         /// <summary>
-        /// Sends the read FDT.
+        ///     Sends the read FDT.
         /// </summary>
         /// <param name="bIpAddress">The bacnet ip address.</param>
         /// <returns></returns>

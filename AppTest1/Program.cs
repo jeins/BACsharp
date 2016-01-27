@@ -11,12 +11,9 @@
 *********************************************************************/
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Windows.Forms;
-using AppTest1;
 
-namespace BACnetTest
+namespace ConnectTools
 {
   static class Program
   {
@@ -28,7 +25,7 @@ namespace BACnetTest
     {
       Application.EnableVisualStyles();
       Application.SetCompatibleTextRenderingDefault(false);
-      Application.Run(new GUI());
+      Application.Run(new Gui());
     }
   }
 }

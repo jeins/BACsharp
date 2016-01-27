@@ -44,46 +44,45 @@
  -------------------------------------------
 */
 
-using System;
 using System.Collections.Generic;
+using ConnectTools.BACnet;
 
 namespace BACnet
 {
-
-  //===============================================================================================
-  // A .NET Implementaion of the BACnet Stack
-  // Class Abstract:
-  //    A BACnetStack is a Client-Server interface protocol implementation of the BACnet 
-  //    Specification, allowing a connection between the Appication Layer and BACnet Devices
-  //    Application Entity => Application Layer <--> BACnet Devices
-  //    Specifically, it is a "BACnet User Element"
-  //    Members include:
-  //      Packet Creation and Processing
-  //      Services (Who-Is, I-Am, ReadProperty, WriteProperty, Reject, etc)
-  //      Objects (Device, etc)
-  //      Network Layer Protocol
-  //      Application Layer Protocol
-  //      Transactions
+    //===============================================================================================
+    // A .NET Implementaion of the BACnet Stack
+    // Class Abstract:
+    //    A BACnetStack is a Client-Server interface protocol implementation of the BACnet 
+    //    Specification, allowing a connection between the Appication Layer and BACnet Devices
+    //    Application Entity => Application Layer <--> BACnet Devices
+    //    Specifically, it is a "BACnet User Element"
+    //    Members include:
+    //      Packet Creation and Processing
+    //      Services (Who-Is, I-Am, ReadProperty, WriteProperty, Reject, etc)
+    //      Objects (Device, etc)
+    //      Network Layer Protocol
+    //      Application Layer Protocol
+    //      Transactions
 
     //-----------------------------------------------------------------------------------------------
     // BACnet Services
-    class BACnetService
+    internal class BACnetService
     {
     }
 
-    class BACnetServiceRequest : BACnetService
+    internal class BACnetServiceRequest : BACnetService
     {
     }
 
-    class BACnetServiceResponse : BACnetService
+    internal class BACnetServiceResponse : BACnetService
     {
     }
 
-    class BACnetServiceIndication : BACnetService
+    internal class BACnetServiceIndication : BACnetService
     {
     }
 
-    class BACnetServiceConfirm : BACnetService
+    internal class BACnetServiceConfirm : BACnetService
     {
     }
 
@@ -93,28 +92,27 @@ namespace BACnet
     {
         public static byte TagNumber(byte tag)
         {
-            int x = ((int)tag >> 4) & 0x0F;
-            return (byte)x;
+            var x = (tag >> 4) & 0x0F;
+            return (byte) x;
         }
 
         public static byte Class(byte tag)
         {
-            int x = ((int)tag >> 3) & 0x01;
-            return (byte)x;
+            var x = (tag >> 3) & 0x01;
+            return (byte) x;
         }
+
         public static byte LenValType(byte tag)
         {
-            int x = (int)tag & 0x07;
-            return (byte)x;
+            var x = tag & 0x07;
+            return (byte) x;
         }
     }
 
     public static class BACnetData
     {
-        public static List<Device> Devices;   // A list of BACnet devices after the WhoIs
-        public static int DeviceIndex;        // The current BACnet device selected
-        public static UInt32 PacketRetryCount;
+        public static List<Device> Devices; // A list of BACnet devices after the WhoIs
+        public static int DeviceIndex; // The current BACnet device selected
+        public static uint PacketRetryCount;
     }
-
-
 }

@@ -1,25 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Globalization;
-using System.Net;
-using System.Windows.Forms;
-using BACnet;
+﻿
 
-namespace AppTest1
+namespace ConnectTools
 {
-    public partial class GUI : Form
-    {
-        public IBACnetManager BACnetManager;
-        public List<BACnetDevice> bacnetDevices;
-        private BACnetDevice bacnetDevice;
+    using System;
+    using System.Collections.Generic;
+    using System.Drawing;
+    using System.Net;
+    using System.Windows.Forms;
 
-        public GUI()
+    using BACnet;
+
+    public partial class Gui : Form
+    {
+        public readonly IBaCnetManager BacnetManager;
+        public List<BaCnetDevice> BacnetDevices;
+        private BaCnetDevice _bacnetDevice;
+
+        public Gui()
         {
             InitializeComponent();
 
-            BACnetManager = new BACnetManager(System.Net.Dns.GetHostByName(Environment.MachineName).AddressList[0]);
-            bacnetDevice = null;
+            BacnetManager = new BaCnetManager(System.Net.Dns.GetHostByName(Environment.MachineName).AddressList[0]);
+            _bacnetDevice = null;
 
             lblBBMDStatus.BackColor = Color.Red;
             lblFDRegister.BackColor = Color.Red;
@@ -29,25 +31,25 @@ namespace AppTest1
 
         private void btnGetDevice_Click(object sender, EventArgs e)
         {
-            bacnetDevices = BACnetManager.FindBACnetDevices();
+            BacnetDevices = BacnetManager.FindBaCnetDevices();
             listDevices.Items.Clear();
-            if (bacnetDevices.Count == 0)
+            if (BacnetDevices.Count == 0)
             {
                 MessageBox.Show("No Devices");
             }
             else
             {
-                foreach (BACnetDevice dev in bacnetDevices)
+                foreach (BaCnetDevice dev in BacnetDevices)
                 {
                     listDevices.Items.Add(
-                      dev.VendorIdentifier.ToString() + ", " +
-                      dev.Network.ToString() + ", " +
-                      dev.InstanceNumber.ToString() + ", " +
-                      dev.IpAddress.ToString() + ":" +
-                      dev.IpAddress.Port.ToString());
+                      dev.VendorIdentifier + ", " +
+                      dev.Network + ", " +
+                      dev.InstanceNumber + ", " +
+                      dev.IpAddress + ":" +
+                      dev.IpAddress.Port);
                 }
 
-                if (bacnetDevices.Count > 0)
+                if (BacnetDevices.Count > 0)
                 {
                     btnGetDeviceObj.Enabled = true;
                     btnGetProp.Enabled = true;
@@ -60,30 +62,30 @@ namespace AppTest1
 
         private void btnGetProp_Click(object sender, EventArgs e)
         {
-            bacnetDevice = bacnetDevices[listDevices.SelectedIndex]; //bacnetDevice = new BACnetDevice(CreateIPEndPoint("10.35.8.43:47808"), 0, 23, 0, 0);
+            _bacnetDevice = BacnetDevices[listDevices.SelectedIndex]; //bacnetDevice = new BACnetDevice(CreateIPEndPoint("10.35.8.43:47808"), 0, 23, 0, 0);
 
-            BACnetManager.FindDeviceProperties(ref bacnetDevice);
+            BacnetManager.FindDeviceProperties(ref _bacnetDevice);
             listDeviceProp.Items.Clear();
-            listDeviceProp.Items.Add("IP Address: " + bacnetDevice.IpAddress.ToString());
-            listDeviceProp.Items.Add("Model Name: " + bacnetDevice.ModelName.ToString());
-            listDeviceProp.Items.Add("Software Version: " + bacnetDevice.ApplicationSoftwareVersion.ToString());
-            listDeviceProp.Items.Add("Firmware Revision: " + bacnetDevice.FirmwareRevision.ToString());
-            listDeviceProp.Items.Add("Protocol Revision: " + bacnetDevice.ProtocolRevision.ToString());
-            listDeviceProp.Items.Add("System Status: " + bacnetDevice.SystemStatus.ToString());
-            listDeviceProp.Items.Add("Instance Number: " + bacnetDevice.InstanceNumber.ToString());
-            listDeviceProp.Items.Add("Netwrok: " + bacnetDevice.Network.ToString());
-            listDeviceProp.Items.Add("Object Name: " + bacnetDevice.ObjectName.ToString());
-            listDeviceProp.Items.Add("Source Length: " + bacnetDevice.SourceLength.ToString());
-            listDeviceProp.Items.Add("Vendor Identifier: " + bacnetDevice.VendorIdentifier.ToString());
+            listDeviceProp.Items.Add("IP Address: " + _bacnetDevice.IpAddress);
+            listDeviceProp.Items.Add("Model Name: " + _bacnetDevice.ModelName);
+            listDeviceProp.Items.Add("Software Version: " + _bacnetDevice.ApplicationSoftwareVersion);
+            listDeviceProp.Items.Add("Firmware Revision: " + _bacnetDevice.FirmwareRevision);
+            listDeviceProp.Items.Add("Protocol Revision: " + _bacnetDevice.ProtocolRevision);
+            listDeviceProp.Items.Add("System Status: " + _bacnetDevice.SystemStatus);
+            listDeviceProp.Items.Add("Instance Number: " + _bacnetDevice.InstanceNumber);
+            listDeviceProp.Items.Add("Netwrok: " + _bacnetDevice.Network);
+            listDeviceProp.Items.Add("Object Name: " + _bacnetDevice.ObjectName);
+            listDeviceProp.Items.Add("Source Length: " + _bacnetDevice.SourceLength);
+            listDeviceProp.Items.Add("Vendor Identifier: " + _bacnetDevice.VendorIdentifier);
         }
 
         private void listDevices_SelectedIndexChanged(object sender, EventArgs e)
         {
-            bacnetDevice = bacnetDevices[listDevices.SelectedIndex];
+            _bacnetDevice = BacnetDevices[listDevices.SelectedIndex];
 
-            lblDeviceIP.Text = bacnetDevice.IpAddress.ToString();
+            lblDeviceIP.Text = _bacnetDevice.IpAddress.ToString();
 
-            if (BACnetManager.IsBbmdEnabled(bacnetDevice.IpAddress))
+            if (BacnetManager.IsBbmdEnabled(_bacnetDevice.IpAddress))
             {
                 lblBBMDStatus.Text = "True";
                 lblBBMDStatus.BackColor = Color.Green;
@@ -94,7 +96,7 @@ namespace AppTest1
                 lblBBMDStatus.BackColor = Color.Red;
             }
 
-            if (BACnetManager.IsFdRegistrationSupported(bacnetDevice.IpAddress))
+            if (BacnetManager.IsFdRegistrationSupported(_bacnetDevice.IpAddress))
             {
                 lblFDRegister.Text = "True";
                 lblFDRegister.BackColor = Color.Green;
@@ -108,31 +110,14 @@ namespace AppTest1
 
         private void btnGetDeviceObj_Click(object sender, EventArgs e)
         {
-            bacnetDevice = bacnetDevices[listDevices.SelectedIndex]; //bacnetDevice = new BACnetDevice(CreateIPEndPoint("10.35.8.43:47808"), 0, 23, 0, 0);
+            _bacnetDevice = BacnetDevices[listDevices.SelectedIndex]; //bacnetDevice = new BACnetDevice(CreateIPEndPoint("10.35.8.43:47808"), 0, 23, 0, 0);
 
-            BACnetManager.FindDeviceObjects(ref bacnetDevice);
-            lblTotalProp.Text = bacnetDevice.DeviceObjects.Count.ToString();
-            foreach (string values in bacnetDevice.DeviceObjects)
+            BacnetManager.FindDeviceObjects(ref _bacnetDevice);
+            lblTotalProp.Text = _bacnetDevice.DeviceObjects.Count.ToString();
+            foreach (string values in _bacnetDevice.DeviceObjects)
             {
                 listDeviceObj.Items.Add(values);
             }
-        }
-
-        private static IPEndPoint CreateIPEndPoint(string endPoint)
-        {
-            string[] ep = endPoint.Split(':');
-            if (ep.Length != 2) throw new FormatException("Invalid endpoint format");
-            IPAddress ip;
-            if (!IPAddress.TryParse(ep[0], out ip))
-            {
-                throw new FormatException("Invalid ip-adress");
-            }
-            int port;
-            if (!int.TryParse(ep[1], NumberStyles.None, NumberFormatInfo.CurrentInfo, out port))
-            {
-                throw new FormatException("Invalid port");
-            }
-            return new IPEndPoint(ip, port);
         }
     }
 }
