@@ -18,32 +18,32 @@ namespace ConnectTools.BACnet.Properties
 {
     public static class Npdu
     {
-        private static byte _pduControl;
-        private static byte _dlen;
-        private static byte[] _dadr;
+        private static byte pduControl;
+        private static byte dlen;
+        private static byte[] dadr;
         public static ushort Snet;
         public static byte Slen;
-        private static byte[] _sadr;
-        private static byte _messageType;
-        private static ushort _vendorId;
+        private static byte[] sadr;
+        private static byte messageType;
+        private static ushort vendorId;
         public static uint SAddress;
-        private static uint _dAddress;
+        private static uint dAddress;
         private static int HopCount;
         private static int Dnet;
 
         private static void Clear()
         {
-            _pduControl = 0;
+            pduControl = 0;
             Dnet = 0;
-            _dlen = 0;
-            _dadr = null;
+            dlen = 0;
+            dadr = null;
             Snet = 0;
             Slen = 0;
-            _sadr = null;
+            sadr = null;
             HopCount = 0;
-            _messageType = 0;
-            _vendorId = 0;
-            _dAddress = 0;
+            messageType = 0;
+            vendorId = 0;
+            dAddress = 0;
             SAddress = 0;
         }
 
@@ -59,39 +59,39 @@ namespace ConnectTools.BACnet.Properties
             byte[] temp;
             Clear();
             if (bytes[len++] != 0x01) return 0;
-            _pduControl = bytes[len++]; // 5
-            if ((_pduControl & 0x20) > 0)
+            pduControl = bytes[len++]; // 5
+            if ((pduControl & 0x20) > 0)
             {
                 temp = new byte[2];
                 temp[1] = bytes[len++];
                 temp[0] = bytes[len++];
                 Dnet = BitConverter.ToUInt16(temp, 0);
-                _dlen = bytes[len++];
-                if (_dlen == 1)
+                dlen = bytes[len++];
+                if (dlen == 1)
                 {
-                    _dadr = new byte[1];
-                    _dadr[0] = bytes[len++];
-                    _dAddress = _dadr[0];
+                    dadr = new byte[1];
+                    dadr[0] = bytes[len++];
+                    dAddress = dadr[0];
                 }
-                if (_dlen == 2)
+                if (dlen == 2)
                 {
-                    _dadr[1] = bytes[len++];
-                    _dadr[0] = bytes[len++];
-                    _dAddress = BitConverter.ToUInt16(_dadr, 0);
+                    dadr[1] = bytes[len++];
+                    dadr[0] = bytes[len++];
+                    dAddress = BitConverter.ToUInt16(dadr, 0);
                 }
-                if (_dlen == 4)
+                if (dlen == 4)
                 {
-                    _dadr[3] = bytes[len++];
-                    _dadr[2] = bytes[len++];
-                    _dadr[1] = bytes[len++];
-                    _dadr[0] = bytes[len++];
-                    _dAddress = BitConverter.ToUInt32(_dadr, 0);
+                    dadr[3] = bytes[len++];
+                    dadr[2] = bytes[len++];
+                    dadr[1] = bytes[len++];
+                    dadr[0] = bytes[len++];
+                    dAddress = BitConverter.ToUInt32(dadr, 0);
                 }
             }
             else
-                _dlen = 0;
+                dlen = 0;
 
-            if ((_pduControl & 0x08) > 0)
+            if ((pduControl & 0x08) > 0)
             {
                 temp = new byte[2];
                 temp[1] = bytes[len++];
@@ -100,31 +100,31 @@ namespace ConnectTools.BACnet.Properties
                 Slen = bytes[len++];
                 if (Slen == 1)
                 {
-                    _sadr = new byte[1];
-                    _sadr[0] = bytes[len++];
-                    SAddress = _sadr[0];
+                    sadr = new byte[1];
+                    sadr[0] = bytes[len++];
+                    SAddress = sadr[0];
                 }
                 if (Slen == 2)
                 {
-                    _sadr = new byte[2];
-                    _sadr[1] = bytes[len++];
-                    _sadr[0] = bytes[len++];
-                    SAddress = BitConverter.ToUInt16(_sadr, 0);
+                    sadr = new byte[2];
+                    sadr[1] = bytes[len++];
+                    sadr[0] = bytes[len++];
+                    SAddress = BitConverter.ToUInt16(sadr, 0);
                 }
                 if (Slen == 4)
                 {
-                    _sadr = new byte[4];
-                    _sadr[3] = bytes[len++];
-                    _sadr[2] = bytes[len++];
-                    _sadr[1] = bytes[len++];
-                    _sadr[0] = bytes[len++];
-                    SAddress = BitConverter.ToUInt32(_sadr, 0);
+                    sadr = new byte[4];
+                    sadr[3] = bytes[len++];
+                    sadr[2] = bytes[len++];
+                    sadr[1] = bytes[len++];
+                    sadr[0] = bytes[len++];
+                    SAddress = BitConverter.ToUInt32(sadr, 0);
                 }
             }
             else
                 Slen = 0;
 
-            if ((_pduControl & 0x20) > 0)
+            if ((pduControl & 0x20) > 0)
             {
                 HopCount = bytes[len++];
             }

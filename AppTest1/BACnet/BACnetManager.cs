@@ -24,18 +24,18 @@ namespace ConnectTools.BACnet
     public class BacnetManager : IBacnetManager
     {
         private static readonly ILog Log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
-        private readonly IBacnetStack _bacStack;
+        private readonly IBacnetStack bacStack;
 
         /// <summary>
         ///     Class provides functions to handle BACnet actions.
         /// </summary>
         /// <param name="localIpAddress">The host's IP address where BACnet communication should take place.</param>
-        public BacnetManager(IPAddress localIpAddress)
+        public BacnetManager()
         {
             try
             {
                 //IPAddress localIpAddress = System.Net.Dns.GetHostByName(Environment.MachineName).AddressList[0];
-                _bacStack = new BacnetStack(localIpAddress);
+                bacStack = new BacnetStack();
             }
             catch (Exception ex)
             {
@@ -54,13 +54,13 @@ namespace ConnectTools.BACnet
         ///     Use unicast Who-Is service as we're not registered at a BBMD in the network.
         ///     Reading the required Device properties can be accomplished with a single ReadPropertyMultiple request.
         /// </remarks>
-        public List<BacnetDevice> FindBaCnetDevices()
+        public List<BacnetDevice> FindBacnetDevices()
         {
             var foundIpBacnetDevices = new List<BacnetDevice>();
 
             try
             {
-                var foundDevices = _bacStack.GetDevices(2000);
+                var foundDevices = bacStack.GetDevices(2000);
 
                 for (ushort i = 0; i < foundDevices.Count; i++)
                 {
@@ -140,8 +140,8 @@ namespace ConnectTools.BACnet
                 SourceLength = device.SourceLength
             };
 
-            var property = new Property {Tag = BacnetEnums.BacnetApplicationTag.BacnetApplicationTagEnumerated};
-            if (!_bacStack.SendReadProperty(
+            var property = new Property { Tag = BacnetEnums.BacnetApplicationTag.BacnetApplicationTagEnumerated };
+            if (!bacStack.SendReadProperty(
                 recipient,
                 0, // Array[0] is Object Count
                 BacnetEnums.BacnetObjectType.ObjectDevice,
@@ -167,7 +167,7 @@ namespace ConnectTools.BACnet
                     while (tries < 5)
                     {
                         tries++;
-                        if (!_bacStack.SendReadProperty(
+                        if (!bacStack.SendReadProperty(
                             recipient,
                             i,
                             // each array index
@@ -226,15 +226,15 @@ namespace ConnectTools.BACnet
         /// <returns>
         ///     The BACnet Device Instance Number or 4194303 (BACnet "null") if not a BACnet device.
         /// </returns>
-        public int GetBaCnetDeviceInstanceNumber(IPEndPoint ipAddress)
+        public int GetBacnetDeviceInstanceNumber(IPEndPoint ipAddress)
         {
-            var newDev = (_bacStack.UnicastWhoIsOnSingleIp(ipAddress, 1000));
+            var newDev = (bacStack.UnicastWhoIsOnSingleIp(ipAddress, 1000));
             if (newDev == null)
             {
                 return -1;
             }
 
-            return (int) newDev.Instance;
+            return (int)newDev.Instance;
         }
 
         /// <summary>
@@ -246,7 +246,7 @@ namespace ConnectTools.BACnet
         /// </returns>
         public bool IsBbmdEnabled(IPEndPoint ipAddress)
         {
-            if (!_bacStack.SendReadBdt(ipAddress)) return false;
+            if (!bacStack.SendReadBdt(ipAddress)) return false;
 
             return Bvlc.BvlcFunctionResultCode == 0;
         }
@@ -260,7 +260,7 @@ namespace ConnectTools.BACnet
         /// </returns>
         public bool IsFdRegistrationSupported(IPEndPoint ipAddress)
         {
-            if (!_bacStack.SendReadFdt(ipAddress)) return false;
+            if (!bacStack.SendReadFdt(ipAddress)) return false;
 
             return Bvlc.BvlcFunctionResultCode == 0;
         }
@@ -301,7 +301,7 @@ namespace ConnectTools.BACnet
             if (GetUnsignedPropertyValue(ref device, BacnetEnums.BacnetPropertyId.PropVendorIdentifier,
                 ref value))
             {
-                device.VendorIdentifier = (int) value;
+                device.VendorIdentifier = (int)value;
                 return true;
             }
             return false;
@@ -313,7 +313,7 @@ namespace ConnectTools.BACnet
             if (GetUnsignedPropertyValue(ref device, BacnetEnums.BacnetPropertyId.PropProtocolVersion,
                 ref value))
             {
-                device.ProtocolVersion = (int) value;
+                device.ProtocolVersion = (int)value;
                 return true;
             }
             return false;
@@ -325,7 +325,7 @@ namespace ConnectTools.BACnet
             if (!GetUnsignedPropertyValue(ref device, BacnetEnums.BacnetPropertyId.PropProtocolRevision, ref value))
                 return false;
 
-            device.ProtocolRevision = (int) value;
+            device.ProtocolRevision = (int)value;
             return true;
         }
 
@@ -354,7 +354,7 @@ namespace ConnectTools.BACnet
         private bool GetStringPropertyValue(ref BacnetDevice device, BacnetEnums.BacnetPropertyId propId,
             ref string value)
         {
-            var property = new Property {Tag = BacnetEnums.BacnetApplicationTag.BacnetApplicationTagEnumerated};
+            var property = new Property { Tag = BacnetEnums.BacnetApplicationTag.BacnetApplicationTagEnumerated };
 
             var recipient = new Device
             {
@@ -364,7 +364,7 @@ namespace ConnectTools.BACnet
                 SourceLength = device.SourceLength
             };
 
-            if (!_bacStack.SendReadProperty(
+            if (!bacStack.SendReadProperty(
                 recipient,
                 -1, // Array[0] is Object Count
                 BacnetEnums.BacnetObjectType.ObjectDevice,
@@ -385,7 +385,7 @@ namespace ConnectTools.BACnet
         private bool GetUnsignedPropertyValue(ref BacnetDevice device, BacnetEnums.BacnetPropertyId propId,
             ref uint value)
         {
-            var property = new Property {Tag = BacnetEnums.BacnetApplicationTag.BacnetApplicationTagEnumerated};
+            var property = new Property { Tag = BacnetEnums.BacnetApplicationTag.BacnetApplicationTagEnumerated };
 
             var recipient = new Device
             {
@@ -395,7 +395,7 @@ namespace ConnectTools.BACnet
                 SourceLength = device.SourceLength
             };
 
-            if (!_bacStack.SendReadProperty(
+            if (!bacStack.SendReadProperty(
                 recipient,
                 -1, // Array[0] is Object Count
                 BacnetEnums.BacnetObjectType.ObjectDevice,
@@ -417,7 +417,7 @@ namespace ConnectTools.BACnet
         private bool GetEnumeratedPropertyValue(ref BacnetDevice device, BacnetEnums.BacnetPropertyId propId,
             ref uint value)
         {
-            var property = new Property {Tag = BacnetEnums.BacnetApplicationTag.BacnetApplicationTagNull};
+            var property = new Property { Tag = BacnetEnums.BacnetApplicationTag.BacnetApplicationTagNull };
 
             var recipient = new Device
             {
@@ -427,7 +427,7 @@ namespace ConnectTools.BACnet
                 SourceLength = device.SourceLength
             };
 
-            if (!_bacStack.SendReadProperty(
+            if (!bacStack.SendReadProperty(
                 recipient,
                 -1, // Array[0] is Object Count
                 BacnetEnums.BacnetObjectType.ObjectDevice,

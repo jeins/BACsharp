@@ -17,6 +17,17 @@ namespace ConnectTools.BACnet.Properties
     public class Property
     {
         public string ToStringValue;
+        public BacnetEnums.BacnetApplicationTag Tag { get; set; }
+        public bool ValueBool { get; set; }
+        public uint ValueUInt { get; set; }
+        private int ValueInt { get; set; }
+        public float ValueSingle { get; set; }
+        private double ValueDouble { get; set; }
+        public byte[] ValueOctet { get; set; }
+        public string ValueString { get; set; }
+        public uint ValueEnum { get; set; }
+        public BacnetEnums.BacnetObjectType ValueObjectType { get; set; }
+        public uint ValueObjectInstance { get; set; }
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="Property" /> class.
@@ -36,18 +47,6 @@ namespace ConnectTools.BACnet.Properties
             ValueObjectInstance = 0;
             ToStringValue = "";
         }
-
-        public BacnetEnums.BacnetApplicationTag Tag { get; set; }
-        public bool ValueBool { get; set; }
-        public uint ValueUInt { get; set; }
-        private int ValueInt { get; set; }
-        public float ValueSingle { get; set; }
-        private double ValueDouble { get; set; }
-        public byte[] ValueOctet { get; set; }
-        public string ValueString { get; set; }
-        public uint ValueEnum { get; set; }
-        public BacnetEnums.BacnetObjectType ValueObjectType { get; set; }
-        public uint ValueObjectInstance { get; set; }
 
         /// <summary>
         ///     Returns a <see cref="System.String" /> that represents this instance.

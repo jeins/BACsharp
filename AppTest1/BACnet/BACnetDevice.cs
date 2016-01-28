@@ -19,8 +19,8 @@ namespace ConnectTools.BACnet
 {
     public class BacnetDevice
     {
-        public readonly uint InstanceNumber;
-        public readonly IPEndPoint IpAddress;
+        public uint InstanceNumber;
+        public IPEndPoint IpAddress;
         public string ApplicationSoftwareVersion;
 
         public List<string> DeviceObjects;
@@ -28,11 +28,11 @@ namespace ConnectTools.BACnet
         public bool IsBbmdActive;
         public string MobileUri;
         public string ModelName;
-        public int Network;
+        public readonly int Network;
         public string ObjectName;
         public int ProtocolRevision;
         public int ProtocolVersion;
-        public byte SourceLength;
+        public readonly byte SourceLength;
         public string SystemStatus;
         public string Uri;
         public int VendorIdentifier;
@@ -59,6 +59,20 @@ namespace ConnectTools.BACnet
             IsBbmdActive = false;
             Uri = "unknown";
             MobileUri = "unknown";
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BacnetDevice"/> class.
+        /// </summary>
+        /// <param name="ipAddress">The ip address.</param>
+        /// <param name="instanceNumber">The instance number.</param>
+        public BacnetDevice(IPEndPoint ipAddress, uint instanceNumber)
+        {
+            IpAddress = ipAddress;
+            Network = 0;
+            InstanceNumber = instanceNumber;
+            VendorIdentifier = 0;
+            SourceLength = 0;
         }
 
         /// <summary>

@@ -36,18 +36,18 @@ namespace ConnectTools.BACnet.Properties
         public const int BacnetBvlcFuncUnicastNpdu = 0x0A;
         private const int BacnetBvlcFuncBroadcastNpdu = 0x0B;
 
-        private static byte _bvlcType;
+        private static byte bvlcType;
         public static byte BvlcFunction;
-        private static ushort _bvlcLength;
+        private static ushort bvlcLength;
         public static ushort BvlcFunctionResultCode;
         public static BdtEntry[] BvlcListOfBdtEntries;
         public static FdtEntry[] BvlcListOfFdtEntries;
 
         private static void Clear()
         {
-            _bvlcType = 0;
+            bvlcType = 0;
             BvlcFunction = 0;
-            _bvlcLength = 0;
+            bvlcLength = 0;
 
             BvlcFunctionResultCode = 0;
             BvlcListOfBdtEntries = null;
@@ -64,7 +64,7 @@ namespace ConnectTools.BACnet.Properties
         public static uint Fill(ref byte[] bytes, int bvlcFunctionType, uint offset)
         {
             bytes[offset + 0] = BacnetBvlcTypeBip;
-            bytes[offset + 1] = (byte) bvlcFunctionType;
+            bytes[offset + 1] = (byte)bvlcFunctionType;
             bytes[offset + 2] = 0x00;
             bytes[offset + 3] = BacnetBvlcHeaderLen;
 
@@ -81,16 +81,16 @@ namespace ConnectTools.BACnet.Properties
         {
             var len = offset;
             Clear();
-            _bvlcType = bytes[len++];
+            bvlcType = bytes[len++];
             BvlcFunction = bytes[len++];
 
             var temp = new byte[2];
             temp[0] = bytes[len++];
             temp[1] = bytes[len++];
 
-            _bvlcLength = (ushort) (temp[0]*255 + temp[1]);
+            bvlcLength = (ushort)(temp[0] * 255 + temp[1]);
 
-            if (BacnetBvlcTypeBip != _bvlcType)
+            if (BacnetBvlcTypeBip != bvlcType)
             {
                 return 0;
             }
@@ -155,7 +155,7 @@ namespace ConnectTools.BACnet.Properties
             var temp = new byte[2];
             temp[1] = bytes[len++];
             temp[0] = bytes[len++];
-            BvlcFunctionResultCode = (ushort) (temp[1]*256 + temp[0]);
+            BvlcFunctionResultCode = (ushort)(temp[1] * 256 + temp[0]);
 
             return len;
         }
@@ -163,8 +163,8 @@ namespace ConnectTools.BACnet.Properties
         private static int ParseListOfBdtEntries(IReadOnlyList<byte> bytes, int offset)
         {
             var len = offset;
-            var bytesBdtEntries = _bvlcLength - offset;
-            var numberOfBdtEntries = bytesBdtEntries/10;
+            var bytesBdtEntries = bvlcLength - offset;
+            var numberOfBdtEntries = bytesBdtEntries / 10;
             BvlcListOfBdtEntries = new BdtEntry[numberOfBdtEntries];
 
             for (var i = 0; i < numberOfBdtEntries; i++)
@@ -187,7 +187,7 @@ namespace ConnectTools.BACnet.Properties
                 ipMask[0] = bytes[len++];
                 var mask = new IPAddress(ipMask);
 
-                var point = new IPEndPoint(ip, udpPort[1]*256 + udpPort[0]);
+                var point = new IPEndPoint(ip, udpPort[1] * 256 + udpPort[0]);
                 var bdtEntry = new BdtEntry
                 {
                     MacAddress = point,
@@ -203,8 +203,8 @@ namespace ConnectTools.BACnet.Properties
         private static int ParseListOfFdtEntries(IReadOnlyList<byte> bytes, int offset)
         {
             var len = offset;
-            var bytesFdtEntries = _bvlcLength - offset;
-            var numberOfFdtEntries = bytesFdtEntries/10; // 10 Bytes per Entry
+            var bytesFdtEntries = bvlcLength - offset;
+            var numberOfFdtEntries = bytesFdtEntries / 10; // 10 Bytes per Entry
             BvlcListOfFdtEntries = new FdtEntry[numberOfFdtEntries];
 
             for (var i = 0; i < numberOfFdtEntries; i++)
@@ -228,12 +228,12 @@ namespace ConnectTools.BACnet.Properties
                 timeRemaining[1] = bytes[len++];
                 timeRemaining[0] = bytes[len++];
 
-                var point = new IPEndPoint(ip, udpPort[1]*256 + udpPort[0]);
+                var point = new IPEndPoint(ip, udpPort[1] * 256 + udpPort[0]);
                 var fdtEntry = new FdtEntry
                 {
                     MacAddress = point,
-                    TimeToLive = (ushort) (timeToLive[1]*256 + timeToLive[0]),
-                    TimeRemaining = (ushort) (timeRemaining[1]*256 + timeRemaining[0])
+                    TimeToLive = (ushort)(timeToLive[1] * 256 + timeToLive[0]),
+                    TimeRemaining = (ushort)(timeRemaining[1] * 256 + timeRemaining[0])
                 };
 
 

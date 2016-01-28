@@ -24,7 +24,7 @@ namespace ConnectTools.BACnet.Properties
 {
     public static class Apdu
     {
-        private static byte _apduType;
+        private static byte apduType;
         public static uint ObjectId;
 
         private static readonly ILog Log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
@@ -39,8 +39,8 @@ namespace ConnectTools.BACnet.Properties
         {
             // Look for and parse I-Am Packet
             ObjectId = 0;
-            _apduType = bytes[offset];
-            if ((_apduType != 0x10) || (bytes[offset + 1] != 0x00)) return 0;
+            apduType = bytes[offset];
+            if ((apduType != 0x10) || (bytes[offset + 1] != 0x00)) return 0;
 
             // Get the ObjectID
             if (BacnetTag.TagNumber(bytes[offset + 2]) != 12)
@@ -48,7 +48,7 @@ namespace ConnectTools.BACnet.Properties
             var temp = new byte[4];
             temp[0] = bytes[offset + 6];
             temp[1] = bytes[offset + 5];
-            temp[2] = (byte) (bytes[offset + 4] & 0x3F);
+            temp[2] = (byte)(bytes[offset + 4] & 0x3F);
             temp[3] = 0;
             ObjectId = BitConverter.ToUInt32(temp, 0);
             var len = 5;
@@ -72,7 +72,7 @@ namespace ConnectTools.BACnet.Properties
             //bytes[pos++] = 0x00;
             //bytes[pos++] = 0x00;
 
-            var value = (uint) type;
+            var value = (uint)type;
             value = value & BacnetEnums.BacnetMaxObject;
             value = value << BacnetEnums.BacnetInstanceBits;
             value = value | (instance & BacnetEnums.BacnetMaxInstance);
@@ -96,11 +96,11 @@ namespace ConnectTools.BACnet.Properties
         public static uint SetPropertyId(ref byte[] bytes, uint pos,
             BacnetEnums.BacnetPropertyId type)
         {
-            var value = (uint) type;
+            var value = (uint)type;
             if (value <= 255)
             {
                 bytes[pos++] = 0x19;
-                bytes[pos++] = (byte) type;
+                bytes[pos++] = (byte)type;
             }
             else if (value < 65535)
             {
@@ -121,11 +121,11 @@ namespace ConnectTools.BACnet.Properties
         /// <returns></returns>
         public static uint SetArrayIdx(ref byte[] bytes, uint pos, int aidx)
         {
-            var value = (uint) aidx;
+            var value = (uint)aidx;
             if (value <= 255)
             {
                 bytes[pos++] = 0x29;
-                bytes[pos++] = (byte) aidx;
+                bytes[pos++] = (byte)aidx;
             }
             else if (value < 65535)
             {
@@ -166,7 +166,7 @@ namespace ConnectTools.BACnet.Properties
                         if (value <= 255) // 1 byte
                         {
                             bytes[pos++] = 0x21;
-                            bytes[pos++] = (byte) value;
+                            bytes[pos++] = (byte)value;
                         }
                         else if (value <= 65535) // 2 bytes
                         {
@@ -212,7 +212,7 @@ namespace ConnectTools.BACnet.Properties
                         // Tag is 0x65, maximum 16 bytes!
                         bytes[pos++] = 0x65;
                         len = property.ValueOctet.Length;
-                        bytes[pos++] = (byte) len;
+                        bytes[pos++] = (byte)len;
                         for (var i = 0; i < len; i++)
                             bytes[pos++] = property.ValueOctet[i];
                         break;
@@ -220,20 +220,20 @@ namespace ConnectTools.BACnet.Properties
                         // Tag is 0x75, maximum 15 chars!
                         bytes[pos++] = 0x75;
                         len = property.ValueString.Length;
-                        bytes[pos++] = (byte) (len + 1); // Include character set byte
+                        bytes[pos++] = (byte)(len + 1); // Include character set byte
                         bytes[pos++] = 0; // ANSI
                         for (var i = 0; i < len; i++)
-                            bytes[pos++] = (byte) property.ValueString[i];
+                            bytes[pos++] = (byte)property.ValueString[i];
                         break;
                     case BacnetEnums.BacnetApplicationTag.BacnetApplicationTagEnumerated:
                         // Tag could be 0x91, 0x92, 0x93, 0x94
                         bytes[pos++] = 0x91;
-                        bytes[pos++] = (byte) property.ValueEnum;
+                        bytes[pos++] = (byte)property.ValueEnum;
                         break;
                     case BacnetEnums.BacnetApplicationTag.BacnetApplicationTagObjectId:
                         // Tag is 0xC4
                         bytes[pos++] = 0xC4;
-                        var id = ((uint) property.ValueObjectType) << 22;
+                        var id = ((uint)property.ValueObjectType) << 22;
                         id += (property.ValueObjectInstance & 0x3FFFFF);
                         var temp6 = BitConverter.GetBytes(id);
                         bytes[pos++] = temp6[3];
@@ -319,7 +319,7 @@ namespace ConnectTools.BACnet.Properties
             {
                 property.Tag = BacnetEnums.BacnetApplicationTag.BacnetApplicationTagObjectId;
                 var value = AppUInt32(bytes, offset);
-                property.ValueObjectType = (BacnetEnums.BacnetObjectType) (value >> 22);
+                property.ValueObjectType = (BacnetEnums.BacnetObjectType)(value >> 22);
                 property.ValueObjectInstance = value & 0x3FFFFF;
                 property.ToStringValue = property.ValueObjectInstance.ToString();
             }
@@ -339,7 +339,7 @@ namespace ConnectTools.BACnet.Properties
         public static uint SetPriority(ref byte[] bytes, uint pos, int priority)
         {
             bytes[pos++] = 0x49;
-            bytes[pos++] = (byte) priority;
+            bytes[pos++] = (byte)priority;
             return pos;
         }
 

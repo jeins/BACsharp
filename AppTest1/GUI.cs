@@ -12,6 +12,8 @@
 // Kieback&Peter and is expressly PROHIBITED.
 // -----------------------------------------------------------------------------------
 
+using System.Net;
+
 namespace ConnectTools
 {
     using System;
@@ -35,7 +37,7 @@ namespace ConnectTools
         {
             InitializeComponent();
 
-            _bacnetManager = new BacnetManager(System.Net.Dns.GetHostByName(Environment.MachineName).AddressList[0]);
+            _bacnetManager = new BacnetManager();
             _bacnetDevice = null;
 
             lblBBMDStatus.BackColor = Color.Red;
@@ -46,7 +48,7 @@ namespace ConnectTools
 
         private void btnGetDevice_Click(object sender, EventArgs e)
         {
-            _bacnetDevices = _bacnetManager.FindBaCnetDevices();
+            _bacnetDevices = _bacnetManager.FindBacnetDevices();
             listDevices.Items.Clear();
             if (_bacnetDevices.Count == 0)
             {

@@ -81,7 +81,7 @@ namespace ConnectTools.BACnet.Properties
         /// </returns>
         public static bool operator ==(Device obj1, Device obj2)
         {
-            if ((null == (object) obj1) || (null == (object) obj2))
+            if ((null == (object)obj1) || (null == (object)obj2))
             {
                 return false;
             }

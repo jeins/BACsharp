@@ -28,7 +28,7 @@ namespace ConnectTools.BACnet
         ///     Reading the required Device properties can be accomplished with a single ReadPropertyMultiple request.
         /// </remarks>
         /// <returns>A list of all found BACnet IP devices.</returns>
-        List<BacnetDevice> FindBaCnetDevices();
+        List<BacnetDevice> FindBacnetDevices();
 
         /// <summary>
         ///     Finds the device properties.
@@ -48,7 +48,7 @@ namespace ConnectTools.BACnet
         /// </summary>
         /// <param name="ipAddress">The ip address.</param>
         /// <returns>The BACnet Device Instance Number or 4194303 (BACnet "null") if not a BACnet device.</returns>
-        int GetBaCnetDeviceInstanceNumber(IPEndPoint ipAddress);
+        int GetBacnetDeviceInstanceNumber(IPEndPoint ipAddress);
 
         /// <summary>
         ///     Determines whether the BBMD is enabled.
